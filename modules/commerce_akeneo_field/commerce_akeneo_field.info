@@ -1,0 +1,21 @@
+name = Commerce Akeneo Field
+description = Add support for Field (numeric, text, file, image, ...).
+package = Commerce (product)
+core = 7.x
+
+dependencies[] = file
+dependencies[] = image
+dependencies[] = number
+dependencies[] = text
+dependencies[] = list
+
+dependencies[] = commerce_price
+
+dependencies[] = commerce_akeneo
+dependencies[] = boolean
+dependencies[] = date
+dependencies[] = mvf
+dependencies[] = units_akeneo
+
+#dependencies[] = link
+#dependencies[] = mail

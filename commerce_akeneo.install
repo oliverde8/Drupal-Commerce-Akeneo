@@ -1,0 +1,22 @@
+<?php
+
+/**
+ * @file
+ * Install file for Commerce Akeneo module.
+ */
+
+/**
+ * Implements hook_install().
+ */
+function commerce_akeneo_install() {
+  // Load existing values.
+  $entity_types = variable_get('entity_translation_entity_types', array());
+
+  // Enable entity translation.
+  $entity_types['node']             = 'node';
+  $entity_types['taxonomy_term']    = 'taxonomy_term';
+  $entity_types['commerce_product'] = 'commerce_product';
+
+  // Store updated values.
+  variable_set('entity_translation_entity_types', $entity_types);
+}

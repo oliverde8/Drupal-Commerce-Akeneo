@@ -1,0 +1,17 @@
+name = Commerce Akeneo
+description = Provides connectivity between Drupal Commerce and Akeneo PIM (Product Information Management).
+package = Commerce (product)
+core = 7.x
+configure = admin/commerce/config/akeneo
+
+dependencies[] = taxonomy
+dependencies[] = translation
+
+dependencies[] = commerce_product
+
+dependencies[] = entity_translation
+dependencies[] = entityreference
+dependencies[] = taxonomy_machine_name
+dependencies[] = libraries
+dependencies[] = services
+dependencies[] = rest_server

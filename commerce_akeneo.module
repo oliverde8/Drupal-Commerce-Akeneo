@@ -1,0 +1,74 @@
+<?php
+
+/**
+ * @file
+ * Module file for Commerce Akeneo module.
+ */
+
+require_once 'commerce_akeneo.api.inc';
+require_once 'commerce_akeneo.services.inc';
+
+/**
+ * Implements hook_ctools_plugin_api().
+ */
+function commerce_akeneo_ctools_plugin_api($module, $api) {
+  if ($module == 'services' && $api == 'services') {
+    return array('version' => 3);
+  }
+}
+
+/**
+ * Implements hook_menu().
+ */
+function commerce_akeneo_menu() {
+  $items = array();
+
+  $items['admin/config/services/akeneo'] = array(
+    'title'            => 'Commerce Akeneo Connector',
+    'description'      => 'Configure the Akeneo Connector settings for Drupal Commerce.',
+    'parent'           => 'admin/config/services',
+    'page callback'    => 'commerce_akeneo_callback_config',
+    'access arguments' => array('administer commerce akeneo'),
+    'type'             => MENU_NORMAL_ITEM,
+  );
+
+  return $items;
+}
+
+/**
+ * Menu callback for config page.
+ *
+ * @return string
+ *   Content.
+ */
+function commerce_akeneo_callback_config() {
+  return 'foo';
+}
+
+/**
+ * Implements hook_permission().
+ */
+function commerce_akeneo_permission() {
+  return array(
+    'administer commerce akeneo'                => array(
+      'title'       => t('Administer Commerce Akeneo'),
+      'description' => t('Perform administration for Commerce Akeneo'),
+    ),
+    'resource product commerce akeneo'          => array(
+      'title'       => t('Service: %service', array('%service' => 'product')),
+      'description' => t("Save a product based on it's SKU (create/update)."),
+    ),
+    'resource family commerce akeneo'           => array(
+      'title'       => t('Service: %service', array('%service' => 'family')),
+      'description' => t('Synchronize families (product variant).'),
+    ),
+    'resource category commerce akeneo'         => array(
+      'title'       => t('Service: %service', array('%service' => 'category')),
+      'description' => t('Synchronize categories.'),
+    ),
+    'resource attribute option commerce akeneo' => array(
+      'title'       => t('Service: %service', array('%service' => 'attribute option')),
+      'description' => t('Synchronize attributes options (taxonomies).'),
+    ),
+  );
+}

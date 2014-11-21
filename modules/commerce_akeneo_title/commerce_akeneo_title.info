@@ -1,0 +1,7 @@
+name = Commerce Akeneo Title
+description = Add support for Title.
+package = Commerce (product)
+core = 7.x
+
+dependencies[] = commerce_akeneo
+dependencies[] = title
