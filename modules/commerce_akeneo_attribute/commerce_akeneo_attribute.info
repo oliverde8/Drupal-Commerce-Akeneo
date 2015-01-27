@@ -1,0 +1,7 @@
+name = Commerce Akeneo Attribute
+description = Add support for Attribute.
+package = Commerce (product)
+core = 7.x
+
+dependencies[] = commerce_akeneo
+dependencies[] = commerce_akeneo_family

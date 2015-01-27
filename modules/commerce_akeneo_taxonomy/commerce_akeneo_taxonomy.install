@@ -1,0 +1,65 @@
+<?php
+
+/**
+ * @file
+ * Commerce Akeneo taxonomy install file.
+ */
+
+function commerce_akeneo_taxonomy_schema() {
+  $schema = array();
+
+  $schema['commerce_akeneo_taxonomy'] = array(
+    'description' => 'Commerce Akeneo Taxonomy.',
+    'fields'      => array(
+      'tid'        => array(
+        'type'        => 'serial',
+        'not null'    => TRUE,
+        'description' => 'Primary Key: Unique taxonomy ID.',
+      ),
+      'code'       => array(
+        'type'        => 'varchar',
+        'length'      => 64,
+        'not null'    => TRUE,
+        'description' => 'The code of the taxonomy as known under Akeneo.',
+      ),
+      'type'       => array(
+        'type'        => 'varchar',
+        'length'      => 64,
+        'not null'    => TRUE,
+        'description' => 'The type of the taxonomy (option|category).',
+      ),
+      'label'      => array(
+        'type'        => 'varchar',
+        'length'      => 255,
+        'not null'    => TRUE,
+        'description' => 'The name of the taxonomy in the default Drupal language.',
+        'default'     => '',
+      ),
+      'vocabulary' => array(
+        'type'        => 'varchar',
+        'length'      => 255,
+        'not null'    => FALSE,
+        'description' => 'The vocabulary machine name.',
+      ),
+      'created'    => array(
+        'type'        => 'int',
+        'not null'    => TRUE,
+        'description' => 'The Unix timestamp when the taxonomy was created.',
+        'default'     => 0,
+      ),
+      'changed'    => array(
+        'type'        => 'int',
+        'not null'    => TRUE,
+        'description' => 'The Unix timestamp when the taxonomy was most recently saved.',
+        'default'     => 0,
+      ),
+    ),
+    'primary key' => array('tid'),
+    'unique keys' => array(
+      'code'       => array('code', 'type'),
+      'vocabulary' => array('vocabulary'),
+    ),
+  );
+
+  return $schema;
+}

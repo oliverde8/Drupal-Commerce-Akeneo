@@ -1,0 +1,8 @@
+name = Commerce Akeneo Taxonomy
+description = Add support for Taxonomy (attribute options and catalog).
+package = Commerce (product)
+core = 7.x
+
+dependencies[] = commerce_akeneo_product
+dependencies[] = taxonomy_machine_name
+dependencies[] = services

@@ -1,0 +1,99 @@
+<?php
+
+/**
+ * @file
+ * Commerce Akeneo Field Group module.
+ */
+
+/**
+ * Implements hook_ctools_plugin_directory().
+ */
+function commerce_akeneo_family_ctools_plugin_directory($owner, $plugin_type) {
+  if ($owner == 'commerce_akeneo') {
+    return "plugins/$plugin_type";
+  }
+}
+
+/**
+ * @param string $code
+ *
+ * @return mixed
+ */
+function commerce_akeneo_family_load($code) {
+  $result = db_select('commerce_akeneo_family', 't')
+    ->fields('t')
+    ->condition('code', $code)
+    ->execute()
+    ->fetchAssoc();
+
+  return $result;
+}
+
+/**
+ * @return array
+ */
+function commerce_akeneo_family_load_all() {
+  $results = db_select('commerce_akeneo_family', 't')
+    ->fields('t')
+    ->execute()
+    ->fetchAllAssoc('fid');
+
+  return $results;
+}
+
+/**
+ * @param array $family
+ *
+ * @return \DatabaseStatementInterface|int
+ * @throws \Exception
+ */
+function commerce_akeneo_family_save(&$family) {
+  // Check required arguments.
+  if (!isset($family['code'])) {
+    throw new \Exception('Invalid argument');
+  }
+
+  // Set default values.
+  $family += array(
+    'fid'      => NULL,
+    'label'    => $family['code'],
+    'created'  => REQUEST_TIME,
+    'changed'  => REQUEST_TIME,
+    'settings' => array(),
+  );
+
+  // Serialize for database storing.
+  $settings           = $family['settings'];
+  $family['settings'] = serialize($family['settings']);
+
+  if (empty($family['fid'])) {
+    $fid = db_insert('commerce_akeneo_family')
+      ->fields(array_keys($family))
+      ->values(array_values($family))
+      ->execute();
+
+    $family['fid'] = $fid;
+  }
+  else {
+    unset($family['created']);
+
+    db_update('commerce_akeneo_family')
+      ->condition('fid', $family['fid'])
+      ->fields($family)
+      ->execute();
+  }
+
+  // Restore settings.
+  $family['settings'] = $settings;
+
+  return TRUE;
+}
+
+/**
+ * @param string $code
+ */
+function commerce_akeneo_family_delete($code) {
+  module_invoke_all('commerce_akeneo_family_delete', $code);
+
+  db_delete('commerce_akeneo_family')->condition('code', $code)->execute();
+}

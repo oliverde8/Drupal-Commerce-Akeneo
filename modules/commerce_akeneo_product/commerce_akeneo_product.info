@@ -1,0 +1,7 @@
+name = Commerce Akeneo Product
+description = Add support for Product.
+package = Commerce (product)
+core = 7.x
+
+dependencies[] = services
+dependencies[] = commerce_akeneo

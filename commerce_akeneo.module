@@ -5,6 +5,10 @@
  * Module file for Commerce Akeneo module.
  */
 
+require_once dirname(__FILE__) . '/includes/CommerceAkeneoFieldInterface.inc';
+require_once dirname(__FILE__) . '/includes/CommerceAkeneoException.inc';
+
+require_once 'commerce_akeneo.ctools.inc';
 require_once 'commerce_akeneo.api.inc';
 require_once 'commerce_akeneo.services.inc';
 
@@ -27,22 +31,13 @@ function commerce_akeneo_menu() {
     'title'            => 'Commerce Akeneo Connector',
     'description'      => 'Configure the Akeneo Connector settings for Drupal Commerce.',
     'parent'           => 'admin/config/services',
-    'page callback'    => 'commerce_akeneo_callback_config',
+    'page callback'    => 'commerce_akeneo_settings_page',
+    'file'             => 'commerce_akeneo.admin.inc',
     'access arguments' => array('administer commerce akeneo'),
     'type'             => MENU_NORMAL_ITEM,
   );
 
   return $items;
-}
-
-/**
- * Menu callback for config page.
- *
- * @return string
- *   Content.
- */
-function commerce_akeneo_callback_config() {
-  return 'foo';
 }
 
 /**
@@ -71,4 +66,97 @@ function commerce_akeneo_permission() {
       'description' => t('Synchronize attributes options (taxonomies).'),
     ),
   );
+}
+
+/**
+ * Generate a new vocabulary machine name.
+ *
+ * @param string $code
+ *   Akeneo code.
+ * @param string $type
+ *   Code (category|option|field).
+ *
+ * @return string
+ *   Machine name.
+ *
+ * @throws Exception
+ */
+function commerce_akeneo_get_machine_name($code, $type = 'option') {
+  if ($type == 'category') {
+    $machine_name = variable_get('commerce_akeneo_prefix_category', 'catalog_') . $code;
+  }
+  elseif ($type == 'option') {
+    $machine_name = variable_get('commerce_akeneo_prefix_option', 'option_') . $code;
+  }
+  elseif ($type == 'field') {
+    $machine_name = variable_get('commerce_akeneo_prefix_field', 'akeneo_') . $code;
+  }
+  else {
+    throw new \Exception(t('Unsupported type @type for machine name.', array('@type' => $type)));
+  }
+
+  drupal_alter('commerce_akeneo_get_machine_name', $machine_name, $code, $type);
+
+  return $machine_name;
+}
+
+/**
+ * Convert locale to language.
+ *
+ * @param string $locale
+ *   Locale to be converted.
+ *
+ * @return mixed
+ *   Language.
+ */
+function commerce_akeneo_locale_to_language($locale) {
+  $languages = &drupal_static(__FUNCTION__);
+
+  if (!isset($languages[$locale])) {
+    if ($locale != LANGUAGE_NONE) {
+      list($language) = explode('_', $locale);
+    }
+    else {
+      $language = LANGUAGE_NONE;
+    }
+
+    drupal_alter('commerce_akeneo_locale_to_language', $language, $locale);
+
+    $languages[$locale] = $language;
+  }
+
+  return $languages[$locale];
+}
+
+/**
+ * @param array  $values
+ * @param string $language
+ * @param bool   $fallback
+ *
+ * @return mixed
+ */
+function commerce_akeneo_get_language($values, $language = NULL, $fallback = TRUE) {
+  if (empty($values)) {
+    return FALSE;
+  }
+
+  if (is_null($language)) {
+    $language = language_default('language');
+  }
+
+  foreach ($values as $locale => $value) {
+    if (commerce_akeneo_locale_to_language($locale) == $language) {
+      return filter_xss($value);
+    }
+  }
+
+  if (isset($values[LANGUAGE_NONE])) {
+    return filter_xss($values[LANGUAGE_NONE]);
+  }
+
+  if ($fallback && count($values)) {
+    return current($values);
+  }
+
+  return FALSE;
 }

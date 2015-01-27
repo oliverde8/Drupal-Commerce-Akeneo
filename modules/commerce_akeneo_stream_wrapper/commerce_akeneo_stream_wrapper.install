@@ -1,0 +1,35 @@
+<?php
+
+/**
+ * @file
+ * Akeneo Stream Wrapper install file.
+ */
+
+/**
+ * Implements hook_requirements().
+ */
+function commerce_akeneo_stream_wrapper_requirements($phase) {
+  $requirements = array();
+
+  // Ensure translations don't break during installation.
+  $t = get_t();
+
+  if ($phase == 'runtime') {
+    $username = variable_get('commerce_akeneo_stream_wrapper_username', NULL);
+    $api_key  = variable_get('commerce_akeneo_stream_wrapper_apikey', NULL);
+    $salt     = variable_get('commerce_akeneo_stream_wrapper_salt', NULL);
+
+    if (empty($username) || empty($api_key) || empty($salt)) {
+      $requirements['akeneo_wrapper'] = array(
+        'title'    => $t('Akeneo wrapper'),
+        'value'    => $t(
+          'You need to setup <a href="@url">security parameters</a> in order to use Akeneo wrapper.',
+          array('@url' => url('admin/config/services/akeneo'))
+        ),
+        'severity' => REQUIREMENT_ERROR,
+      );
+    }
+  }
+
+  return $requirements;
+}

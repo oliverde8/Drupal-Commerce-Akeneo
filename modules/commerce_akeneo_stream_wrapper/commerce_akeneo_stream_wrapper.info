@@ -1,0 +1,12 @@
+name = Commerce Akeneo Stream Wrapper
+description = Add support for Stream Wrapper for media.
+package = Commerce (product)
+core = 7.x
+
+files[] = commerce_akeneo_stream_wrapper.inc
+files[] = CommerceAkeneoStreamWrapperMediaBrowser.inc
+files[] = commerce_akeneo_stream_wrapper.test
+
+suggests[] = file
+suggests[] = media
+suggests[] = image

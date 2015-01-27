@@ -1,0 +1,75 @@
+<?php
+
+/**
+ * @file
+ * Commmerce Akeneo Attribute install file.
+ */
+
+function commerce_akeneo_attribute_schema() {
+  $schema = array();
+
+  $schema['commerce_akeneo_attribute'] = array(
+    'description'  => 'Commerce Akeneo Attributes.',
+    'fields'       => array(
+      'aid'      => array(
+        'type'        => 'serial',
+        'not null'    => TRUE,
+        'description' => 'Primary Key: Unique attribute ID.',
+      ),
+      'family'   => array(
+        'type'        => 'varchar',
+        'length'      => 64,
+        'not null'    => TRUE,
+        'description' => '{commerce_akeneo_family}.code that this attribute refers.',
+      ),
+      'code'     => array(
+        'type'        => 'varchar',
+        'length'      => 64,
+        'not null'    => TRUE,
+        'description' => 'The code of the attribute.',
+      ),
+      'type'     => array(
+        'type'        => 'varchar',
+        'length'      => 64,
+        'not null'    => TRUE,
+        'description' => 'The type of the attribute.',
+      ),
+      'label'    => array(
+        'type'        => 'varchar',
+        'length'      => 255,
+        'not null'    => TRUE,
+        'description' => 'The label of the attribute.',
+        'default'     => '',
+      ),
+      'created'  => array(
+        'type'        => 'int',
+        'not null'    => TRUE,
+        'description' => 'The Unix timestamp when the attribute was created.',
+        'default'     => 0,
+      ),
+      'changed'  => array(
+        'type'        => 'int',
+        'not null'    => TRUE,
+        'description' => 'The Unix timestamp when the attribute was most recently saved.',
+        'default'     => 0,
+      ),
+      'settings' => array(
+        'type'        => 'blob',
+        'not null'    => TRUE,
+        'description' => '',
+      ),
+    ),
+    'primary key'  => array('aid'),
+    'foreign keys' => array(
+      'commerce_akeneo_family' => array(
+        'table'   => 'commerce_akeneo_family',
+        'columns' => array('family' => 'code'),
+      ),
+    ),
+    'unique keys'  => array(
+      'code' => array('family', 'code'),
+    ),
+  );
+
+  return $schema;
+}

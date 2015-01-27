@@ -1,0 +1,20 @@
+<?php
+
+/**
+ * @file
+ * Set up the migration module.
+ */
+
+/**
+ * Implements hook_disable().
+ */
+function commerce_akeneo_migrate_disable() {
+  MigrateGroup::deregister(COMMERCE_AKENEO_MIGRATE_GROUP_NAME);
+}
+
+/**
+ * Implements hook_uninstall().
+ */
+function commerce_akeneo_migrate_uninstall() {
+  variable_del('commerce_akeneo_migrate_lease_time');
+}

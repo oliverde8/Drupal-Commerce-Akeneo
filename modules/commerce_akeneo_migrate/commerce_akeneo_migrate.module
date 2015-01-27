@@ -1,0 +1,17 @@
+<?php
+
+/**
+ * @file
+ * Commerce Akeneo Migrate module.
+ */
+
+const COMMERCE_AKENEO_MIGRATE_DEFAULT_LEASE_TIME = 60;
+const COMMERCE_AKENEO_MIGRATE_GROUP_NAME         = 'commerce_akeneo';
+
+require_once dirname(__FILE__) . '/includes/MigrateSourceQueue.inc';
+require_once dirname(__FILE__) . '/includes/MigrateSQLEntityAPIMap.inc';
+require_once dirname(__FILE__) . '/includes/MigrateSQLEntityAPIQueueMap.inc';
+require_once dirname(__FILE__) . '/includes/CommerceAkeneoMigrateProduct.inc';
+
+require_once dirname(__FILE__) . '/commerce_akeneo_migrate.admin.inc';
+require_once dirname(__FILE__) . '/commerce_akeneo_migrate.migrate.inc';

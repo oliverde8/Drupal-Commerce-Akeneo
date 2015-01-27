@@ -1,0 +1,13 @@
+name = Commerce Akeneo Migrate
+description = Add support for product import using Migrate.
+package = Commerce (product)
+core = 7.x
+
+dependencies[] = migrate
+dependencies[] = migrate_extras
+dependencies[] = commerce_migrate
+dependencies[] = commerce_akeneo
+dependencies[] = commerce_akeneo_product
+dependencies[] = commerce_akeneo_field
+dependencies[] = commerce_akeneo_attribute
+dependencies[] = commerce_akeneo_stream_wrapper

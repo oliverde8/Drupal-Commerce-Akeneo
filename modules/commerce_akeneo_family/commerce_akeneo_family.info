@@ -1,0 +1,7 @@
+name = Commerce Akeneo Family
+description = Add support for Family.
+package = Commerce (product)
+core = 7.x
+
+dependencies[] = commerce_akeneo
+dependencies[] = commerce_product

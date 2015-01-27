@@ -3,19 +3,22 @@ description = Add support for Field (numeric, text, file, image, ...).
 package = Commerce (product)
 core = 7.x
 
+; Drupal Core
 dependencies[] = file
 dependencies[] = image
 dependencies[] = number
 dependencies[] = text
 dependencies[] = list
 
-dependencies[] = commerce_price
-
+; Contrib
 dependencies[] = commerce_akeneo
+dependencies[] = commerce_price
 dependencies[] = boolean
 dependencies[] = date
 dependencies[] = mvf
 dependencies[] = units_akeneo
+dependencies[] = taxonomy_machine_name
+dependencies[] = entityreference
 
-#dependencies[] = link
-#dependencies[] = mail
+;dependencies[] = link
+;dependencies[] = mail

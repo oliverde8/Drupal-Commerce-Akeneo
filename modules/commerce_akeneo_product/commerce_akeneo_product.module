@@ -1,0 +1,36 @@
+<?php
+
+/**
+ * @file
+ * Commerce Akeneo Product module.
+ */
+
+/**
+ * Implements hook_ctools_plugin_directory().
+ */
+function commerce_akeneo_product_ctools_plugin_directory($owner, $plugin_type) {
+  if ($owner == 'commerce_akeneo') {
+    return "plugins/$plugin_type";
+  }
+}
+
+/**
+ * Instance and create the Product queue.
+ *
+ * @param string $name
+ *   Name.
+ * @param bool   $create
+ *   Create the queue.
+ *
+ * @return \DrupalReliableQueueInterface
+ */
+function commerce_akeneo_product_queue_load($name, $create = FALSE) {
+  /** @var DrupalReliableQueueInterface $queue */
+  $queue = DrupalQueue::get('commerce_akeneo_product:' . drupal_strtolower($name));
+
+  if ($create) {
+    $queue->createQueue();
+  }
+
+  return $queue;
+}

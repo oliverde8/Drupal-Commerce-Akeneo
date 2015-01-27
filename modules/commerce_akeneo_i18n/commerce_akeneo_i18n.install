@@ -8,7 +8,7 @@
 /**
  * Implements hook_install().
  */
-function commerce_akeneo_install() {
+function commerce_akeneo_i18n_install() {
   // Load existing values.
   $entity_types = variable_get('entity_translation_entity_types', array());
 
@@ -19,16 +19,4 @@ function commerce_akeneo_install() {
 
   // Store updated values.
   variable_set('entity_translation_entity_types', $entity_types);
-
-  // Akeneo settings.
-  variable_set('commerce_akeneo_field_prefix', 'akeneo_');
-  variable_set('commerce_akeneo_product_type_prefix', 'akeneo_');
-}
-
-/**
- * Implements hook_uninstall().
- */
-function commerce_akeneo_uninstall() {
-  variable_del('commerce_akeneo_field_prefix');
-  variable_del('commerce_akeneo_product_type_prefix');
 }

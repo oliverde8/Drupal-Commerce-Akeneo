@@ -1,0 +1,157 @@
+<?php
+
+/**
+ * @file
+ * Commerce Akeneo Taxonomy module.
+ */
+
+/**
+ * Implements hook_ctools_plugin_directory().
+ */
+function commerce_akeneo_taxonomy_ctools_plugin_directory($owner, $plugin_type) {
+  if ($owner == 'commerce_akeneo') {
+    return "plugins/$plugin_type";
+  }
+}
+
+/**
+ * Implements hook_commerce_akeneo_taxonomy_vocabulary_save_alter().
+ */
+function commerce_akeneo_taxonomy_commerce_akeneo_taxonomy_vocabulary_save_alter($vocabulary, $request) {
+  $options = isset($request['options']) ? $request['options'] : $request['children'];
+  $terms   = array();
+
+  // Create or update terms.
+  foreach ($options as $machine_name => $option) {
+    if (!$term = taxonomy_term_machine_name_load($machine_name, $vocabulary)) {
+      $term = (object) array(
+        'vid'          => $vocabulary->vid,
+        'machine_name' => drupal_strtolower($machine_name),
+        'description'  => '',
+        'format'       => 'plain_text',
+      );
+    }
+
+    $term->name = commerce_akeneo_get_language($option['labels']);
+
+    // Save term and generate tid.
+    taxonomy_term_save($term);
+
+    module_invoke_all('commerce_akeneo_taxonomy_term_save', $term, $option);
+
+    $terms[$term->machine_name] = $term;
+  }
+
+  // Support for parent property.
+  foreach ($options as $machine_name => $option) {
+    // Skip parent for root category.
+    if (isset($option['parent']) && isset($terms[$option['parent']])) {
+      $term         = $terms[drupal_strtolower($machine_name)];
+      $parent_term  = $terms[$option['parent']];
+      $term->parent = $parent_term->tid;
+
+      // Save term and generate tid.
+      taxonomy_term_save($term);
+    }
+  }
+}
+
+/**
+ * @param string $code
+ *
+ * @return mixed
+ */
+function commerce_akeneo_taxonomy_load($code, $type = 'option') {
+  $result = db_select('commerce_akeneo_taxonomy', 't')
+    ->fields('t')
+    ->condition('code', $code)
+    ->condition('type', $type)
+    ->execute()
+    ->fetchAssoc();
+
+  if ($result) {
+    return (object) $result;
+  }
+  else {
+    return NULL;
+  }
+}
+
+/**
+ * @return array
+ */
+function commerce_akeneo_taxonomy_load_all() {
+  $results = db_select('commerce_akeneo_taxonomy', 't')
+    ->fields('t')
+    ->execute();
+
+  $taxonomies = array();
+
+  if ($results) {
+    foreach ($results as $key => $result) {
+      $taxonomies[$key] = (object) $result;
+    }
+  }
+
+  return $taxonomies;
+}
+
+/**
+ * @param array $taxonomy
+ *
+ * @return \DatabaseStatementInterface|int
+ * @throws \Exception
+ */
+function commerce_akeneo_taxonomy_save(&$taxonomy) {
+  // Check required arguments.
+  if (!isset($taxonomy->code)) {
+    throw new \Exception('Invalid argument');
+  }
+
+  if (empty($taxonomy->created)) {
+    $taxonomy->created = REQUEST_TIME;
+  }
+
+  $taxonomy->changed = REQUEST_TIME;
+
+  if (empty($taxonomy->vocabulary)) {
+    $taxonomy->vocabulary = commerce_akeneo_get_machine_name($taxonomy->code, $taxonomy->type);
+  }
+
+  $fields = (array) $taxonomy;
+
+  if (empty($taxonomy->tid)) {
+    $tid = db_insert('commerce_akeneo_taxonomy')
+      ->fields(array_keys($fields))
+      ->values(array_values($fields))
+      ->execute();
+
+    $taxonomy->tid = $tid;
+  }
+  else {
+    unset($fields['created']);
+
+    db_update('commerce_akeneo_taxonomy')
+      ->condition('tid', $taxonomy->tid)
+      ->fields($fields)
+      ->execute();
+  }
+
+  return TRUE;
+}
+
+/**
+ * @param string $code
+ */
+function commerce_akeneo_taxonomy_delete($code) {
+  db_delete('commerce_akeneo_taxonomy')->condition('code', $code)->execute();
+}
+
+/**
+ * Implements hook_entity_delete().
+ */
+function commerce_akeneo_taxonomy_entity_delete($entity, $type) {
+  if ($type == 'taxonomy_vocabulary') {
+    db_delete('commerce_akeneo_taxonomy')->condition('vocabulary', $entity->machine_name)->execute();
+  }
+}

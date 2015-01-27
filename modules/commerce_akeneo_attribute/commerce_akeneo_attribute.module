@@ -1,0 +1,238 @@
+<?php
+
+/**
+ * @file
+ */
+
+// Classes and Interfaces.
+require_once dirname(__FILE__) . '/includes/CommerceAkeneoAttributeInterface.inc';
+require_once dirname(__FILE__) . '/includes/CommerceAkeneoAttributeAbstract.inc';
+
+/**
+ * Implements hook_ctools_plugin_directory().
+ */
+function commerce_akeneo_attribute_ctools_plugin_directory($owner, $plugin_type) {
+  if ($owner == 'commerce_akeneo') {
+    return "plugins/$plugin_type";
+  }
+}
+
+/**
+ * Implements hook_commerce_akeneo_attribute_mapping_info().
+ */
+function commerce_akeneo_attribute_commerce_akeneo_attribute_mapping_info() {
+  $attributes['sku'] = array(
+    'names' => array('sku'),
+    'skip'  => TRUE,
+  );
+
+  $attributes['pictures'] = array(
+    'match'        => '/^pictures_[0-9]+$/',
+    'type'         => 'pim_akeneo_image',
+    'field_name'   => 'pictures',
+    'field_locked' => TRUE,
+  );
+
+  return $attributes;
+}
+
+/**
+ * @param bool $refresh
+ *
+ * @return array
+ */
+function commerce_akeneo_attribute_mapping($refresh = FALSE) {
+  $cid = 'commerce_akeneo:attribute_mapping';
+
+  if (($cache = cache_get($cid)) && !$refresh) {
+    return $cache->data;
+  }
+
+  $attributes = module_invoke_all('commerce_akeneo_attribute_mapping_info');
+
+  // Add default properties.
+  foreach ($attributes as $key => $attribute) {
+    $attributes[$key] += array(
+      'names'        => array(),
+      'skip'         => FALSE,
+      'match'        => FALSE,
+      'type'         => NULL,
+      'field_name'   => NULL,
+      'field_locked' => FALSE,
+    );
+  }
+
+  drupal_alter('commerce_akeneo_attribute_mapping_info', $attributes);
+
+  cache_set($cid, $attributes);
+
+  return $attributes;
+}
+
+function commerce_akeneo_attribute_dispatch_by_fields($attributes) {
+  $fields   = array();
+  $mappings = commerce_akeneo_attribute_mapping();
+
+  foreach ($attributes as $attribute) {
+    $found = FALSE;
+
+    foreach ($mappings as $mapping) {
+      if (in_array($attribute['code'], $mapping['names']) ||
+        (!empty($mapping['match']) && preg_match($mapping['match'], $attribute['code']))
+      ) {
+        $found = TRUE;
+
+        if (!$mapping['skip'] && !is_null($mapping['field_name'])) {
+          if (!isset($fields[$mapping['field_name']])) {
+            $fields[$mapping['field_name']] = array(
+              'field_name'   => $mapping['field_name'],
+              'field_locked' => $mapping['field_locked'],
+              'attributes'   => array(),
+            );
+          }
+
+          $fields[$mapping['field_name']]['attributes'][$attribute['code']] = $attribute;
+        }
+
+        break;
+      }
+    }
+
+    if (!$found) {
+      $field_name = commerce_akeneo_get_machine_name($attribute['code'], 'field');
+
+      $fields[$field_name] = array(
+        'field_name'   => $field_name,
+        'field_locked' => FALSE,
+        'attributes'   => array($attribute['code'] => $attribute),
+      );
+    }
+  }
+
+  return $fields;
+}
+
+/**
+ * @param string $code
+ * @param string $family
+ *
+ * @return mixed
+ */
+function commerce_akeneo_attribute_load($code, $family) {
+  $result = db_select('commerce_akeneo_attribute', 't')
+    ->fields('t')
+    ->condition('code', $code)
+    ->condition('family', $family)
+    ->execute()
+    ->fetchAssoc();
+
+  if ($result) {
+    $attribute             = (array) $result;
+    $attribute['settings'] = unserialize($attribute['settings']);
+  }
+
+  return $result;
+}
+
+/**
+ * @param string $code
+ * @param string $family
+ *
+ * @return array
+ */
+function commerce_akeneo_attribute_load_all($code = NULL, $family = NULL) {
+  $query = db_select('commerce_akeneo_attribute', 't')->fields('t');
+
+  if (!is_null($code)) {
+    $query->condition('code', $code);
+  }
+
+  if (!is_null($family)) {
+    $query->condition('family', $family);
+  }
+
+  $results    = $query->execute()->fetchAllAssoc('aid');
+  $attributes = array();
+
+  foreach ($results as $pos => $result) {
+    $attribute             = (array) $result;
+    $attribute['settings'] = unserialize($attribute['settings']);
+
+    $attributes[] = $attribute;
+  }
+
+  return $attributes;
+}
+
+/**
+ * @param array $attribute
+ *
+ * @return \DatabaseStatementInterface|int
+ * @throws \Exception
+ */
+function commerce_akeneo_attribute_save(&$attribute) {
+  // Check required arguments.
+  if (!isset($attribute['family']) || !isset($attribute['code']) || !isset($attribute['type'])) {
+    throw new \Exception('Invalid argument');
+  }
+
+  // Set default values.
+  $attribute += array(
+    'aid'      => NULL,
+    'label'    => $attribute['code'],
+    'created'  => REQUEST_TIME,
+    'changed'  => REQUEST_TIME,
+    'settings' => array(),
+  );
+
+  // Serialize for database storing.
+  $settings              = $attribute['settings'];
+  $attribute['settings'] = serialize($attribute['settings']);
+
+  if (empty($attribute['aid'])) {
+    $aid = db_insert('commerce_akeneo_attribute')
+      ->fields(array_keys($attribute))
+      ->values($attribute)
+      ->execute();
+
+    $attribute['aid'] = $aid;
+  }
+  else {
+    unset($attribute['created']);
+
+    db_update('commerce_akeneo_attribute')
+      ->condition('aid', $attribute['aid'])
+      ->fields($attribute)
+      ->execute();
+  }
+
+  // Restore settings.
+  $attribute['settings'] = $settings;
+
+  return TRUE;
+}
+
+/**
+ * @param string $code
+ * @param string $family
+ *
+ * @return \DatabaseStatementInterface
+ */
+function commerce_akeneo_attribute_delete($code, $family = NULL) {
+  $query = db_delete('commerce_akeneo_attribute');
+
+  $query->condition('code', $code);
+
+  if (!is_null($family)) {
+    $query->condition('family', $family);
+  }
+
+  return $query->execute();
+}
+
+/**
+ * Implements hook_commerce_akeneo_family_delete().
+ */
+function commerce_akeneo_attribute_commerce_akeneo_family_delete($family) {
+  db_delete('commerce_akeneo_attribute')->condition('family', $family)->execute();
+}

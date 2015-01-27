@@ -1,7 +1,0 @@
-name = Commerce Akeneo Field Group
-description = Add support for Field Group.
-package = Commerce (product)
-core = 7.x
-
-dependencies[] = commerce_akeneo
-dependencies[] = field_group

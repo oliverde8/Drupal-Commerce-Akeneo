@@ -1,0 +1,10 @@
+name = Commerce Akeneo i18n
+description = Add support for translations.
+package = Commerce (product)
+core = 7.x
+
+dependencies[] = commerce_akeneo
+dependencies[] = i18n
+dependencies[] = i18n_string
+dependencies[] = i18n_taxonomy
+dependencies[] = entity_translation

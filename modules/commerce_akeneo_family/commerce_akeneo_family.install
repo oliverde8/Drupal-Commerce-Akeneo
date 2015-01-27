@@ -1,0 +1,56 @@
+<?php
+
+/**
+ * @file
+ * Commerce Akeneo Family install file.
+ */
+
+function commerce_akeneo_family_schema() {
+  $schema = array();
+
+  $schema['commerce_akeneo_family'] = array(
+    'description' => 'Commerce Akeneo Families.',
+    'fields'      => array(
+      'fid'      => array(
+        'type'        => 'serial',
+        'not null'    => TRUE,
+        'description' => 'Primary Key: Unique family ID.',
+      ),
+      'code'     => array(
+        'type'        => 'varchar',
+        'length'      => 64,
+        'not null'    => TRUE,
+        'description' => 'The code of the family as known under Akeneo.',
+      ),
+      'label'    => array(
+        'type'        => 'varchar',
+        'length'      => 255,
+        'not null'    => TRUE,
+        'description' => 'The name of the family in the default Drupal language.',
+        'default'     => '',
+      ),
+      'created'  => array(
+        'type'        => 'int',
+        'not null'    => TRUE,
+        'description' => 'The Unix timestamp when the family was created.',
+        'default'     => 0,
+      ),
+      'changed'  => array(
+        'type'        => 'int',
+        'not null'    => TRUE,
+        'description' => 'The Unix timestamp when the family was most recently saved.',
+        'default'     => 0,
+      ),
+      'settings' => array(
+        'type'        => 'blob',
+        'description' => '',
+      ),
+    ),
+    'primary key' => array('fid'),
+    'unique keys' => array(
+      'code' => array('code'),
+    ),
+  );
+
+  return $schema;
+}
