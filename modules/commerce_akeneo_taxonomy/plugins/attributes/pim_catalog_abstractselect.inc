@@ -5,20 +5,10 @@
  * Plugin file to match with attribute type from Akeneo.
  */
 
-// Add dependency.
-require_once dirname(__FILE__) . '/pim_catalog_abstractselect.inc';
-
-$plugin = array(
-  'name'       => 'pim_catalog_simpleselect',
-  'title'      => t('Simple select'),
-  'class_name' => 'CommerceAkeneoAttributePimCatalogSimpleSelect',
-  'weight'     => 10,
-);
-
 /**
- * Class CommerceAkeneoAttributePimCatalogSimpleSelect
+ * Class CommerceAkeneoAttributePimCatalogAbstractSelect
  */
-class CommerceAkeneoAttributePimCatalogSimpleSelect extends CommerceAkeneoAttributePimCatalogAbstractSelect {
+class CommerceAkeneoAttributePimCatalogAbstractSelect extends CommerceAkeneoAttributeAbstract {
   /**
    * Perform matching for Akeneo attribute type with Drupal fields.
    *

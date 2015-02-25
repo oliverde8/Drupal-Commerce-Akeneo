@@ -41,4 +41,15 @@ function hook_commerce_akeneo_field_instance_alter(&$field_instance, $settings, 
  * Implements hook_commerce_akeneo_locale_to_language_alter().
  */
 function hook_commerce_akeneo_locale_to_language_alter(&$language, $locale) {
+  switch ($locale) {
+    case 'fr_CA':
+    case 'fr_FR':
+      $language = 'fr-FR';
+      break;
+
+    case 'en_GB':
+    case 'en_US':
+      $language = 'en-US';
+      break;
+  }
 }

@@ -23,10 +23,12 @@ function commerce_akeneo_taxonomy_commerce_akeneo_taxonomy_vocabulary_save_alter
 
   // Create or update terms.
   foreach ($options as $machine_name => $option) {
+    $machine_name = taxonomy_machine_name_clean_name($machine_name);
+
     if (!$term = taxonomy_term_machine_name_load($machine_name, $vocabulary)) {
       $term = (object) array(
         'vid'          => $vocabulary->vid,
-        'machine_name' => drupal_strtolower($machine_name),
+        'machine_name' => $machine_name,
         'description'  => '',
         'format'       => 'plain_text',
       );
@@ -39,19 +41,25 @@ function commerce_akeneo_taxonomy_commerce_akeneo_taxonomy_vocabulary_save_alter
 
     module_invoke_all('commerce_akeneo_taxonomy_term_save', $term, $option);
 
-    $terms[$term->machine_name] = $term;
+    // Add temporary parent name.
+    $term->parent = !empty($option['parent']) ? $option['parent'] : NULL;
+
+    // Store in local cache the old value to keep parent link.
+    $terms[$machine_name] = $term;
   }
 
   // Support for parent property.
-  foreach ($options as $machine_name => $option) {
+  foreach ($terms as $machine_name => $term) {
     // Skip parent for root category.
-    if (isset($option['parent']) && isset($terms[$option['parent']])) {
-      $term         = $terms[drupal_strtolower($machine_name)];
-      $parent_term  = $terms[$option['parent']];
-      $term->parent = $parent_term->tid;
+    if ($term->parent !== NULL) {
+      $parent = taxonomy_machine_name_clean_name($term->parent);
 
-      // Save term and generate tid.
-      taxonomy_term_save($term);
+      if (isset($terms[$parent])) {
+        $term->parent = $terms[$parent]->tid;
+
+        // Save term and generate tid.
+        taxonomy_term_save($term);
+      }
     }
   }
 }

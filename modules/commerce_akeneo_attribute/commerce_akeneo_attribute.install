@@ -28,6 +28,12 @@ function commerce_akeneo_attribute_schema() {
         'not null'    => TRUE,
         'description' => 'The code of the attribute.',
       ),
+      'group_code'    => array(
+        'type'        => 'varchar',
+        'length'      => 64,
+        'not null'    => TRUE,
+        'description' => 'The group code of the attribute.',
+      ),
       'type'     => array(
         'type'        => 'varchar',
         'length'      => 64,

@@ -5,6 +5,9 @@
  * Plugin file to match with attribute type from Akeneo.
  */
 
+// Add dependency.
+require_once dirname(__FILE__) . '/pim_catalog_abstractselect.inc';
+
 $plugin = array(
   'name'       => 'pim_catalog_multiselect',
   'title'      => t('Multi Select'),
@@ -12,13 +15,10 @@ $plugin = array(
   'weight'     => 10,
 );
 
-// Add dependency.
-require_once dirname(__FILE__) . '/pim_catalog_simpleselect.inc';
-
 /**
  * Class CommerceAkeneoAttributePimCatalogMultiSelect
  */
-class CommerceAkeneoAttributePimCatalogMultiSelect extends CommerceAkeneoAttributePimCatalogSimpleSelect {
+class CommerceAkeneoAttributePimCatalogMultiSelect extends CommerceAkeneoAttributePimCatalogAbstractSelect {
   /**
    * Perform matching for Akeneo attribute type with Drupal fields.
    *

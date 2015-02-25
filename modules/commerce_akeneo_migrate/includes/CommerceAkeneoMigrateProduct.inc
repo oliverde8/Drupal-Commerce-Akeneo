@@ -4,6 +4,9 @@
  * @file
  */
 
+require_once 'MigrateSQLEntityAPIQueueMap.inc';
+require_once 'MigrateSourceQueue.inc';
+
 /**
  * Class CommerceAkeneoMigrateProduct
  */
@@ -17,6 +20,8 @@ class CommerceAkeneoMigrateProduct extends Migration {
    * @param array $arguments
    */
   public function __construct($arguments) {
+    global $user;
+
     parent::__construct($arguments);
     $this->description = t('Import product from Akeneo services.');
 
@@ -45,16 +50,16 @@ class CommerceAkeneoMigrateProduct extends Migration {
       'status'               => t('Status'),
       'created'              => t('Created date'),
       'updated'              => t('Updated date'),
-//      'categories'           => t('Categories'),
-      'title_field_value'    => t('Product title'),
-      'title_field_language' => t('Product title languages'),
+      'categories'           => t('Categories'),
+//      'title_field_value'    => t('Product title'),
+//      'title_field_language' => t('Product title languages'),
       'commerce_price_value' => t('Commerce price'),
       'path'                 => t('Path'),
     );
 
     // Common field or properties.
-    $this->addFieldMapping('uid', 'uid');
-    $this->addFieldMapping('title', 'label');
+    $this->addFieldMapping('uid')->defaultValue($user->uid);
+    $this->addFieldMapping('title', 'title');
     $this->addFieldMapping('status', 'status');
     $this->addFieldMapping('created', 'created');
     $this->addFieldMapping('changed', 'updated');
@@ -64,11 +69,6 @@ class CommerceAkeneoMigrateProduct extends Migration {
     // Drupal commerce fields.
     $this->addFieldMapping('sku', 'sku');
 //    $this->addFieldMapping('commerce_price', 'commerce_price_value')->defaultValue(0);
-
-    // Title fields.
-    // Todo: use field hook declaration to support title field.
-    $this->addFieldMapping('title_field', 'title_field_value');
-    $this->addFieldMapping('title_field:language', 'title_field_language')->defaultValue(array());
 
     // Akeneo fields.
     $attributes               = commerce_akeneo_attribute_load_all(NULL, $arguments['type']);
@@ -86,7 +86,10 @@ class CommerceAkeneoMigrateProduct extends Migration {
       }
       else {
         drupal_set_message(
-          t('Destination field type not supported: @type', array('@type' => $field['type'])),
+          t(
+            'Destination field type not supported: @type (bundle: @bundle, field: @field)',
+            array('@type' => $field['type'], '@bundle' => $bundle, '@field' => $field_name)
+          ),
           'warning'
         );
       }
@@ -128,15 +131,7 @@ class CommerceAkeneoMigrateProduct extends Migration {
     $row->uid     = $user->uid;
     $row->created = strtotime($row->created);
     $row->updated = strtotime($row->updated);
-    $row->label   = commerce_akeneo_get_language($row->labels);
-
-    // Store titles in all languages.
-    foreach ($row->labels as $locale => $label) {
-      $language                          = commerce_akeneo_locale_to_language($locale);
-      $row->title_field_value[$language] = $label;
-      $row->title_field_language[]       = $language;
-    }
-
+    $row->title   = commerce_akeneo_get_language($row->labels);
 
     // Loop over plugins to map attributes vs fields/properties.
     foreach ($this->attributesByFields as $field_name => $field_info) {
@@ -157,6 +152,9 @@ class CommerceAkeneoMigrateProduct extends Migration {
   public function prepare(&$entity, $row) {
     // Todo: check behavior when type change.
 
+    // Add support for languages.
+    $languages = array();
+
     // Loop over plugins to map attributes vs fields/properties.
     foreach ($this->attributesByFields as $field_name => $field_info) {
       if (isset($this->pluginFields[$field_name])) {
@@ -164,16 +162,13 @@ class CommerceAkeneoMigrateProduct extends Migration {
         $plugin = $this->pluginFields[$field_name];
         $plugin->prepare($this, $entity, $row, $field_info['attributes']);
       }
-    }
 
-    // Add support for languages.
-    $languages = array();
-
-    var_dump($row);die;
-
-    foreach (array_keys($entity->title_field) as $language) {
-      if ($language != LANGUAGE_NONE) {
-        $languages[$language] = $language;
+      if (isset($entity->$field_name) && is_array($entity->$field_name)) {
+        foreach ($entity->$field_name as $language => $data) {
+          if ($language != LANGUAGE_NONE) {
+            $languages[$language] = $language;
+          }
+        }
       }
     }
 
@@ -189,7 +184,7 @@ class CommerceAkeneoMigrateProduct extends Migration {
       foreach ($languages as $language) {
         $entity->translations->data[$language] = array(
           'entity_type' => 'commerce_product',
-          'entity_id'   => $entity->nid,
+          'entity_id'   => isset($entity->nid) ? $entity->nid : 0,
           'language'    => $language,
           'source'      => ($language == $languageDefault ? '' : $languageDefault),
           'uid'         => $row->uid,
@@ -206,7 +201,7 @@ class CommerceAkeneoMigrateProduct extends Migration {
    */
   public function complete($entity, $row) {
     // Todo: delete imported items.
-    $this->getSource()->deleteItem($row->migrate_source_item_id);
+//    $this->getSource()->deleteItem($row->migrate_source_item_id);
 
     // Loop over plugins to map attributes vs fields/properties.
     foreach ($this->attributesByFields as $field_name => $field_info) {

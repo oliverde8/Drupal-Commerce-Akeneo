@@ -36,8 +36,12 @@ function commerce_akeneo_family_services_family($request) {
   if (!isset($request['attribute_groups']) || !is_array($request['attribute_groups'])) {
     return services_error('Missing attribute groups.', 406);
   }
-
   $code = $request['code'];
+  if (strlen($code) > 25) {
+    $code = substr($code, 0, 24) . '_';
+    $code = preg_replace('/_$/', '', $code);
+  }
+
 
   try {
     if (!$family = commerce_akeneo_family_load($code)) {
@@ -96,9 +100,12 @@ function commerce_akeneo_family_services_family($request) {
       }
     }
 
+    // Todo: ajouter nom du catalogue dans le field name ?
     $field_name = commerce_akeneo_get_machine_name('categories', 'field');
     $attribute  = array(
       'code'       => 'categories',
+      'family'     => $bundle,
+      'group_code' => 'categories',
       'type'       => 'pim_catalog_multiselect',
       'label'      => t('Catalog'),
       'labels'     => array(
@@ -108,7 +115,6 @@ function commerce_akeneo_family_services_family($request) {
     );
 
     _commerce_akeneo_family_services_family_attribute($bundle, $field_name, $attribute);
-
 
     // Handle fields.
     _commerce_akeneo_family_services_family_attributes($code, $bundle, $request['attribute_groups']);
@@ -162,28 +168,18 @@ function _commerce_akeneo_family_services_family_attributes($family_code, $bundl
   foreach ($attribute_groups as $group_code => $group_details) {
     if (!empty($group_details['attributes'])) {
       foreach ($group_details['attributes'] as $attribute_code => $attribute_details) {
-        // Store locally attributes for future purpose.
-        if (!$attribute = commerce_akeneo_attribute_load($attribute_code, $family_code)) {
-          $attribute = array(
-            'family' => $family_code,
-            'code'   => $attribute_code,
-          );
-        }
-
+        // Create label from code if not available.
         $label = commerce_akeneo_get_language($attribute_details['labels']);
         if (empty($label)) {
           $label = drupal_ucfirst(str_replace('_', ' ', $attribute_code));
         }
 
-        $attribute['type']     = $attribute_details['type'];
-        $attribute['label']    = $label;
-        $attribute['settings'] = $attribute_details;
-        commerce_akeneo_attribute_save($attribute);
-
-        $attributes[$attribute_code]          = $attribute_details;
-        $attributes[$attribute_code]['label'] = $label;
-        $attributes[$attribute_code]['code']  = $attribute_code;
-        $attributes[$attribute_code]['group'] = $group_code;
+        $attributes[$attribute_code]               = $attribute_details;
+        $attributes[$attribute_code]['code']       = $attribute_code;
+        $attributes[$attribute_code]['family']     = $family_code;
+        $attributes[$attribute_code]['group_code'] = $group_code;
+        $attributes[$attribute_code]['label']      = $label;
+        $attributes[$attribute_code]['settings']   = $attribute_details;
       }
     }
   }
@@ -196,11 +192,10 @@ function _commerce_akeneo_family_services_family_attributes($family_code, $bundl
 
   foreach ($attributes_by_field as $field_name => $field_settings) {
     $attribute = reset($field_settings['attributes']);
-//    $attribute_code = key($field_settings['attributes']);
 
     _commerce_akeneo_family_services_family_attribute($bundle, $field_name, $attribute);
 
-    $fields[$attribute['group']][] = $field_name;
+    $fields[$attribute['group_code']][] = $field_name;
   }
 
   if (module_exists('field_group')) {
@@ -269,6 +264,13 @@ function _commerce_akeneo_family_services_family_attribute($bundle, $field_name,
     return FALSE;
   }
 
+  _commerce_akeneo_family_services_family_attribute_save(
+    $attribute['code'],
+    $attribute['family'],
+    $attribute['group_code'],
+    $attribute
+  );
+
   // Load field if exists.
   if (!$field = field_info_field($field_name)) {
     // Create field if missing.
@@ -316,6 +318,41 @@ function _commerce_akeneo_family_services_family_attribute($bundle, $field_name,
     'field'          => $field,
     'field_instance' => $field_instance,
   );
+}
+
+/**
+ * @param string $attribute_code
+ * @param string $family_code
+ * @param string $group_code
+ * @param array  $details
+ *
+ * @return array|mixed
+ * @throws \Exception
+ */
+function _commerce_akeneo_family_services_family_attribute_save($attribute_code, $family_code, $group_code, $details) {
+  // Store locally attributes for future purpose.
+  if (!$attribute = commerce_akeneo_attribute_load($attribute_code, $family_code)) {
+    $attribute = array(
+      'family' => $family_code,
+      'code'   => $attribute_code,
+    );
+  }
+
+  $attribute['group_code'] = $group_code;
+  $attribute['type']       = $details['type'];
+  $attribute['label']      = $details['label'];
+
+  unset($details['code']);
+  unset($details['type']);
+  unset($details['family']);
+  unset($details['group_code']);
+  unset($details['label']);
+
+  $attribute['settings'] = $details;
+
+  commerce_akeneo_attribute_save($attribute);
+
+  return $attribute;
 }
 
 /**

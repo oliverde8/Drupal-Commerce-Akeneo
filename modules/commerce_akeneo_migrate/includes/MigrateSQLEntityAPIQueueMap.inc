@@ -4,6 +4,8 @@
  * @file
  */
 
+require_once 'MigrateSQLEntityAPIMap.inc';
+
 /**
  * Class MigrateSQLEntityAPIQueueMap
  */

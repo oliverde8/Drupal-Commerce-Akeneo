@@ -3,6 +3,9 @@ description = Add support for Field (numeric, text, file, image, ...).
 package = Commerce (product)
 core = 7.x
 
+files[] = includes/CommerceAkeneoFieldAbstract.inc
+files[] = includes/CommerceAkeneoFieldAbstractText.inc
+
 ; Drupal Core
 dependencies[] = file
 dependencies[] = image
