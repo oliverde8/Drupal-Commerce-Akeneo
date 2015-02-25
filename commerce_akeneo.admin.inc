@@ -26,34 +26,32 @@ function commerce_akeneo_settings_form($form, &$form_state) {
     '#collapsed'   => FALSE,
   );
 
+  $form['commerce_akeneo_machine_name']['commerce_akeneo_prefix_product'] = array(
+    '#type'          => 'textfield',
+    '#title'         => t('Product type prefix'),
+    '#size'          => 20,
+    '#default_value' => variable_get('commerce_akeneo_prefix_product', ''),
+  );
+
   $form['commerce_akeneo_machine_name']['commerce_akeneo_prefix_field'] = array(
     '#type'          => 'textfield',
     '#title'         => t('Field prefix'),
     '#size'          => 20,
-    '#default_value' => variable_get(
-      'commerce_akeneo_prefix_field',
-      'akeneo_'
-    ),
+    '#default_value' => variable_get('commerce_akeneo_prefix_field', ''),
   );
 
   $form['commerce_akeneo_machine_name']['commerce_akeneo_prefix_category'] = array(
     '#type'          => 'textfield',
     '#title'         => t('Category prefix'),
     '#size'          => 20,
-    '#default_value' => variable_get(
-      'commerce_akeneo_prefix_category',
-      'catalog_'
-    ),
+    '#default_value' => variable_get('commerce_akeneo_prefix_category', ''),
   );
 
   $form['commerce_akeneo_machine_name']['commerce_akeneo_prefix_option'] = array(
     '#type'          => 'textfield',
     '#title'         => t('Option prefix'),
     '#size'          => 20,
-    '#default_value' => variable_get(
-      'commerce_akeneo_prefix_option',
-      'option_'
-    ),
+    '#default_value' => variable_get('commerce_akeneo_prefix_option', ''),
   );
 
   $form['#validate'][] = 'commerce_akeneo_settings_form_validate';
@@ -65,6 +63,20 @@ function commerce_akeneo_settings_form($form, &$form_state) {
  * Implements hook_form_validate().
  */
 function commerce_akeneo_settings_form_validate(&$form, &$form_state) {
+  if (!preg_match('/^[a-z0-9\_]*$/', $form_state['values']['commerce_akeneo_prefix_product'])) {
+    form_error(
+      $form['commerce_akeneo_machine_name']['commerce_akeneo_prefix_product'],
+      t('The product type prefix must contain only lowercase letters, numbers, and underscores.')
+    );
+  }
+
+  if (!preg_match('/^[a-z0-9\_]*$/', $form_state['values']['commerce_akeneo_prefix_field'])) {
+    form_error(
+      $form['commerce_akeneo_machine_name']['commerce_akeneo_prefix_field'],
+      t('The field prefix must contain only lowercase letters, numbers, and underscores.')
+    );
+  }
+
   if (!preg_match('/^[a-z0-9\_]*$/', $form_state['values']['commerce_akeneo_prefix_category'])) {
     form_error(
       $form['commerce_akeneo_machine_name']['commerce_akeneo_prefix_category'],

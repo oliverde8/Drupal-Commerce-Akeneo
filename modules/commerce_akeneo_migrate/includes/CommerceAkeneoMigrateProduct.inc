@@ -25,7 +25,7 @@ class CommerceAkeneoMigrateProduct extends Migration {
     parent::__construct($arguments);
     $this->description = t('Import product from Akeneo services.');
 
-    $bundle = variable_get('commerce_akeneo_product_type_prefix', '') . $arguments['type'];
+    $bundle = commerce_akeneo_get_machine_name($arguments['type'], 'product');
     $this->addArguments(array('bundle' => $bundle));
 
     // Create a map object for tracking the relationships between source rows.
@@ -51,8 +51,7 @@ class CommerceAkeneoMigrateProduct extends Migration {
       'created'              => t('Created date'),
       'updated'              => t('Updated date'),
       'categories'           => t('Categories'),
-//      'title_field_value'    => t('Product title'),
-//      'title_field_language' => t('Product title languages'),
+      'title'                => t('Product title'),
       'commerce_price_value' => t('Commerce price'),
       'path'                 => t('Path'),
     );

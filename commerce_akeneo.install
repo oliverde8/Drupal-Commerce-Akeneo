@@ -21,14 +21,18 @@ function commerce_akeneo_install() {
   variable_set('entity_translation_entity_types', $entity_types);
 
   // Akeneo settings.
-  variable_set('commerce_akeneo_field_prefix', 'akeneo_');
-  variable_set('commerce_akeneo_product_type_prefix', 'akeneo_');
+  variable_set('commerce_akeneo_prefix_category', 'catalog_');
+  variable_set('commerce_akeneo_prefix_option', 'option_');
+  variable_set('commerce_akeneo_prefix_field', 'akeneo_');
+  variable_set('commerce_akeneo_prefix_product', 'akeneo_');
 }
 
 /**
  * Implements hook_uninstall().
  */
 function commerce_akeneo_uninstall() {
-  variable_del('commerce_akeneo_field_prefix');
-  variable_del('commerce_akeneo_product_type_prefix');
+  variable_del('commerce_akeneo_prefix_category');
+  variable_del('commerce_akeneo_prefix_option');
+  variable_del('commerce_akeneo_prefix_field');
+  variable_del('commerce_akeneo_prefix_product');
 }

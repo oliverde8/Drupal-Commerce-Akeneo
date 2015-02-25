@@ -83,17 +83,22 @@ function commerce_akeneo_permission() {
  */
 function commerce_akeneo_get_machine_name($code, $type = 'option') {
   if ($type == 'category') {
-    $machine_name = variable_get('commerce_akeneo_prefix_category', 'catalog_') . $code;
+    $machine_name = variable_get('commerce_akeneo_prefix_category', '') . $code;
   }
   elseif ($type == 'option') {
-    $machine_name = variable_get('commerce_akeneo_prefix_option', 'option_') . $code;
+    $machine_name = variable_get('commerce_akeneo_prefix_option', '') . $code;
   }
   elseif ($type == 'field') {
-    $machine_name = variable_get('commerce_akeneo_prefix_field', 'akeneo_') . $code;
+    $machine_name = variable_get('commerce_akeneo_prefix_field', '') . $code;
+  }
+  elseif ($type == 'product') {
+    $machine_name = variable_get('commerce_akeneo_prefix_product', '') . $code;
   }
   else {
     throw new \Exception(t('Unsupported type @type for machine name.', array('@type' => $type)));
   }
+
+  $machine_name = drupal_strtolower($machine_name);
 
   drupal_alter('commerce_akeneo_get_machine_name', $machine_name, $code, $type);
 
