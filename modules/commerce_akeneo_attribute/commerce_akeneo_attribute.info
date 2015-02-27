@@ -5,11 +5,3 @@ core = 7.x
 
 dependencies[] = commerce_akeneo
 dependencies[] = commerce_akeneo_family
-
-
-; Information added by drush on 2015-02-25
-version = "7.x-1.x-dev"
-core = "7.x"
-project = "commerce_akeneo"
-datestamp = "1424875332"
-

@@ -8,11 +8,3 @@ dependencies[] = commerce_product
 dependencies[] = libraries
 dependencies[] = services
 dependencies[] = rest_server
-
-
-; Information added by drush on 2015-02-25
-version = "7.x-1.x-dev"
-core = "7.x"
-project = "commerce_akeneo"
-datestamp = "1424875332"
-
