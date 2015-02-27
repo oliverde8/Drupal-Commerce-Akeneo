@@ -47,7 +47,7 @@ function commerce_akeneo_product_services_product($request) {
     $family = substr($family, 0, 24) . '_';
     $family = preg_replace('/_$/', '', $family);
   }
-  
+
   file_put_contents('/tmp/mylogs.log', $family."\n", FILE_APPEND);
 
   try {

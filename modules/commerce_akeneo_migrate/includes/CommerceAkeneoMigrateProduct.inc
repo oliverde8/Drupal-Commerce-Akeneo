@@ -26,7 +26,7 @@ class CommerceAkeneoMigrateProduct extends Migration {
     parent::__construct($arguments);
     $this->description = t('Import product from Akeneo services.');
 
-    $bundle = commerce_akeneo_get_machine_name($arguments['type'], 'product');
+    $bundle = $bundle = variable_get('commerce_akeneo_product_type_prefix', '') . $arguments['type'];
     $this->addArguments(array('bundle' => $bundle));
 
     // Create a map object for tracking the relationships between source rows.
@@ -69,6 +69,8 @@ class CommerceAkeneoMigrateProduct extends Migration {
     // Drupal commerce fields.
     $this->addFieldMapping('sku', 'sku');
 //    $this->addFieldMapping('commerce_price', 'commerce_price_value')->defaultValue(0);
+
+    dpm($arguments['type']);
 
     // Akeneo fields.
     $attributes               = commerce_akeneo_attribute_load_all(NULL, $arguments['type']);
