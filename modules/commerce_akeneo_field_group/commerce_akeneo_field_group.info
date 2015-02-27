@@ -1,0 +1,14 @@
+name = Commerce Akeneo Field Group
+description = Add support for Field Group.
+package = Commerce (product)
+core = 7.x
+
+dependencies[] = commerce_akeneo
+dependencies[] = field_group
+
+; Information added by Drupal.org packaging script on 2014-11-21
+version = "7.x-1.x-dev"
+core = "7.x"
+project = "commerce_akeneo"
+datestamp = "1416590581"
+

@@ -10,3 +10,11 @@ files[] = commerce_akeneo_stream_wrapper.test
 suggests[] = file
 suggests[] = media
 suggests[] = image
+
+
+; Information added by drush on 2015-02-25
+version = "7.x-1.x-dev"
+core = "7.x"
+project = "commerce_akeneo"
+datestamp = "1424875332"
+

@@ -190,6 +190,7 @@ function commerce_akeneo_attribute_save(&$attribute) {
   $attribute['settings'] = serialize($attribute['settings']);
 
   if (empty($attribute['aid'])) {
+    unset($attribute['aid']);
     $aid = db_insert('commerce_akeneo_attribute')
       ->fields(array_keys($attribute))
       ->values($attribute)

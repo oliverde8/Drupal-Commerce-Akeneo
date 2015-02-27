@@ -1,0 +1,205 @@
+<?php
+
+/**
+ * @file
+ * Commerce Akeneo Field Group module.
+ */
+
+const COMMERCE_AKENEO_GROUP_PREFIX = 'group_';
+
+/**
+ * Implements hook_commerce_akeneo_family().
+ */
+function commerce_akeneo_field_group_commerce_akeneo_family($product_type, $request) {
+  $group_tab = array(
+    'code' => 'tab',
+    'labels' => array(
+      LANGUAGE_NONE => 'Tabs',
+    ),
+  );
+
+  // Create or update the group tab.
+  _commerce_akeneo_field_group_save(
+    $product_type['type'],
+    commerce_akeneo_field_group_get_code($group_tab),
+    commerce_akeneo_field_group_get_label($group_tab),
+    50,
+    'tabs',
+    array()
+  );
+
+  $weight   = 0;
+  $children = array();
+
+  foreach ($request['attribute_groups'] as $code => $attribute_group) {
+    $attributes = isset($attribute_group['attributes']) ? $attribute_group['attributes'] : array();
+
+    $attribute_group_code  = commerce_akeneo_field_group_get_code($attribute_group);
+    $attribute_group_label = commerce_akeneo_field_group_get_label($attribute_group);
+
+    if (module_exists('commerce_akeneo_field')) {
+      $fields = array();
+
+      foreach ($attributes as $attribute) {
+        if ($field_name = commerce_akeneo_field_get_name($attribute)) {
+          $fields[] = $field_name;
+        }
+      }
+    }
+    else {
+      $fields = NULL;
+    }
+
+    $group = _commerce_akeneo_field_group_save(
+      $product_type['type'],
+      $attribute_group_code,
+      $attribute_group_label,
+      $weight++,
+      'tab',
+      $fields,
+      'tabs'
+    );
+
+    $children[] = $group->group_name;
+  }
+
+  // Set children for tab group.
+  _commerce_akeneo_field_group_save(
+    $product_type['type'],
+    commerce_akeneo_field_group_get_code($group_tab),
+    commerce_akeneo_field_group_get_label($group_tab),
+    50,
+    'tabs',
+    $children
+  );
+
+  cache_clear_all('field_groups', 'cache_field');
+}
+
+/**
+ * Get the code of a field group from attribute.
+ *
+ * @param array $attribute_group
+ *   Attribute group from Akeneo.
+ *
+ * @return string
+ *   Field label.
+ */
+function commerce_akeneo_field_group_get_code($attribute_group) {
+  $field_group_code = COMMERCE_AKENEO_GROUP_PREFIX . $attribute_group['code'];
+
+  drupal_alter('commerce_akeneo_field_group_get_code', $field_group_code, $attribute_group);
+
+  return $field_group_code;
+}
+
+/**
+ * Get the label of a field group from attribute code.
+ *
+ * @param array $attribute_group
+ *   Attribute group from Akeneo.
+ *
+ * @return string
+ *   Field label.
+ */
+function commerce_akeneo_field_group_get_label($attribute_group) {
+  $field_group_label = isset($attribute_group['labels']) ? reset($attribute_group['labels']) : drupal_ucfirst(
+    $attribute_group['code']
+  );
+
+  drupal_alter('commerce_akeneo_field_group_get_label', $field_group_label, $attribute_group);
+
+  return $field_group_label;
+}
+
+/**
+ * Save field group.
+ *
+ * @param string $bundle
+ *   Bundle.
+ * @param string $name
+ *   Group name.
+ * @param string $label
+ *   Group label.
+ * @param int    $weight
+ *   Weight.
+ * @param string $type
+ *   Type.
+ * @param array  $children
+ *   Children.
+ * @param string $parent
+ *   Parent name.
+ *
+ * @return object
+ *   The group saved.
+ */
+function _commerce_akeneo_field_group_save(
+  $bundle,
+  $name,
+  $label,
+  $weight = 0,
+  $type = 'tab',
+  $children = array(),
+  $parent = ''
+) {
+  // Prepare storage with ctools.
+  ctools_include('export');
+
+  $entity_type = 'commerce_product';
+  $mode        = 'form';
+
+  $identifier = $name . '|' . $entity_type . '|' . $bundle . '|' . $mode;
+
+  $groups = field_group_info_groups($entity_type, $bundle, $mode, TRUE);
+
+  // Update existing group.
+  if (isset($groups[$name]) && $group = $groups[$name]) {
+    if (is_array($children)) {
+      $group->children = $children;
+    }
+
+    $group->label       = $label;
+    $group->parent_name = $parent;
+    $group->weight      = $weight;
+
+    ctools_export_crud_save('field_group', $group);
+
+    return $group;
+  }
+  else {
+    $field_group_types = field_group_formatter_info();
+    $formatter         = $field_group_types[$mode];
+
+    $new_group = (object) array(
+      'identifier'  => $identifier,
+      'group_name'  => $name,
+      'entity_type' => $entity_type,
+      'bundle'      => $bundle,
+      'mode'        => $mode,
+      'children'    => is_array($children) ? $children : array(),
+      'parent_name' => $parent,
+      'weight'      => (int) $weight,
+      'label'       => $label,
+      'format_type' => $type,
+      'disabled'    => FALSE,
+    );
+
+    $new_group->format_settings = array('formatter' => isset($formatter['default_formatter']) ? $formatter['default_formatter'] : '');
+
+    if (isset($formatter['instance_settings'])) {
+      $new_group->format_settings['instance_settings'] = $formatter['instance_settings'];
+    }
+
+    $classes = _field_group_get_html_classes($new_group);
+
+    $new_group->format_settings['instance_settings']['classes'] = implode(' ', $classes->optional);
+
+    // Save and enable it in ctools.
+    ctools_export_crud_save('field_group', $new_group);
+    ctools_export_crud_enable('field_group', $new_group->identifier);
+
+    drupal_set_message(t('New group %label successfully created.', array('%label' => $new_group->label)));
+
+    return $new_group;
+  }
+}

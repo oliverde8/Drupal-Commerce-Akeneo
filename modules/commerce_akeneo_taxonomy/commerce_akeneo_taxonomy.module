@@ -111,6 +111,7 @@ function commerce_akeneo_taxonomy_load_all() {
  * @throws \Exception
  */
 function commerce_akeneo_taxonomy_save(&$taxonomy) {
+
   // Check required arguments.
   if (!isset($taxonomy->code)) {
     throw new \Exception('Invalid argument');

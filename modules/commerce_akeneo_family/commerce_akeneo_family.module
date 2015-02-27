@@ -67,6 +67,7 @@ function commerce_akeneo_family_save(&$family) {
   $family['settings'] = serialize($family['settings']);
 
   if (empty($family['fid'])) {
+    unset($family['fid']);
     $fid = db_insert('commerce_akeneo_family')
       ->fields(array_keys($family))
       ->values(array_values($family))

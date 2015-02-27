@@ -73,8 +73,10 @@ class CommerceAkeneoFieldDatestamp extends CommerceAkeneoFieldAbstract {
           foreach ($values as $value) {
             switch ($attribute['type']) {
               case 'pim_catalog_date':
-                $properties[$field_name . '_value'][$language][]   = (int) $value['value'];
-                $properties[$field_name . '_languages'][$language] = $language;
+                if (isset($value['value'])) {
+                  $properties[$field_name . '_value'][$language][]   = (int) $value['value'];
+                  $properties[$field_name . '_languages'][$language] = $language;
+                }
                 break;
 
               default:
