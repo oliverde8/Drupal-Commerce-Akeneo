@@ -43,6 +43,13 @@ function commerce_akeneo_product_services_product($request) {
 
   $family = check_plain($request['family']);
 
+  if (strlen($family) > 25) {
+    $family = substr($family, 0, 24) . '_';
+    $family = preg_replace('/_$/', '', $family);
+  }
+  
+  file_put_contents('/tmp/mylogs.log', $family."\n", FILE_APPEND);
+
   try {
     // Save product to Drupal Queue for future Migrate handle.
     $queue = commerce_akeneo_product_queue_load($family, TRUE);
