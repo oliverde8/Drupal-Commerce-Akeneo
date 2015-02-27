@@ -6,6 +6,7 @@
 
 require_once 'MigrateSQLEntityAPIQueueMap.inc';
 require_once 'MigrateSourceQueue.inc';
+require_once 'MigrateAkeneoDestinationCommerceProduct.inc';
 
 /**
  * Class CommerceAkeneoMigrateProduct
@@ -95,7 +96,7 @@ class CommerceAkeneoMigrateProduct extends Migration {
     }
 
     $this->source      = new MigrateSourceQueue($arguments['type'], $sourceFields);
-    $this->destination = new MigrateDestinationCommerceProduct('commerce_product', $bundle);
+    $this->destination = new MigrateAkeneoDestinationCommerceProduct('commerce_product', $bundle);
   }
 
   /**
