@@ -80,6 +80,7 @@ class CommerceAkeneoMigrateProduct extends Migration {
 
       /** @var CommerceAkeneoFieldInterface $plugin */
       if ($plugin = commerce_akeneo_field_get_plugin($field['type'], 'commerce_product', $bundle, $field_name)) {
+        dpm (get_class($plugin), $field_name);
         $plugin->addFieldMappingToMigrate($this, $sourceFields);
 
         $this->pluginFields[$field_name] = $plugin;
@@ -201,7 +202,7 @@ class CommerceAkeneoMigrateProduct extends Migration {
    */
   public function complete($entity, $row) {
     // Todo: delete imported items.
-//    $this->getSource()->deleteItem($row->migrate_source_item_id);
+    //$this->getSource()->deleteItem($row->migrate_source_item_id);
 
     // Loop over plugins to map attributes vs fields/properties.
     foreach ($this->attributesByFields as $field_name => $field_info) {
