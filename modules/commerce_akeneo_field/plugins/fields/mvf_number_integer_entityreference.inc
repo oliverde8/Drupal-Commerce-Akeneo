@@ -29,8 +29,15 @@ class CommerceAkeneoFieldMVFInteger extends CommerceAkeneoFieldAbstract {
     }
     elseif ($target_bundle = reset($this->field['settings']['unit']['handler_settings']['target_bundles'])) {
       $units     = units_akeneo_family_load_all();
-      $unit      = units_unit_machine_name_load($units[$target_bundle]['standard']);
-      $target_id = $unit->umid;
+
+      // Unit machine name are always lowercase.
+      $unit_name = strtolower($units[$target_bundle]['standard']);
+      $unit      = units_unit_machine_name_load($unit_name);
+
+      $target_id = NULL;
+      if ($unit) {
+        $target_id = $unit->umid;
+      }
     }
     else {
       $target_id = NULL;
