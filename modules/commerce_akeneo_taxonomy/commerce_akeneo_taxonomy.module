@@ -74,6 +74,9 @@ function commerce_akeneo_taxonomy_handle_service($code, $type, $labels, $values)
       throw new CommerceAkeneoException('Error while trying to add item to queue.', 500);
     }
   }
+
+  // Reload migrate job list.
+  migrate_static_registration();
 }
 
 /**
