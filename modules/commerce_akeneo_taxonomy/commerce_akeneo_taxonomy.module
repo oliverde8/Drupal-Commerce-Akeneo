@@ -15,6 +15,68 @@ function commerce_akeneo_taxonomy_ctools_plugin_directory($owner, $plugin_type) 
 }
 
 /**
+ * @param string $code
+ * @param string $type (option|category)
+ * @param array  $labels
+ * @param array  $values
+ *
+ * @throws \CommerceAkeneoException
+ * @throws \Exception
+ */
+function commerce_akeneo_taxonomy_handle_service($code, $type, $labels, $values) {
+  $code = check_plain($code);
+
+  // Store locally details about Akeneo select attribute.
+  if (!$taxonomy = commerce_akeneo_taxonomy_load($code, $type)) {
+    $taxonomy = array(
+      'code' => $code,
+      'type' => $type,
+    );
+  }
+
+  $taxonomy['label'] = commerce_akeneo_get_language($labels);
+
+  commerce_akeneo_taxonomy_save($taxonomy);
+
+  // Create taxonomy vocabulary destination if not already exists.
+  if (!$vocabulary = taxonomy_vocabulary_machine_name_load($taxonomy['vocabulary'])) {
+    $vocabulary = (object) array(
+      'machine_name' => $taxonomy['vocabulary'],
+      'description'  => t('Vocabulary created via Akeneo PIM.'),
+    );
+  }
+
+  $vocabulary->name = $taxonomy['label'];
+
+  // Allow override.
+  $context = array(
+    'type'   => $type,
+    'code'   => $code,
+    'labels' => $labels,
+    'values' => $values,
+  );
+  drupal_alter('commerce_akeneo_taxonomy_vocabulary_save', $vocabulary, $context);
+
+  // Write the vocabulary to the database.
+  taxonomy_vocabulary_save($vocabulary);
+
+  // Save product to Drupal Queue for future Migrate handle.
+  $queue = commerce_akeneo_queue_load($type . ':' . $code, TRUE);
+
+  foreach ($values as $key => $item) {
+    $item['machine_name'] = $key;
+
+    if ($item['parent'] == $code) {
+      $item['parent'] = NULL;
+    }
+
+    if (!$queue->createItem($item)) {
+      throw new CommerceAkeneoException('Error while trying to add item to queue.', 500);
+    }
+  }
+}
+
+/**
  * Implements hook_commerce_akeneo_taxonomy_vocabulary_save_alter().
  */
 function commerce_akeneo_taxonomy_commerce_akeneo_taxonomy_vocabulary_save_alter($vocabulary, $request) {
@@ -66,6 +128,7 @@ function commerce_akeneo_taxonomy_commerce_akeneo_taxonomy_vocabulary_save_alter
 
 /**
  * @param string $code
+ * @param string $type
  *
  * @return mixed
  */
@@ -78,7 +141,7 @@ function commerce_akeneo_taxonomy_load($code, $type = 'option') {
     ->fetchAssoc();
 
   if ($result) {
-    return (object) $result;
+    return (array) $result;
   }
   else {
     return NULL;
@@ -86,19 +149,21 @@ function commerce_akeneo_taxonomy_load($code, $type = 'option') {
 }
 
 /**
+ * @param string $type (option|category)
+ *
  * @return array
  */
-function commerce_akeneo_taxonomy_load_all() {
+function commerce_akeneo_taxonomy_load_all($type = 'option') {
   $results = db_select('commerce_akeneo_taxonomy', 't')
     ->fields('t')
-    ->execute();
+    ->condition('type', $type)
+    ->execute()
+    ->fetchAllAssoc('tid');
 
   $taxonomies = array();
 
-  if ($results) {
-    foreach ($results as $key => $result) {
-      $taxonomies[$key] = (object) $result;
-    }
+  foreach ($results as $key => $result) {
+    $taxonomies[$key] = (array) $result;
   }
 
   return $taxonomies;
@@ -112,36 +177,38 @@ function commerce_akeneo_taxonomy_load_all() {
  */
 function commerce_akeneo_taxonomy_save(&$taxonomy) {
   // Check required arguments.
-  if (!isset($taxonomy->code)) {
+  if (!isset($taxonomy['code'])) {
     throw new \Exception('Invalid argument');
   }
 
-  if (empty($taxonomy->created)) {
-    $taxonomy->created = REQUEST_TIME;
+  // Set default values.
+  $taxonomy += array(
+    'tid'     => NULL,
+    'label'   => $taxonomy['code'],
+    'created' => REQUEST_TIME,
+    'changed' => REQUEST_TIME,
+  );
+
+  if (empty($taxonomy['vocabulary'])) {
+    $taxonomy['vocabulary'] = commerce_akeneo_get_machine_name($taxonomy['code'], $taxonomy['type']);
   }
 
-  $taxonomy->changed = REQUEST_TIME;
+  if (empty($taxonomy['tid'])) {
+    unset($taxonomy['tid']);
 
-  if (empty($taxonomy->vocabulary)) {
-    $taxonomy->vocabulary = commerce_akeneo_get_machine_name($taxonomy->code, $taxonomy->type);
-  }
-
-  $fields = (array) $taxonomy;
-
-  if (empty($taxonomy->tid)) {
     $tid = db_insert('commerce_akeneo_taxonomy')
-      ->fields(array_keys($fields))
-      ->values(array_values($fields))
+      ->fields(array_keys($taxonomy))
+      ->values(array_values($taxonomy))
       ->execute();
 
-    $taxonomy->tid = $tid;
+    $taxonomy['tid'] = $tid;
   }
   else {
-    unset($fields['created']);
+    unset($taxonomy['created']);
 
     db_update('commerce_akeneo_taxonomy')
-      ->condition('tid', $taxonomy->tid)
-      ->fields($fields)
+      ->condition('tid', $taxonomy['tid'])
+      ->fields($taxonomy)
       ->execute();
   }
 

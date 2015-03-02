@@ -11,44 +11,51 @@ function commerce_akeneo_family_schema() {
   $schema['commerce_akeneo_family'] = array(
     'description' => 'Commerce Akeneo Families.',
     'fields'      => array(
-      'fid'      => array(
+      'fid'          => array(
         'type'        => 'serial',
         'not null'    => TRUE,
         'description' => 'Primary Key: Unique family ID.',
       ),
-      'code'     => array(
+      'code'         => array(
         'type'        => 'varchar',
         'length'      => 64,
         'not null'    => TRUE,
         'description' => 'The code of the family as known under Akeneo.',
       ),
-      'label'    => array(
+      'label'        => array(
         'type'        => 'varchar',
         'length'      => 255,
         'not null'    => TRUE,
         'description' => 'The name of the family in the default Drupal language.',
         'default'     => '',
       ),
-      'created'  => array(
+      'product_type' => array(
+        'type'        => 'varchar',
+        'length'      => 64,
+        'not null'    => TRUE,
+        'description' => 'The corresponding product_type in Drupal.',
+      ),
+      'settings'     => array(
+        'type'        => 'blob',
+        'description' => '',
+      ),
+      'created'      => array(
         'type'        => 'int',
         'not null'    => TRUE,
         'description' => 'The Unix timestamp when the family was created.',
         'default'     => 0,
       ),
-      'changed'  => array(
+      'changed'      => array(
         'type'        => 'int',
         'not null'    => TRUE,
         'description' => 'The Unix timestamp when the family was most recently saved.',
         'default'     => 0,
       ),
-      'settings' => array(
-        'type'        => 'blob',
-        'description' => '',
-      ),
     ),
     'primary key' => array('fid'),
     'unique keys' => array(
-      'code' => array('code'),
+      'code'         => array('code'),
+      'product_type' => array('product_type'),
     ),
   );
 

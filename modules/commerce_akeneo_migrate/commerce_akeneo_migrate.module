@@ -5,5 +5,8 @@
  * Commerce Akeneo Migrate module.
  */
 
-const COMMERCE_AKENEO_MIGRATE_DEFAULT_LEASE_TIME = 60;
-const COMMERCE_AKENEO_MIGRATE_GROUP_NAME         = 'commerce_akeneo';
+const COMMERCE_AKENEO_MIGRATE_DEFAULT_LEASE_TIME     = 60;
+const COMMERCE_AKENEO_MIGRATE_GROUP_NAME_PRODUCT     = 'commerce_akeneo_product';
+const COMMERCE_AKENEO_MIGRATE_GROUP_NAME_CATEGORY    = 'commerce_akeneo_category';
+const COMMERCE_AKENEO_MIGRATE_GROUP_NAME_OPTION      = 'commerce_akeneo_option';
+const COMMERCE_AKENEO_MIGRATE_GROUP_NAME_ASSOCIATION = 'commerce_akeneo_association';

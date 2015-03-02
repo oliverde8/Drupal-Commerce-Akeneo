@@ -25,10 +25,12 @@ class MigrateSourceQueue extends MigrateSource {
 
   /**
    * @param string $queue_name
+   *   Name of the queue.
    * @param array  $fields
+   *   Fields.
    */
   public function __construct($queue_name, $fields) {
-    $this->queue  = commerce_akeneo_product_queue_load($queue_name, FALSE);
+    $this->queue  = commerce_akeneo_queue_load($queue_name, FALSE);
     $this->fields = $fields;
     $this->stack  = array();
 
@@ -57,6 +59,8 @@ class MigrateSourceQueue extends MigrateSource {
   }
 
   /**
+   * @param bool $refresh
+   *   Refresh.
    * @return int
    *   Count of items.
    */

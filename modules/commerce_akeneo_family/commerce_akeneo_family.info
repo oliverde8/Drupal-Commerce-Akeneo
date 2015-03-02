@@ -6,3 +6,12 @@ core = 7.x
 dependencies[] = commerce_akeneo
 dependencies[] = commerce_akeneo_taxonomy
 dependencies[] = commerce_product
+
+files[] = commerce_akeneo_family.batch.inc
+
+; Information added by drush on 2015-02-17
+version = "7.x-1.x-dev"
+core = "7.x"
+project = "commerce_akeneo"
+datestamp = "1424178056"
+

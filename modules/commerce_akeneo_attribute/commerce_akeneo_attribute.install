@@ -11,58 +11,74 @@ function commerce_akeneo_attribute_schema() {
   $schema['commerce_akeneo_attribute'] = array(
     'description'  => 'Commerce Akeneo Attributes.',
     'fields'       => array(
-      'aid'      => array(
+      'aid'        => array(
         'type'        => 'serial',
         'not null'    => TRUE,
         'description' => 'Primary Key: Unique attribute ID.',
       ),
-      'family'   => array(
+      'family'     => array(
         'type'        => 'varchar',
         'length'      => 64,
         'not null'    => TRUE,
         'description' => '{commerce_akeneo_family}.code that this attribute refers.',
       ),
-      'code'     => array(
+      'code'       => array(
         'type'        => 'varchar',
         'length'      => 64,
         'not null'    => TRUE,
-        'description' => 'The code of the attribute.',
+        'description' => 'The code of the attribute in Akeneo.',
       ),
-      'group_code'    => array(
+      'group_code' => array(
         'type'        => 'varchar',
         'length'      => 64,
         'not null'    => TRUE,
-        'description' => 'The group code of the attribute.',
+        'description' => 'The group code of the attribute in Akeneo.',
       ),
-      'type'     => array(
+      'type'       => array(
         'type'        => 'varchar',
         'length'      => 64,
         'not null'    => TRUE,
-        'description' => 'The type of the attribute.',
+        'description' => 'The type of the attribute in Akeneo.',
       ),
-      'label'    => array(
+      'label'      => array(
         'type'        => 'varchar',
         'length'      => 255,
         'not null'    => TRUE,
-        'description' => 'The label of the attribute.',
+        'description' => 'The label of the attribute in Akeneo.',
         'default'     => '',
       ),
-      'created'  => array(
+      'field_name' => array(
+        'type'        => 'varchar',
+        'length'      => 32,
+        'not null'    => TRUE,
+        'description' => 'The destination field name in Drupal.',
+      ),
+      'checksum'   => array(
+        'type'        => 'varchar',
+        'length'      => 32,
+        'not null'    => TRUE,
+        'description' => 'Checksum of the last field settings sync.',
+      ),
+      'required'     => array(
+        'type'        => 'int',
+        'description' => 'Indicates if field is required in Drupal.',
+      ),
+      'settings'   => array(
+        'type'        => 'blob',
+        'not null'    => TRUE,
+        'description' => '',
+      ),
+      'created'    => array(
         'type'        => 'int',
         'not null'    => TRUE,
         'description' => 'The Unix timestamp when the attribute was created.',
         'default'     => 0,
       ),
-      'changed'  => array(
+      'changed'    => array(
         'type'        => 'int',
         'not null'    => TRUE,
         'description' => 'The Unix timestamp when the attribute was most recently saved.',
         'default'     => 0,
-      ),
-      'settings' => array(
-        'type'        => 'blob',
-        'not null'    => TRUE,
-        'description' => '',
       ),
     ),
     'primary key'  => array('aid'),

@@ -5,9 +5,6 @@
  * Plugin file to match with attribute type from Akeneo.
  */
 
-// Add dependency.
-require_once dirname(__FILE__) . '/pim_catalog_abstractselect.inc';
-
 $plugin = array(
   'name'       => 'pim_catalog_multiselect',
   'title'      => t('Multi Select'),
@@ -39,7 +36,7 @@ class CommerceAkeneoAttributePimCatalogMultiSelect extends CommerceAkeneoAttribu
     $field_details = parent::getFieldSettings($attribute, $bundle, $field_name, $field_label);
 
     // Custom part based on Akeneo information.
-    $parameters = isset($attribute['parameters']) ? $attribute['parameters'] : array();
+    $parameters = isset($attribute['settings']['parameters']) ? $attribute['settings']['parameters'] : array();
 
     $field_details['field']['cardinality'] = FIELD_CARDINALITY_UNLIMITED;
 

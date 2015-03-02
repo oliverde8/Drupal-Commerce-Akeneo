@@ -1,0 +1,550 @@
+<?php
+
+/**
+ * @file
+ * Commerce Akeneo Field Group batch import.
+ */
+
+/**
+ * Implements hook_queue_info().
+ */
+function commerce_akeneo_family_queue_info() {
+  $queues = array();
+
+  $queues['commerce_akeneo:family'] = array(
+    'title' => 'Commerce Akeneo : Family',
+    'batch' => array(
+      'operations'       => array(
+        array('commerce_akeneo_family_batch_process', array()),
+      ),
+      'init_message'     => t('About to begin Commerce Akeneo Family import'),
+      'title'            => t('Processing'),
+      'progress_message' => t('Completed @current of @total, Estimate: @estimate, Elapsed: @elapsed'),
+    ),
+//    'cron'         => '',
+//    'delete'       => '',
+  );
+
+  return $queues;
+}
+
+/**
+ * Implements hook_cron_queue_info().
+ */
+function commerce_akeneo_family_cron_queue_info() {
+  $queues = array();
+
+//  $queues['commerce_akeneo:family'] = array(
+//    'worker callback' => '',
+//    'time'            => 120,
+//    'skip on cron'    => TRUE,
+//  );
+
+  return $queues;
+}
+
+/**
+ * @param DrupalQueueInterface|string $queue
+ * @param array                       $context
+ */
+function commerce_akeneo_family_batch_process($queue, &$context) {
+  if (is_string($queue)) {
+    /* @var DrupalQueueInterface $queue */
+    $queue = DrupalQueue::get($queue);
+  }
+
+  if (empty($context['sandbox'])) {
+    $context['sandbox']['progress'] = 0;
+    $context['sandbox']['max']      = $queue->numberOfItems();
+  }
+
+  try {
+    if ($item = $queue->claimItem(300)) {
+      // Shortcut.
+      $request = $item->data;
+
+      // Create or update family from request.
+      $family = commerce_akeneo_family_load_from_request($request);
+
+      // Create or update destination commerce product type.
+      commerce_akeneo_family_product_type_update($family, $request);
+
+      // Handle fields, categories and associations.
+      commerce_akeneo_family_services_family_attributes($family, $request);
+
+      // Todo: check if necessary.
+      module_invoke_all('commerce_akeneo_family', $request);
+
+      // Remote item from queue due to correct handle.
+      $queue->deleteItem($item);
+    }
+  }
+  catch (Exception $e) {
+    // In case of exception log it and leave the item in the queue
+    // to be processed again later.
+    drupal_set_message($e->getMessage(), 'error', FALSE);
+    watchdog_exception('queue_ui', $e, NULL, WATCHDOG_ERROR);
+  }
+
+  // Cache clear for entities because we handle entity structure.
+  entity_flush_caches();
+
+  // Cache clear for all info about fields.
+  field_cache_clear();
+
+  $context['sandbox']['progress']++;
+
+  // If the last attempt to get an item produced an empty result, then no more
+  // claimable items remain in the queue and we can tell Batch API we are done.
+  // Otherwise, items may remain in the queue and we should tell Batch API to
+  // call us again.
+  if (empty($item)) {
+    $context['finished'] = 1;
+
+    // Clear all caches.
+    cache_clear_all();
+
+    // Reset cache for commerce product types.
+    commerce_product_types_reset();
+    variable_set('menu_rebuild_needed', TRUE);
+//    menu_cache_clear_all();
+
+    // All statically defined migrations have been (re)registered.
+    if (module_exists('migrate')) {
+      migrate_static_registration();
+    }
+  }
+  else {
+    // We can't use numberOfItems() to know how many items we must process,
+    // because that does not take claims on items into account.
+    $context['finished'] = $context['sandbox']['progress'] / $context['sandbox']['max'];
+  }
+
+  $context['message'] = t(
+    'Processed !count items in queue.',
+    array(
+      '!count' => $context['sandbox']['progress'],
+    )
+  );
+}
+
+/**
+ * Create or update family from Akeneo request.
+ *
+ * @param array $request
+ *   Request from Akeneo.
+ *
+ * @return array
+ *   Family.
+ */
+function commerce_akeneo_family_load_from_request($request) {
+  // Create or update family from request.
+  if (!$family = commerce_akeneo_family_load($request['code'])) {
+    $family = array(
+      'code' => $request['code'],
+    );
+  }
+
+  $family['label']    = commerce_akeneo_get_language($request['labels']);
+  $family['settings'] = $request;
+
+  // Store family in database for future purpose.
+  commerce_akeneo_family_save($family);
+
+  return $family;
+}
+
+/**
+ * @param array $family
+ * @param array $request
+ *
+ * @throws \CommerceAkeneoException
+ */
+function commerce_akeneo_family_product_type_update($family, $request) {
+  // Load destination commerce product type.
+  if ($settings = commerce_product_type_load($family['product_type'])) {
+    $settings['name']   = commerce_akeneo_get_language($request['labels']);
+    $settings['is_new'] = FALSE;
+  }
+  else {
+    // Create settings for new commerce product type.
+    $settings = array(
+      'type'         => $family['product_type'],
+      'name'         => $family['label'],
+      'description'  => t('Product type created via Akeneo PIM.'),
+      'help'         => '',
+      'revision'     => 1,
+      'multilingual' => 4,
+      'is_new'       => TRUE,
+    );
+  }
+
+  // Set the multilingual value for the product type
+  // if entity translation is enabled.
+  if (module_exists('entity_translation')) {
+    $multilingual = isset($settings['multilingual']) ? $settings['multilingual'] : 4;
+    variable_set('language_product_type_' . $settings['type'], $multilingual);
+  }
+
+  // Configure but skip cache reset.
+  if (!commerce_product_ui_product_type_save($settings, TRUE, TRUE)) {
+    throw new CommerceAkeneoException(t('Unable to create or update product type.'));
+  }
+}
+
+/**
+ * @param array $family
+ * @param array $request
+ *
+ * @throws \CommerceAkeneoException
+ */
+function commerce_akeneo_family_services_family_attributes($family, $request) {
+  // Build full attributes list.
+  $attributes = array();
+  $groups     = $request['attribute_groups'];
+
+  foreach ($groups as $group_code => $group_details) {
+    if (!empty($group_details['attributes'])) {
+      foreach ($group_details['attributes'] as $attribute_code => $attribute_details) {
+        // Create label from code if not available.
+        $label = commerce_akeneo_get_language($attribute_details['labels']);
+        if (empty($label) || preg_match('/^\[[a-z0-9_]+\]$/i', $label)) {
+          $label = drupal_ucfirst(str_replace('_', ' ', $attribute_code));
+        }
+
+        $attribute = array(
+          'code'       => $attribute_code,
+          'family'     => $family['code'],
+          'type'       => $attribute_details['type'],
+          'required'   => $attribute_details['required'],
+          'group_code' => $group_code,
+          'label'      => $label,
+          'settings'   => array(
+            'labels'     => $attribute_details['labels'],
+            'parameters' => $attribute_details['parameters'],
+          )
+        );
+
+        $attributes[$attribute_code] = $attribute;
+      }
+    }
+  }
+
+  // Add fields for category references.
+  if ($categories = commerce_akeneo_taxonomy_load_all('category')) {
+    $groups['categories'] = array(
+      'labels' => array(
+        LANGUAGE_NONE => t('Categories'),
+      )
+    );
+
+    foreach ($categories as $category) {
+      $attribute_code = 'category_' . $category['code'];
+
+      $attribute = array(
+        'code'       => $attribute_code,
+        'family'     => $family['code'],
+        'type'       => 'pim_catalog_multiselect',
+        'required'   => FALSE,
+        'group_code' => 'categories',
+        'label'      => $category['label'],
+        'settings'   => array(
+          'labels'     => array(LANGUAGE_NONE => $category['label']),
+          'parameters' => array(),
+        ),
+      );
+
+      $attributes[$attribute_code] = $attribute;
+    }
+  }
+
+  // Save new attribute values.
+  foreach ($attributes as $pos => $values) {
+    // Load existing attribute record if exists.
+    $attribute     = commerce_akeneo_attribute_load($values['code'], $values['family']);
+    $attribute_id  = ($attribute ? $attribute['aid'] : 0);
+    $values['aid'] = $attribute_id;
+
+    // Set destination field_name not already defined.
+    if (empty($values['field_name'])) {
+      $values['field_name'] = commerce_akeneo_get_machine_name($values['code'], 'field');
+    }
+
+    // Save updates.
+    commerce_akeneo_attribute_save($values);
+    $attributes[$pos] = $values;
+  }
+
+  // Contains only mapped attributes / fields.
+  $attributes_by_field = commerce_akeneo_attribute_dispatch_by_fields($attributes);
+
+  // Build destination fields.
+  $fields_by_group = array();
+  foreach ($attributes_by_field as $field_name => $field_settings) {
+    // Use first attribute as reference for destination field.
+    $attribute = reset($field_settings['attributes']);
+
+    commerce_akeneo_family_services_family_attribute($family, $attribute, $field_name, $field_settings);
+
+    $fields_by_group[$attribute['group_code']][$field_name] = $field_settings;
+  }
+
+  if (module_exists('field_group')) {
+    commerce_akeneo_family_services_family_attribute_groups($family, $groups, $fields_by_group);
+    cache_clear_all('field_groups', 'cache_field');
+  }
+}
+
+/**
+ * @param string $bundle
+ * @param string $field_name
+ * @param array  $attribute
+ *
+ * @return array|bool
+ */
+function commerce_akeneo_attribute_get_settings($bundle, $field_name, $attribute) {
+  /** @var CommerceAkeneoAttributeInterface $plugin */
+  if ($plugin = commerce_akeneo_attribute_get_plugin($attribute['type'])) {
+    $settings = $plugin->getFieldSettings($attribute, $bundle, $field_name, $attribute['label']);
+
+    return $settings;
+  }
+
+  return FALSE;
+}
+
+/**
+ * @param string $type
+ *
+ * @return CommerceAkeneoAttributeInterface
+ */
+function commerce_akeneo_attribute_get_plugin($type) {
+  $attributePlugins = &drupal_static(__METHOD__, array());
+
+  if (!isset($attributePlugins[$type])) {
+    ctools_include('context');
+    ctools_include('plugins');
+
+    if ($class_name = ctools_plugin_load_class('commerce_akeneo', 'attributes', $type, 'class_name')) {
+      $attributePlugins[$type] = new $class_name($type);
+    }
+  }
+
+  return $attributePlugins[$type];
+}
+
+/**
+ * @param string $bundle
+ * @param string $field_name
+ * @param array  $attribute
+ *
+ * @return array|bool
+ *
+ * @throws \CommerceAkeneoException
+ * @throws \Exception
+ * @throws \FieldException
+ */
+function commerce_akeneo_family_services_family_attribute($family, $attribute, $field_name, $field_settings) {
+  // Handle special case like identifier: SKU.
+  if (!$field_settings = commerce_akeneo_attribute_get_settings($family['product_type'], $field_name, $attribute)) {
+    return FALSE;
+  }
+
+  // Load field if exists.
+  if (!$field = field_info_field($field_name)) {
+    // Create field if missing.
+    $field = field_create_field($field_settings['field']);
+  }
+  elseif ($field['type'] != $field_settings['field']['type']) {
+    throw new CommerceAkeneoException(
+      t(
+        'Field type for field "@field" has been changed: "@old" => "@new", which is not supported.',
+        array(
+          '@field' => $attribute['code'],
+          '@old'   => $field['type'],
+          '@new'   => $field_settings['field']['type'],
+        )
+      ),
+      406
+    );
+  }
+  elseif ($field['translatable'] != $field_settings['field']['translatable']) {
+    // Update field properties.
+    $field['translatable'] = $field_settings['field']['translatable'];
+
+    field_update_field($field);
+  }
+
+  // Create field instance if missing.
+  $field_instance = field_read_instance('commerce_product', $field_name, $family['product_type']);
+
+  if (!$field_instance) {
+    $field_instance = field_create_instance($field_settings['field_instance']);
+  }
+  else {
+    $field_instance['label']       = $field_settings['field_instance']['label'];
+    $field_instance['description'] = $field_settings['field_instance']['description'];
+    $field_instance['required']    = $field_settings['field_instance']['required'];
+
+    if (isset($field_settings['field_instance']['default_values'])) {
+      $field_instance['default_values'] = $field_settings['field_instance']['default_values'];
+    }
+
+    $md5 = md5(serialize($field_instance));
+
+    if ($md5 != $attribute['checksum']) {
+      field_update_instance($field_instance);
+
+      $attribute['checksum'] = $md5;
+
+      // Store new checksum.
+      commerce_akeneo_attribute_save($attribute);
+    }
+  }
+
+  return array(
+    'field'          => $field,
+    'field_instance' => $field_instance,
+  );
+}
+
+/**
+ * @param array $family
+ * @param array $groups
+ * @param array $fields_by_group
+ */
+function commerce_akeneo_family_services_family_attribute_groups($family, $groups, $fields_by_group) {
+  $group_all_code = commerce_akeneo_get_machine_name('all', 'group');
+
+  // Create or update the group tab.
+  _commerce_akeneo_family_services_family_group_save(
+    $family['product_type'],
+    $group_all_code,
+    t('Tabs'),
+    50,
+    'tabs',
+    array()
+  );
+
+  $weight   = 0;
+  $children = array();
+
+  foreach ($fields_by_group as $code => $fields) {
+    $group_code            = commerce_akeneo_get_machine_name($code, 'group');
+    $attribute_group_label = commerce_akeneo_get_language($groups[$code]['labels']);
+
+    $group = _commerce_akeneo_family_services_family_group_save(
+      $family['product_type'],
+      $group_code,
+      $attribute_group_label,
+      $weight++,
+      'tab',
+      array_keys($fields),
+      'tabs'
+    );
+
+    $children[] = $group->group_name;
+  }
+
+  // Set children for tab group.
+  _commerce_akeneo_family_services_family_group_save(
+    $family['product_type'],
+    $group_all_code,
+    t('Tabs'),
+    50,
+    'tabs',
+    $children
+  );
+}
+
+/**
+ * Save field group.
+ *
+ * @param string $bundle
+ *   Bundle.
+ * @param string $name
+ *   Group name.
+ * @param string $label
+ *   Group label.
+ * @param int    $weight
+ *   Weight.
+ * @param string $type
+ *   Type.
+ * @param array  $children
+ *   Children.
+ * @param string $parent
+ *   Parent name.
+ *
+ * @return object
+ *   The group saved.
+ */
+function _commerce_akeneo_family_services_family_group_save(
+  $bundle,
+  $name,
+  $label,
+  $weight = 0,
+  $type = 'tab',
+  $children = array(),
+  $parent = ''
+) {
+  // Prepare storage with ctools.
+  ctools_include('export');
+
+  $entity_type = 'commerce_product';
+  $mode        = 'form';
+
+  $identifier = $name . '|' . $entity_type . '|' . $bundle . '|' . $mode;
+
+  $groups = field_group_info_groups($entity_type, $bundle, $mode, TRUE);
+
+  // Update existing group.
+  if (isset($groups[$name]) && $group = $groups[$name]) {
+    if (is_array($children)) {
+      $group->children = $children;
+    }
+
+    $group->label       = $label;
+    $group->parent_name = $parent;
+    $group->weight      = $weight;
+
+    ctools_export_crud_save('field_group', $group);
+
+    return $group;
+  }
+  else {
+    $field_group_types = field_group_formatter_info();
+    $formatter         = $field_group_types[$mode];
+
+    $new_group = (object) array(
+      'identifier'  => $identifier,
+      'group_name'  => $name,
+      'entity_type' => $entity_type,
+      'bundle'      => $bundle,
+      'mode'        => $mode,
+      'children'    => is_array($children) ? $children : array(),
+      'parent_name' => $parent,
+      'weight'      => (int) $weight,
+      'label'       => $label,
+      'format_type' => $type,
+      'disabled'    => FALSE,
+    );
+
+    $new_group->format_settings = array('formatter' => isset($formatter['default_formatter']) ? $formatter['default_formatter'] : '');
+
+    if (isset($formatter['instance_settings'])) {
+      $new_group->format_settings['instance_settings'] = $formatter['instance_settings'];
+    }
+
+    $classes = _field_group_get_html_classes($new_group);
+
+    $new_group->format_settings['instance_settings']['classes'] = implode(' ', $classes->optional);
+
+    // Save and enable it in ctools.
+    ctools_export_crud_save('field_group', $new_group);
+    ctools_export_crud_enable('field_group', $new_group->identifier);
+
+//    drupal_set_message(t('New group %label successfully created.', array('%label' => $new_group->label)));
+
+    return $new_group;
+  }
+}
