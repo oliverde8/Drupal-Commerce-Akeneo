@@ -4,10 +4,6 @@
  * @file
  */
 
-require_once 'MigrateSQLEntityAPIQueueMap.inc';
-require_once 'MigrateSourceQueue.inc';
-require_once 'MigrateAkeneoDestinationCommerceProduct.inc';
-
 /**
  * Class CommerceAkeneoMigrateProduct
  */
@@ -26,7 +22,8 @@ class CommerceAkeneoMigrateProduct extends Migration {
     parent::__construct($arguments);
     $this->description = t('Import product from Akeneo services.');
 
-    $bundle = $bundle = variable_get('commerce_akeneo_product_type_prefix', '') . $arguments['type'];
+    //ODES8_CHECK: $bundle = $bundle = variable_get('commerce_akeneo_product_type_prefix', '') . $arguments['type'];
+    $bundle = commerce_akeneo_get_machine_name($arguments['type'], 'product');
     $this->addArguments(array('bundle' => $bundle));
 
     // Create a map object for tracking the relationships between source rows.
@@ -78,12 +75,26 @@ class CommerceAkeneoMigrateProduct extends Migration {
     foreach ($this->attributesByFields as $field_name => $field_info) {
       $field = field_info_field($field_name);
 
-      /** @var CommerceAkeneoFieldInterface $plugin */
-      if ($plugin = commerce_akeneo_field_get_plugin($field['type'], 'commerce_product', $bundle, $field_name)) {
-        dpm (get_class($plugin), $field_name);
+      if ($field && $plugin = commerce_akeneo_field_get_plugin(
+          $field['type'],
+          'commerce_product',
+          $bundle,
+          $field_name
+        )
+      ) {
+        /** @var CommerceAkeneoFieldInterface $plugin */
         $plugin->addFieldMappingToMigrate($this, $sourceFields);
 
         $this->pluginFields[$field_name] = $plugin;
+      }
+      elseif ($field === NULL) {
+        drupal_set_message(
+          t(
+            'Destination field not found: @field (bundle: @bundle)',
+            array('@bundle' => $bundle, '@field' => $field_name)
+          ),
+          'warning'
+        );
       }
       else {
         drupal_set_message(
@@ -96,7 +107,7 @@ class CommerceAkeneoMigrateProduct extends Migration {
       }
     }
 
-    $this->source      = new MigrateSourceQueue($arguments['type'], $sourceFields);
+    $this->source      = new MigrateSourceQueue('product:' . $arguments['type'], $sourceFields);
     $this->destination = new MigrateAkeneoDestinationCommerceProduct('commerce_product', $bundle);
   }
 
@@ -201,9 +212,6 @@ class CommerceAkeneoMigrateProduct extends Migration {
    * @param stdClass $row
    */
   public function complete($entity, $row) {
-    // Todo: delete imported items.
-    //$this->getSource()->deleteItem($row->migrate_source_item_id);
-
     // Loop over plugins to map attributes vs fields/properties.
     foreach ($this->attributesByFields as $field_name => $field_info) {
       if (isset($this->pluginFields[$field_name])) {
@@ -212,6 +220,9 @@ class CommerceAkeneoMigrateProduct extends Migration {
         $plugin->complete($this, $entity, $row, $field_info['attributes']);
       }
     }
+
+    // Remove processed items from queue.
+    $this->getSource()->deleteItem($row->migrate_source_item_id);
   }
 
   /**

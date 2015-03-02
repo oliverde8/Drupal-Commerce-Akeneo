@@ -15,9 +15,9 @@
 /**
  * Implements hook_commerce_akeneo_family().
  */
-function hook_commerce_akeneo_family($family, $request) {
-  // Allow to process custom code after commerce product type is saved.
-}
+//function hook_commerce_akeneo_family($family, $request) {
+//  // Allow to process custom code after commerce product type is saved.
+//}
 
 /**
  * Implements hook_commerce_akeneo_attribute_AKENEO_TYPE().

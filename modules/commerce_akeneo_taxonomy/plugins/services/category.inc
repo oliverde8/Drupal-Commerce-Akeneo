@@ -38,33 +38,7 @@ function commerce_akeneo_taxonomy_services_category($request) {
   }
 
   try {
-    if (!$taxonomy = commerce_akeneo_taxonomy_load($request['code'], 'category')) {
-      $taxonomy = (object) array(
-        'code' => $request['code'],
-        'type' => 'category',
-      );
-    }
-
-    $taxonomy->label = commerce_akeneo_get_language($request['labels']);
-
-    commerce_akeneo_taxonomy_save($taxonomy);
-
-    if (!$vocabulary = taxonomy_vocabulary_machine_name_load($taxonomy->vocabulary)) {
-      $vocabulary = (object) array(
-        'machine_name' => $taxonomy->vocabulary,
-        'description'  => t('Vocabulary created via Akeneo PIM.'),
-      );
-    }
-
-    $vocabulary->name = $taxonomy->label;
-
-    // Allow override.
-    module_invoke_all('commerce_akeneo_taxonomy_vocabulary_save', $vocabulary, $request);
-
-    // Write the vocabulary to the database.
-    taxonomy_vocabulary_save($vocabulary);
-
-    drupal_alter('commerce_akeneo_taxonomy_vocabulary_save', $vocabulary, $request);
+    commerce_akeneo_taxonomy_handle_service($request['code'], 'category', $request['labels'], $request['children']);
   }
   catch (CommerceAkeneoException $e) {
     watchdog_exception('akeneo', $e);

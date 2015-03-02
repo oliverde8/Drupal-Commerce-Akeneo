@@ -1,7 +1,13 @@
 <?php
 
-class MigrateAkeneoDestinationCommerceProduct extends MigrateDestinationCommerceProduct{
+/**
+ * @file
+ */
 
+/**
+ * Class MigrateAkeneoDestinationCommerceProduct
+ */
+class MigrateAkeneoDestinationCommerceProduct extends MigrateDestinationCommerceProduct {
   /**
    * {@inheritdoc}
    */
@@ -20,5 +26,4 @@ class MigrateAkeneoDestinationCommerceProduct extends MigrateDestinationCommerce
     // MigrateSQLMap::saveIDMapping().
     return $ids;
   }
-
-} 
+}

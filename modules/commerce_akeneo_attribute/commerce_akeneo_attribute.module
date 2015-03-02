@@ -127,11 +127,15 @@ function commerce_akeneo_attribute_load($code, $family) {
     ->fetchAssoc();
 
   if ($result) {
-    $attribute             = (array) $result;
-    $attribute['settings'] = unserialize($attribute['settings']);
-  }
+    $attribute = (array) $result;
 
-  return $result;
+    $attribute['settings'] = unserialize($attribute['settings']);
+
+    return $attribute;
+  }
+  else {
+    return NULL;
+  }
 }
 
 /**
@@ -151,11 +155,13 @@ function commerce_akeneo_attribute_load_all($code = NULL, $family = NULL) {
     $query->condition('family', $family);
   }
 
-  $results    = $query->execute()->fetchAllAssoc('aid');
+  $results = $query->execute()->fetchAllAssoc('aid');
+
   $attributes = array();
 
   foreach ($results as $pos => $result) {
-    $attribute             = (array) $result;
+    $attribute = (array) $result;
+
     $attribute['settings'] = unserialize($attribute['settings']);
 
     $attributes[] = $attribute;
@@ -178,19 +184,25 @@ function commerce_akeneo_attribute_save(&$attribute) {
 
   // Set default values.
   $attribute += array(
-    'aid'      => NULL,
-    'label'    => $attribute['code'],
-    'created'  => REQUEST_TIME,
-    'changed'  => REQUEST_TIME,
-    'settings' => array(),
+    'aid'        => NULL,
+    'label'      => $attribute['code'],
+    'settings'   => array(),
+    'checksum'   => '',
+    'field_name' => '',
+    'required'   => 0,
+    'created'    => REQUEST_TIME,
+    'changed'    => REQUEST_TIME,
   );
 
   // Serialize for database storing.
   $settings              = $attribute['settings'];
   $attribute['settings'] = serialize($attribute['settings']);
 
+  $attribute['required'] = $attribute['required'] ? 1 : 0;
+
   if (empty($attribute['aid'])) {
     unset($attribute['aid']);
+
     $aid = db_insert('commerce_akeneo_attribute')
       ->fields(array_keys($attribute))
       ->values($attribute)

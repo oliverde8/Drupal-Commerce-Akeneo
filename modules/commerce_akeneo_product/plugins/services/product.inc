@@ -41,16 +41,21 @@ function commerce_akeneo_product_services_product($request) {
     return services_error('Missing values.', 406);
   }
 
-  $family = check_plain($request['family']);
+  ////ODES8_CHECK:
+  /*
+   $family = check_plain($request['family']);
 
   if (strlen($family) > 25) {
     $family = substr($family, 0, 24) . '_';
     $family = preg_replace('/_$/', '', $family);
   }
-
+   */
   try {
+    // Secure family name.
+    $family = check_plain($request['family']);
+
     // Save product to Drupal Queue for future Migrate handle.
-    $queue = commerce_akeneo_product_queue_load($family, TRUE);
+    $queue = commerce_akeneo_queue_load('product:' . $family, TRUE);
 
     if (!$queue->createItem($request)) {
       throw new CommerceAkeneoException('Error while trying to add product to queue.', 500);

@@ -24,6 +24,7 @@ function commerce_akeneo_install() {
   variable_set('commerce_akeneo_prefix_category', 'catalog_');
   variable_set('commerce_akeneo_prefix_option', 'option_');
   variable_set('commerce_akeneo_prefix_field', 'akeneo_');
+  variable_set('commerce_akeneo_prefix_group', 'group_');
   variable_set('commerce_akeneo_prefix_product', 'akeneo_');
 }
 
@@ -34,5 +35,6 @@ function commerce_akeneo_uninstall() {
   variable_del('commerce_akeneo_prefix_category');
   variable_del('commerce_akeneo_prefix_option');
   variable_del('commerce_akeneo_prefix_field');
+  variable_del('commerce_akeneo_prefix_group');
   variable_del('commerce_akeneo_prefix_product');
 }

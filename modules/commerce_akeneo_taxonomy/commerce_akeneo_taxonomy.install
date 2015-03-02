@@ -16,17 +16,17 @@ function commerce_akeneo_taxonomy_schema() {
         'not null'    => TRUE,
         'description' => 'Primary Key: Unique taxonomy ID.',
       ),
-      'code'       => array(
-        'type'        => 'varchar',
-        'length'      => 64,
-        'not null'    => TRUE,
-        'description' => 'The code of the taxonomy as known under Akeneo.',
-      ),
       'type'       => array(
         'type'        => 'varchar',
         'length'      => 64,
         'not null'    => TRUE,
         'description' => 'The type of the taxonomy (option|category).',
+      ),
+      'code'       => array(
+        'type'        => 'varchar',
+        'length'      => 64,
+        'not null'    => TRUE,
+        'description' => 'The code of the taxonomy as known under Akeneo.',
       ),
       'label'      => array(
         'type'        => 'varchar',

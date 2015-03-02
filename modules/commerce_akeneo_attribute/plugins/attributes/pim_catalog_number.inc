@@ -32,7 +32,7 @@ class CommerceAkeneoAttributePimCatalogNumber extends CommerceAkeneoAttributeAbs
    *   Field details.
    */
   public function getFieldSettings($attribute, $bundle, $field_name, $field_label) {
-    $parameters     = isset($attribute['parameters']) ? $attribute['parameters'] : array();
+    $parameters     = isset($attribute['settings']['parameters']) ? $attribute['settings']['parameters'] : array();
     $localizable    = !empty($parameters['localizable']);
     $allow_decimale = isset($parameters['allow_decimale']) ? $parameters['allow_decimale'] : FALSE;
     $type           = $allow_decimale ? 'number_decimale' : 'number_integer';

@@ -5,6 +5,8 @@
  * Commerce Akeneo Field Group module.
  */
 
+require_once dirname(__FILE__) . '/commerce_akeneo_family.batch.inc';
+
 /**
  * Implements hook_ctools_plugin_directory().
  */
@@ -26,7 +28,12 @@ function commerce_akeneo_family_load($code) {
     ->execute()
     ->fetchAssoc();
 
-  return $result;
+  if ($result) {
+    return (array) $result;
+  }
+  else {
+    return NULL;
+  }
 }
 
 /**
@@ -57,10 +64,16 @@ function commerce_akeneo_family_save(&$family) {
   $family += array(
     'fid'      => NULL,
     'label'    => $family['code'],
+    'settings' => array(),
     'created'  => REQUEST_TIME,
     'changed'  => REQUEST_TIME,
     'settings' => array(),
   );
+
+  // Update or create product type only if necessary.
+  if (empty($family['product_type'])) {
+    $family['product_type'] = commerce_akeneo_get_machine_name($family['code'], 'product');
+  }
 
   // Serialize for database storing.
   $settings           = $family['settings'];
@@ -68,6 +81,7 @@ function commerce_akeneo_family_save(&$family) {
 
   if (empty($family['fid'])) {
     unset($family['fid']);
+
     $fid = db_insert('commerce_akeneo_family')
       ->fields(array_keys($family))
       ->values(array_values($family))

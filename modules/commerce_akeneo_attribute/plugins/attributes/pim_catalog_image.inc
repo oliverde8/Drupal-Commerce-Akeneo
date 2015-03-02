@@ -32,7 +32,7 @@ class CommerceAkeneoAttributePimCatalogImage extends CommerceAkeneoAttributeAbst
    *   Field details.
    */
   public function getFieldSettings($attribute, $bundle, $field_name, $field_label) {
-    $parameters  = isset($attribute['parameters']) ? $attribute['parameters'] : array();
+    $parameters  = isset($attribute['settings']['parameters']) ? $attribute['settings']['parameters'] : array();
     $localizable = !empty($parameters['localizable']);
 
     // Generic initialization.

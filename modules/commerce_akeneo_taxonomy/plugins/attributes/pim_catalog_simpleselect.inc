@@ -5,9 +5,6 @@
  * Plugin file to match with attribute type from Akeneo.
  */
 
-// Add dependency.
-require_once dirname(__FILE__) . '/pim_catalog_abstractselect.inc';
-
 $plugin = array(
   'name'       => 'pim_catalog_simpleselect',
   'title'      => t('Simple select'),
@@ -35,7 +32,7 @@ class CommerceAkeneoAttributePimCatalogSimpleSelect extends CommerceAkeneoAttrib
    *   Field details.
    */
   public function getFieldSettings($attribute, $bundle, $field_name, $field_label) {
-    $parameters  = isset($attribute['parameters']) ? $attribute['parameters'] : array();
+    $parameters  = isset($attribute['settings']['parameters']) ? $attribute['settings']['parameters'] : array();
     $localizable = !empty($parameters['localizable']);
 
     // Generic initialization.
@@ -58,50 +55,5 @@ class CommerceAkeneoAttributePimCatalogSimpleSelect extends CommerceAkeneoAttrib
     );
 
     return $field_details;
-  }
-
-  /**
-   * Create taxonomy vocabulary if missing.
-   *
-   * @param string $code
-   *   Code.
-   * @param string $field_label
-   *   Field label.
-   *
-   * @return stdClass
-   */
-  protected function createVocabularyIfMissing($code, $field_label) {
-    if ($taxonomy = commerce_akeneo_taxonomy_load($code, 'option')) {
-      return $taxonomy->vocabulary;
-    }
-    else {
-      // Load or create new taxonomy entry.
-      if (!$taxonomy = commerce_akeneo_taxonomy_load($code, 'option')) {
-        $taxonomy = (object) array(
-          'code' => $code,
-          'type' => 'option',
-        );
-      }
-
-      $taxonomy->label = $field_label;
-
-      // Save taxonomy entry and generate a vocabulary machine name.
-      commerce_akeneo_taxonomy_save($taxonomy);
-
-      // Create vocabulary is not exists.
-      if (!taxonomy_vocabulary_machine_name_load($taxonomy->vocabulary)) {
-        $vocabulary = (object) array(
-          'machine_name' => $taxonomy->vocabulary,
-          'name'         => $field_label,
-          'description'  => t('Vocabulary created via Akeneo PIM.'),
-          'i18n_mode'    => I18N_MODE_LOCALIZE,
-        );
-
-        // Write the vocabulary to the database.
-        taxonomy_vocabulary_save($vocabulary);
-      }
-
-      return $taxonomy->vocabulary;
-    }
   }
 }

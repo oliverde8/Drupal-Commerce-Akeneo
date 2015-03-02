@@ -32,7 +32,7 @@ class CommerceAkeneoAttributePimCatalogMetric extends CommerceAkeneoAttributeAbs
    *   Field details.
    */
   public function getFieldSettings($attribute, $bundle, $field_name, $field_label) {
-    $parameters     = isset($attribute['parameters']) ? $attribute['parameters'] : array();
+    $parameters     = isset($attribute['settings']['parameters']) ? $attribute['settings']['parameters'] : array();
     $localizable    = !empty($parameters['localizable']);
     $allow_decimale = isset($parameters['allow_decimale']) ? $parameters['allow_decimale'] : FALSE;
     $type           = $allow_decimale ? 'mvf_number_decimal_entityreference' : 'mvf_number_integer_entityreference';
