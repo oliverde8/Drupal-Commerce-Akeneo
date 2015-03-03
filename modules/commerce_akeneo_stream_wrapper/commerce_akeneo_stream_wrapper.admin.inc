@@ -21,6 +21,16 @@ function commerce_akeneo_stream_wrapper_form_commerce_akeneo_settings_form_alter
     '#collapsed'   => FALSE,
   );
 
+  $form['commerce_akeneo_stream_wrapper']['commerce_akeneo_stream_wrapper_base_url'] = array(
+    '#type'          => 'textfield',
+    '#title'         => t('Akeneo base URL'),
+    '#description'   => t('Indicate the Akeneo base URL which allows Drupal to retrieve media, etc... Must start by "http" or "https".'),
+    '#default_value' => variable_get(
+      'commerce_akeneo_stream_wrapper_base_url',
+      NULL
+    ),
+  );
+
   $form['commerce_akeneo_stream_wrapper']['commerce_akeneo_stream_wrapper_timeout'] = array(
     '#type'          => 'textfield',
     '#title'         => t('Connexion timeout'),
@@ -34,7 +44,7 @@ function commerce_akeneo_stream_wrapper_form_commerce_akeneo_settings_form_alter
 
   $form['commerce_akeneo_stream_wrapper']['security'] = array(
     '#type'        => 'fieldset',
-    '#title'       => t('Remote security'),
+    '#title'       => t('Credentials'),
     '#description' => t(
       'Refers to <a href="@url" target="_blank">Akeneo Cookbook</a> to obtain security parameters.',
       array('@url' => 'http://docs.akeneo.com/master/cookbook/rest_api/get-product.html')

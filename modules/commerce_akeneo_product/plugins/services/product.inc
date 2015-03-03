@@ -51,6 +51,9 @@ function commerce_akeneo_product_services_product($request) {
     if (!$queue->createItem($request)) {
       throw new CommerceAkeneoException('Error while trying to add product to queue.', 500);
     }
+
+    // Reload migrate job list.
+    migrate_static_registration();
   }
   catch (CommerceAkeneoException $e) {
     watchdog_exception('akeneo', $e);

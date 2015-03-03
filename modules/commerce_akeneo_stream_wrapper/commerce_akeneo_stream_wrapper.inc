@@ -553,11 +553,9 @@ class DrupalAkeneoStreamWrapper implements DrupalStreamWrapperInterface {
       );
 
       // Restore correct webservice url.
-      $uri = preg_replace('/^akeneo/i', 'http', $this->uri) . '.json';
-      // Todo: remove debug
-      $uri = 'http://local.akeneo-pim/api/rest/media/10041266330001/6';
-
-      $request = drupal_http_request($uri, $options);
+      $base_url = variable_get('commerce_akeneo_stream_wrapper_base_url', '');
+      $uri      = preg_replace('/^akeneos?:\/\//i', rtrim($base_url, '/') . '/', $this->uri) . '.json';
+      $request  = drupal_http_request($uri, $options);
 
       if (empty($request->error) && !empty($request->data)) {
         $this->stream_response = json_decode($request->data);
@@ -584,12 +582,9 @@ class DrupalAkeneoStreamWrapper implements DrupalStreamWrapperInterface {
    * @return array|bool
    */
   protected function getSecurityHeaders() {
-    $username = variable_get('commerce_akeneo_stream_wrapper_username', NULL);
-    $apiKey   = variable_get('commerce_akeneo_stream_wrapper_apikey', NULL);
-    $salt     = variable_get('commerce_akeneo_stream_wrapper_salt', NULL);
-    //admin
-    //'650b33e492b258a7786dc081535941aefb6274be';
-    //'8b87ixiszrkso0s0wsosk0004s480gs';
+    $username = variable_get('commerce_akeneo_stream_wrapper_username');
+    $apiKey   = variable_get('commerce_akeneo_stream_wrapper_apikey');
+    $salt     = variable_get('commerce_akeneo_stream_wrapper_salt');
 
     if (empty($username) || empty($apiKey) || empty($salt)) {
       return FALSE;

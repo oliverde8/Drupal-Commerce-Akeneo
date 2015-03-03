@@ -40,6 +40,13 @@ function commerce_akeneo_settings_form($form, &$form_state) {
     '#default_value' => variable_get('commerce_akeneo_prefix_field', ''),
   );
 
+  $form['commerce_akeneo_machine_name']['commerce_akeneo_prefix_group'] = array(
+    '#type'          => 'textfield',
+    '#title'         => t('Group prefix'),
+    '#size'          => 20,
+    '#default_value' => variable_get('commerce_akeneo_prefix_group', ''),
+  );
+
   $form['commerce_akeneo_machine_name']['commerce_akeneo_prefix_category'] = array(
     '#type'          => 'textfield',
     '#title'         => t('Category prefix'),
