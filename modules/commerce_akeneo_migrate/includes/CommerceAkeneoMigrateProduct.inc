@@ -22,7 +22,6 @@ class CommerceAkeneoMigrateProduct extends Migration {
     parent::__construct($arguments);
     $this->description = t('Import product from Akeneo services.');
 
-    //ODES8_CHECK: $bundle = $bundle = variable_get('commerce_akeneo_product_type_prefix', '') . $arguments['type'];
     $bundle = commerce_akeneo_get_machine_name($arguments['type'], 'product');
     $this->addArguments(array('bundle' => $bundle));
 

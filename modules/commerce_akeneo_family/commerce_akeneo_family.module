@@ -67,7 +67,6 @@ function commerce_akeneo_family_save(&$family) {
     'settings' => array(),
     'created'  => REQUEST_TIME,
     'changed'  => REQUEST_TIME,
-    'settings' => array(),
   );
 
   // Update or create product type only if necessary.

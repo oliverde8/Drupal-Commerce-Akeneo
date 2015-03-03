@@ -41,15 +41,6 @@ function commerce_akeneo_product_services_product($request) {
     return services_error('Missing values.', 406);
   }
 
-  ////ODES8_CHECK:
-  /*
-   $family = check_plain($request['family']);
-
-  if (strlen($family) > 25) {
-    $family = substr($family, 0, 24) . '_';
-    $family = preg_replace('/_$/', '', $family);
-  }
-   */
   try {
     // Secure family name.
     $family = check_plain($request['family']);
