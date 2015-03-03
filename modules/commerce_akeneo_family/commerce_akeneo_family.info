@@ -8,6 +8,7 @@ dependencies[] = commerce_akeneo_taxonomy
 dependencies[] = commerce_product
 
 files[] = commerce_akeneo_family.batch.inc
+files[] = commerce_akeneo_family.drush.inc
 
 ; Information added by drush on 2015-02-17
 version = "7.x-1.x-dev"

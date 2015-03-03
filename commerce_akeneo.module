@@ -119,8 +119,8 @@ function commerce_akeneo_get_machine_name($code, $type = NULL) {
       '%code'               => $code,
     );
 
-//    watchdog('akeneo', $message, $arguments, WATCHDOG_ALERT);
-//    drupal_set_message(t('Machine name %machine_name has been truncated to 32 chars.', array('%machine_name' => $machine_name)), 'warning');
+    watchdog('akeneo', $message, $arguments, WATCHDOG_ALERT);
+    drupal_set_message(t('Machine name %machine_name has been truncated to 32 chars.', array('%machine_name' => $machine_name)), 'warning');
 
     $machine_name = $machine_name_short;
   }

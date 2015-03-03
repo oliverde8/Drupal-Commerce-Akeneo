@@ -77,6 +77,16 @@ function commerce_akeneo_family_batch_process($queue, &$context) {
 
       // Remote item from queue due to correct handle.
       $queue->deleteItem($item);
+
+      $context['message'] = t(
+        'Processed family "@family" as [@product_type] product type (!count/!total).',
+        array(
+          '@family'       => $family['label'],
+          '@product_type' => $family['product_type'],
+          '!count'        => $context['sandbox']['progress'] + 1,
+          '!total'        => $context['sandbox']['max'],
+        )
+      );
     }
   }
   catch (Exception $e) {
@@ -104,6 +114,11 @@ function commerce_akeneo_family_batch_process($queue, &$context) {
     // Clear all caches.
     cache_clear_all();
 
+    if ($context['sandbox']['progress'] < $context['sandbox']['max']) {
+      $delta = $context['sandbox']['max'] - $context['sandbox']['progress'];
+      drupal_set_message(t('@count items in the queue are locked. You need to remove leases before processing again those items.', array('@count' => $delta)), 'warning');
+    }
+
     // Reset cache for commerce product types.
     commerce_product_types_reset();
     variable_set('menu_rebuild_needed', TRUE);
@@ -119,13 +134,6 @@ function commerce_akeneo_family_batch_process($queue, &$context) {
     // because that does not take claims on items into account.
     $context['finished'] = $context['sandbox']['progress'] / $context['sandbox']['max'];
   }
-
-  $context['message'] = t(
-    'Processed !count items in queue.',
-    array(
-      '!count' => $context['sandbox']['progress'],
-    )
-  );
 }
 
 /**
