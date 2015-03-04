@@ -32,13 +32,20 @@ class CommerceAkeneoFieldListBoolean extends CommerceAkeneoFieldAbstract {
 
     // Support for translations.
     if ($this->field['translatable']) {
-      $sourceFields[$field_name . '_languages'] = t('@field languages', array('@field' => $this->field_instance['label']));
+      $sourceFields[$field_name . '_languages'] = t(
+        '@field languages',
+        array('@field' => $this->field_instance['label'])
+      );
       $migrate->addFieldMapping($field_name . ':language', $field_name . '_languages')->defaultValue(array());
     }
   }
 
   public function prepareRow($migrate, $row, $attributes) {
     $field_name = $this->field['field_name'];
+
+    $default_properties = array(
+      $field_name . '_value' => '',
+    );
 
     $properties = array(
       $field_name . '_value'     => array(),
@@ -70,7 +77,7 @@ class CommerceAkeneoFieldListBoolean extends CommerceAkeneoFieldAbstract {
       }
     }
 
-    $this->formatPrepareRowProperties($field_name, $row, $properties);
+    $this->formatPrepareRowProperties($field_name, $row, $properties, $default_properties);
 
     return TRUE;
   }

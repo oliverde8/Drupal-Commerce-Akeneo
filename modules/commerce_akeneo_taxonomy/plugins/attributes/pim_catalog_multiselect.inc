@@ -35,10 +35,9 @@ class CommerceAkeneoAttributePimCatalogMultiSelect extends CommerceAkeneoAttribu
     // Generic initialization.
     $field_details = parent::getFieldSettings($attribute, $bundle, $field_name, $field_label);
 
-    // Custom part based on Akeneo information.
-    $parameters = isset($attribute['settings']['parameters']) ? $attribute['settings']['parameters'] : array();
-
-    $field_details['field']['cardinality'] = FIELD_CARDINALITY_UNLIMITED;
+    if ($field_details) {
+      $field_details['field']['cardinality'] = FIELD_CARDINALITY_UNLIMITED;
+    }
 
     return $field_details;
   }

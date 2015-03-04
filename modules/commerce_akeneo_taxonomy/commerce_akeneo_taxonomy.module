@@ -136,19 +136,25 @@ function commerce_akeneo_taxonomy_commerce_akeneo_taxonomy_vocabulary_save_alter
  * @return mixed
  */
 function commerce_akeneo_taxonomy_load($code, $type = 'option') {
-  $result = db_select('commerce_akeneo_taxonomy', 't')
-    ->fields('t')
-    ->condition('code', $code)
-    ->condition('type', $type)
-    ->execute()
-    ->fetchAssoc();
+  static $taxonomy = array();
 
-  if ($result) {
-    return (array) $result;
+  if (!isset($taxonomy[$type][$code])) {
+    $result = db_select('commerce_akeneo_taxonomy', 't')
+      ->fields('t')
+      ->condition('code', $code)
+      ->condition('type', $type)
+      ->execute()
+      ->fetchAssoc();
+
+    if ($result) {
+      return ($taxonomy[$type][$code] = (array) $result);
+    }
+    else {
+      return NULL;
+    }
   }
-  else {
-    return NULL;
-  }
+
+  return $taxonomy[$type][$code];
 }
 
 /**

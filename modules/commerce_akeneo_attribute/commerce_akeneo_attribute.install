@@ -22,6 +22,12 @@ function commerce_akeneo_attribute_schema() {
         'not null'    => TRUE,
         'description' => '{commerce_akeneo_family}.code that this attribute refers.',
       ),
+      'section'         => array(
+        'type'        => 'varchar',
+        'length'      => 64,
+        'not null'    => TRUE,
+        'description' => 'The section of the attribute.',
+      ),
       'code'       => array(
         'type'        => 'varchar',
         'length'      => 64,
@@ -89,7 +95,7 @@ function commerce_akeneo_attribute_schema() {
       ),
     ),
     'unique keys'  => array(
-      'code' => array('family', 'code'),
+      'code' => array('family', 'section', 'code'),
     ),
   );
 
