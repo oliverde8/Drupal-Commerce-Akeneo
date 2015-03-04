@@ -95,6 +95,12 @@ function commerce_akeneo_get_machine_name($code, $type = NULL) {
   elseif ($type == 'field') {
     $machine_name = variable_get('commerce_akeneo_prefix_field', '') . $code;
   }
+  elseif ($type == 'field_category') {
+    $machine_name = variable_get('commerce_akeneo_prefix_field_category', '') . $code;
+  }
+  elseif ($type == 'field_association') {
+    $machine_name = variable_get('commerce_akeneo_prefix_field_association', '') . $code;
+  }
   elseif ($type == 'group') {
     $machine_name = variable_get('commerce_akeneo_prefix_group', '') . $code;
   }

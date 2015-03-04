@@ -54,6 +54,8 @@ function commerce_akeneo_family_drush_import() {
         t('!count lease reset in queue "@name".', array('!count' => $num_updated, '@name' => $queue_info['title']))
       );
     }
+
+    return;
   }
 
   if (isset($queue_info['batch'])) {

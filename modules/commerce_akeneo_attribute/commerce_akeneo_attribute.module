@@ -22,8 +22,8 @@ function commerce_akeneo_attribute_ctools_plugin_directory($owner, $plugin_type)
  */
 function commerce_akeneo_attribute_commerce_akeneo_attribute_mapping_info() {
   $attributes['sku'] = array(
-    'names' => array('sku'),
-    'skip'  => TRUE,
+    'names'   => array('sku'),
+    'skip'    => TRUE,
   );
 
   $attributes['pictures'] = array(
@@ -54,6 +54,7 @@ function commerce_akeneo_attribute_mapping($refresh = FALSE) {
   foreach ($attributes as $key => $attribute) {
     $attributes[$key] += array(
       'names'        => array(),
+      'section'      => 'attribute',
       'skip'         => FALSE,
       'match'        => FALSE,
       'type'         => NULL,
@@ -192,6 +193,7 @@ function commerce_akeneo_attribute_save(&$attribute) {
   // Set default values.
   $attribute += array(
     'aid'        => NULL,
+    'section'    => '',
     'label'      => $attribute['code'],
     'settings'   => array(),
     'checksum'   => '',
