@@ -68,7 +68,7 @@ class CommerceAkeneoMigrateProduct extends Migration {
 //    $this->addFieldMapping('commerce_price', 'commerce_price_value')->defaultValue(0);
 
     // Akeneo fields.
-    $attributes               = commerce_akeneo_attribute_load_all($arguments['code']);
+    $attributes               = commerce_akeneo_attribute_load_all($arguments['code'], '');
     $this->attributesByFields = commerce_akeneo_attribute_dispatch_by_fields($attributes);
     $this->pluginFields       = array();
 

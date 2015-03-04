@@ -40,6 +40,20 @@ function commerce_akeneo_settings_form($form, &$form_state) {
     '#default_value' => variable_get('commerce_akeneo_prefix_field', ''),
   );
 
+  $form['commerce_akeneo_machine_name']['commerce_akeneo_prefix_field_category'] = array(
+    '#type'          => 'textfield',
+    '#title'         => t('Field association prefix'),
+    '#size'          => 20,
+    '#default_value' => variable_get('commerce_akeneo_prefix_field_category', ''),
+  );
+
+  $form['commerce_akeneo_machine_name']['commerce_akeneo_prefix_field_association'] = array(
+    '#type'          => 'textfield',
+    '#title'         => t('Field association prefix'),
+    '#size'          => 20,
+    '#default_value' => variable_get('commerce_akeneo_prefix_field_association', ''),
+  );
+
   $form['commerce_akeneo_machine_name']['commerce_akeneo_prefix_group'] = array(
     '#type'          => 'textfield',
     '#title'         => t('Group prefix'),

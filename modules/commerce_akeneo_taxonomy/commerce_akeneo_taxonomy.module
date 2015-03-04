@@ -63,6 +63,7 @@ function commerce_akeneo_taxonomy_handle_service($code, $type, $labels, $values)
   // Save product to Drupal Queue for future Migrate handle.
   $queue = commerce_akeneo_queue_load($type . ':' . $code, TRUE);
 
+  // Add elements to queue for migrate import.
   foreach ($values as $key => $item) {
     $item['machine_name'] = $key;
 
@@ -77,56 +78,6 @@ function commerce_akeneo_taxonomy_handle_service($code, $type, $labels, $values)
 
   // Reload migrate job list.
   migrate_static_registration();
-}
-
-/**
- * Implements hook_commerce_akeneo_taxonomy_vocabulary_save_alter().
- */
-function commerce_akeneo_taxonomy_commerce_akeneo_taxonomy_vocabulary_save_alter($vocabulary, $request) {
-  $options = isset($request['options']) ? $request['options'] : $request['children'];
-  $terms   = array();
-
-  // Create or update terms.
-  foreach ($options as $machine_name => $option) {
-    $machine_name = taxonomy_machine_name_clean_name($machine_name);
-
-    if (!$term = taxonomy_term_machine_name_load($machine_name, $vocabulary)) {
-      $term = (object) array(
-        'vid'          => $vocabulary->vid,
-        'machine_name' => $machine_name,
-        'description'  => '',
-        'format'       => 'plain_text',
-      );
-    }
-
-    $term->name = commerce_akeneo_get_language($option['labels']);
-
-    // Save term and generate tid.
-    taxonomy_term_save($term);
-
-    module_invoke_all('commerce_akeneo_taxonomy_term_save', $term, $option);
-
-    // Add temporary parent name.
-    $term->parent = !empty($option['parent']) ? $option['parent'] : NULL;
-
-    // Store in local cache the old value to keep parent link.
-    $terms[$machine_name] = $term;
-  }
-
-  // Support for parent property.
-  foreach ($terms as $machine_name => $term) {
-    // Skip parent for root category.
-    if ($term->parent !== NULL) {
-      $parent = taxonomy_machine_name_clean_name($term->parent);
-
-      if (isset($terms[$parent])) {
-        $term->parent = $terms[$parent]->tid;
-
-        // Save term and generate tid.
-        taxonomy_term_save($term);
-      }
-    }
-  }
 }
 
 /**

@@ -228,7 +228,7 @@ function commerce_akeneo_family_services_family_attributes($family, $request) {
 
         $attribute = array(
           'family'     => $family['code'],
-          'section'    => 'attribute',
+          'section'    => '',
           'code'       => $attribute_code,
           'type'       => $attribute_details['type'],
           'required'   => $attribute_details['required'],
@@ -254,8 +254,7 @@ function commerce_akeneo_family_services_family_attributes($family, $request) {
     );
 
     foreach ($categories as $category) {
-      // Todo: allow dynamisation or not / be careful about migrate script.
-      $attribute_code = strtolower(check_plain($category['code']));
+      $attribute_code = strtolower($category['code']);
 
       $attribute = array(
         'family'     => $family['code'],
@@ -284,8 +283,7 @@ function commerce_akeneo_family_services_family_attributes($family, $request) {
     );
 
     foreach ($request['associations'] as $code => $association) {
-      // Todo: allow dynamisation / be careful about migrate script.
-      $attribute_code = strtolower(check_plain('association_' . $code));
+      $attribute_code = strtolower($code);
       $label          = commerce_akeneo_get_language($association['labels']);
 
       $attribute = array(
@@ -310,12 +308,13 @@ function commerce_akeneo_family_services_family_attributes($family, $request) {
   foreach ($attributes as $pos => $values) {
     // Load existing attribute record if exists.
     $attribute     = commerce_akeneo_attribute_load($values['family'], $values['section'], $values['code']);
-    $attribute_id  = ($attribute ? $attribute['aid'] : 0);
-    $values['aid'] = $attribute_id;
+    $values['aid'] = ($attribute ? $attribute['aid'] : 0);
 
     // Set destination field_name not already defined.
     if (empty($values['field_name'])) {
-      $values['field_name'] = commerce_akeneo_get_machine_name($values['code'], 'field');
+      $type = ($values['section'] ? 'field_' . $values['section'] : 'field');
+
+      $values['field_name'] = commerce_akeneo_get_machine_name($values['code'], $type);
     }
 
     // Save updates.
