@@ -116,7 +116,13 @@ function commerce_akeneo_family_batch_process($queue, &$context) {
 
     if ($context['sandbox']['progress'] < $context['sandbox']['max']) {
       $delta = $context['sandbox']['max'] - $context['sandbox']['progress'];
-      drupal_set_message(t('@count items in the queue are locked. You need to remove leases before processing again those items.', array('@count' => $delta)), 'warning');
+      drupal_set_message(
+        t(
+          '@count items in the queue are locked. You need to remove leases before processing again those items.',
+          array('@count' => $delta)
+        ),
+        'warning'
+      );
     }
 
     // Reset cache for commerce product types.
@@ -221,8 +227,9 @@ function commerce_akeneo_family_services_family_attributes($family, $request) {
         }
 
         $attribute = array(
-          'code'       => $attribute_code,
           'family'     => $family['code'],
+          'section'    => 'attribute',
+          'code'       => $attribute_code,
           'type'       => $attribute_details['type'],
           'required'   => $attribute_details['required'],
           'group_code' => $group_code,
@@ -247,12 +254,14 @@ function commerce_akeneo_family_services_family_attributes($family, $request) {
     );
 
     foreach ($categories as $category) {
-      $attribute_code = 'category_' . $category['code'];
+      // Todo: allow dynamisation or not / be careful about migrate script.
+      $attribute_code = strtolower(check_plain($category['code']));
 
       $attribute = array(
-        'code'       => $attribute_code,
         'family'     => $family['code'],
-        'type'       => 'pim_catalog_multiselect',
+        'section'    => 'category',
+        'code'       => $attribute_code,
+        'type'       => 'product_category',
         'required'   => FALSE,
         'group_code' => 'categories',
         'label'      => $category['label'],
@@ -266,10 +275,41 @@ function commerce_akeneo_family_services_family_attributes($family, $request) {
     }
   }
 
-  // Save new attribute values.
+  // Add entity references for product associations.
+  if (!empty($request['associations'])) {
+    $groups['associations'] = array(
+      'labels' => array(
+        LANGUAGE_NONE => t('Associations'),
+      )
+    );
+
+    foreach ($request['associations'] as $code => $association) {
+      // Todo: allow dynamisation / be careful about migrate script.
+      $attribute_code = strtolower(check_plain('association_' . $code));
+      $label          = commerce_akeneo_get_language($association['labels']);
+
+      $attribute = array(
+        'family'     => $family['code'],
+        'section'    => 'association',
+        'code'       => $attribute_code,
+        'type'       => 'product_association',
+        'required'   => FALSE,
+        'group_code' => 'associations',
+        'label'      => $label,
+        'settings'   => array(
+          'labels'     => $association['labels'],
+          'parameters' => array(),
+        ),
+      );
+
+      $attributes[$attribute_code] = $attribute;
+    }
+  }
+
+  // Save attributes (create / update).
   foreach ($attributes as $pos => $values) {
     // Load existing attribute record if exists.
-    $attribute     = commerce_akeneo_attribute_load($values['code'], $values['family']);
+    $attribute     = commerce_akeneo_attribute_load($values['family'], $values['section'], $values['code']);
     $attribute_id  = ($attribute ? $attribute['aid'] : 0);
     $values['aid'] = $attribute_id;
 

@@ -32,27 +32,8 @@ class CommerceAkeneoAttributePimCatalogSimpleSelect extends CommerceAkeneoAttrib
    *   Field details.
    */
   public function getFieldSettings($attribute, $bundle, $field_name, $field_label) {
-    $parameters  = isset($attribute['settings']['parameters']) ? $attribute['settings']['parameters'] : array();
-    $localizable = !empty($parameters['localizable']);
-
     // Generic initialization.
-    $field_details = $this->prepareFieldSettings(
-      $field_name,
-      $bundle,
-      'taxonomy_term_reference',
-      'taxonomy_autocomplete',
-      $field_label,
-      $localizable
-    );
-
-    // Custom part based on Akeneo information.
-    $field_details['field']['cardinality'] = 1;
-
-    $vocabulary = $this->createVocabularyIfMissing($attribute['code'], $field_label);
-
-    $field_details['field']['settings']['allowed_values'] = array(
-      array('vocabulary' => $vocabulary),
-    );
+    $field_details = parent::getFieldSettings($attribute, $bundle, $field_name, $field_label);
 
     return $field_details;
   }

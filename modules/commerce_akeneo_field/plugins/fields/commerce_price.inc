@@ -42,13 +42,21 @@ class CommerceAkeneoFieldCommercePrice extends CommerceAkeneoFieldAbstract {
 
     // Support for translations.
     if ($this->field['translatable']) {
-      $sourceFields[$field_name . '_languages'] = t('@field languages', array('@field' => $this->field_instance['label']));
+      $sourceFields[$field_name . '_languages'] = t(
+        '@field languages',
+        array('@field' => $this->field_instance['label'])
+      );
       $migrate->addFieldMapping($field_name . ':language', $field_name . '_languages')->defaultValue(array());
     }
   }
 
   public function prepareRow($migrate, $row, $attributes) {
     $field_name = $this->field['field_name'];
+
+    $default_properties = array(
+      $field_name . '_value'         => '',
+      $field_name . '_currency_code' => '',
+    );
 
     $properties = array(
       $field_name . '_value'         => array(),
@@ -67,8 +75,10 @@ class CommerceAkeneoFieldCommercePrice extends CommerceAkeneoFieldAbstract {
           foreach ($values as $value) {
             switch ($attribute['type']) {
               case 'pim_catalog_price_collection':
-                $properties[$field_name . '_value'][$language][]         = doubleval($value['amount']);
-                $properties[$field_name . '_currency_code'][$language][] = $value['currency'];
+                if (isset($value['amount']) && $value['currency']) {
+                  $properties[$field_name . '_value'][$language][]         = doubleval($value['amount']);
+                  $properties[$field_name . '_currency_code'][$language][] = $value['currency'];
+                }
                 break;
             }
           }
@@ -78,7 +88,7 @@ class CommerceAkeneoFieldCommercePrice extends CommerceAkeneoFieldAbstract {
       }
     }
 
-    $this->formatPrepareRowProperties($field_name, $row, $properties);
+    $this->formatPrepareRowProperties($field_name, $row, $properties, $default_properties);
 
     return TRUE;
   }

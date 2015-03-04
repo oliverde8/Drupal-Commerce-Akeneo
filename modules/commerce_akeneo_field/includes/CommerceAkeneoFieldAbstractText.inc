@@ -39,6 +39,10 @@ class CommerceAkeneoFieldAbstractText extends CommerceAkeneoFieldAbstract {
   public function prepareRow($migrate, $row, $attributes) {
     $field_name = $this->field['field_name'];
 
+    $default_properties = array(
+      $field_name . '_value' => '',
+    );
+
     $properties = array(
       $field_name . '_value'     => array(),
       $field_name . '_languages' => array(),
@@ -65,7 +69,7 @@ class CommerceAkeneoFieldAbstractText extends CommerceAkeneoFieldAbstract {
       }
     }
 
-    $this->formatPrepareRowProperties($field_name, $row, $properties);
+    $this->formatPrepareRowProperties($field_name, $row, $properties, $default_properties);
 
     return TRUE;
   }

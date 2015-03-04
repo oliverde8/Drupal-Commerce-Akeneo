@@ -113,16 +113,18 @@ function commerce_akeneo_attribute_dispatch_by_fields($attributes) {
 }
 
 /**
- * @param string $code
  * @param string $family
+ * @param string $section
+ * @param string $code
  *
  * @return mixed
  */
-function commerce_akeneo_attribute_load($code, $family) {
+function commerce_akeneo_attribute_load($family, $section, $code) {
   $result = db_select('commerce_akeneo_attribute', 't')
     ->fields('t')
-    ->condition('code', $code)
     ->condition('family', $family)
+    ->condition('section', $section)
+    ->condition('code', $code)
     ->execute()
     ->fetchAssoc();
 
@@ -139,20 +141,25 @@ function commerce_akeneo_attribute_load($code, $family) {
 }
 
 /**
- * @param string $code
  * @param string $family
+ * @param string $section
+ * @param string $code
  *
  * @return array
  */
-function commerce_akeneo_attribute_load_all($code = NULL, $family = NULL) {
+function commerce_akeneo_attribute_load_all($family = NULL, $section = NULL, $code = NULL) {
   $query = db_select('commerce_akeneo_attribute', 't')->fields('t');
-
-  if (!is_null($code)) {
-    $query->condition('code', $code);
-  }
 
   if (!is_null($family)) {
     $query->condition('family', $family);
+  }
+
+  if (!is_null($section)) {
+    $query->condition('section', $section);
+  }
+
+  if (!is_null($code)) {
+    $query->condition('code', $code);
   }
 
   $results = $query->execute()->fetchAllAssoc('aid');

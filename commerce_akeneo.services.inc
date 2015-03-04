@@ -95,16 +95,19 @@ function commerce_akeneo_default_services_endpoint() {
   $endpoint->resources = array(
     'akeneo' => array(
       'actions' => array(
-        'product'  => array(
+        'product'     => array(
           'enabled' => '1',
         ),
-        'family'   => array(
+        'association' => array(
           'enabled' => '1',
         ),
-        'category' => array(
+        'family'      => array(
           'enabled' => '1',
         ),
-        'option'   => array(
+        'category'    => array(
+          'enabled' => '1',
+        ),
+        'option'      => array(
           'enabled' => '1',
         ),
       ),
@@ -160,6 +163,10 @@ function commerce_akeneo_resource_access($op, $args) {
 
     case 'product':
       $access = user_access('resource product commerce akeneo');
+      break;
+
+    case 'association':
+      $access = user_access('resource association commerce akeneo');
       break;
   }
 

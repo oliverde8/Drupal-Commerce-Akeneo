@@ -28,7 +28,7 @@ class CommerceAkeneoFieldMVFInteger extends CommerceAkeneoFieldAbstract {
       $target_id = $this->field_instance['default_value'][0]['target_id'];
     }
     elseif ($target_bundle = reset($this->field['settings']['unit']['handler_settings']['target_bundles'])) {
-      $units     = units_akeneo_family_load_all();
+      $units = units_akeneo_family_load_all();
 
       // Unit machine name are always lowercase.
       $unit_name = strtolower($units[$target_bundle]['standard']);
@@ -60,6 +60,11 @@ class CommerceAkeneoFieldMVFInteger extends CommerceAkeneoFieldAbstract {
 
   public function prepareRow($migrate, $row, $attributes) {
     $field_name = $this->field['field_name'];
+
+    $default_properties = array(
+      $field_name . '_value'     => '',
+      $field_name . '_target_id' => '',
+    );
 
     $properties = array(
       $field_name . '_value'     => array(),
@@ -96,7 +101,7 @@ class CommerceAkeneoFieldMVFInteger extends CommerceAkeneoFieldAbstract {
       }
     }
 
-    $this->formatPrepareRowProperties($field_name, $row, $properties);
+    $this->formatPrepareRowProperties($field_name, $row, $properties, $default_properties);
 
     return TRUE;
   }

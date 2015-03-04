@@ -63,6 +63,13 @@ class CommerceAkeneoFieldImage extends CommerceAkeneoFieldAbstract {
   public function prepareRow($migrate, $row, $attributes) {
     $field_name = $this->field['field_name'];
 
+    $default_properties = array(
+      $field_name . '_value'            => '',
+      $field_name . '_destination_file' => '',
+      $field_name . '_alt'              => '',
+      $field_name . '_title'            => '',
+    );
+
     $properties = array(
       $field_name . '_value'            => array(),
       $field_name . '_destination_file' => array(),
@@ -102,7 +109,7 @@ class CommerceAkeneoFieldImage extends CommerceAkeneoFieldAbstract {
       }
     }
 
-    $this->formatPrepareRowProperties($field_name, $row, $properties);
+    $this->formatPrepareRowProperties($field_name, $row, $properties, $default_properties);
 
     return TRUE;
   }

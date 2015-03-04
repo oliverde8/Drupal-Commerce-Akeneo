@@ -38,8 +38,8 @@ function commerce_akeneo_migrate_register_product(&$api) {
     $migrations[$machine_name] = array(
       'machine_name' => $machine_name,
       'class_name'   => 'CommerceAkeneoMigrateProduct',
-      'description'  => t('Import products from Akeneo: %type.', array('%type' => $family->code)),
-      'type'         => $family->code,
+      'description'  => t('Import products from Akeneo: %code.', array('%code' => $family->code)),
+      'code'         => $family->code,
     );
   }
 
@@ -77,7 +77,7 @@ function commerce_akeneo_migrate_register_category(&$api) {
     $migrations[$machine_name] = array(
       'machine_name' => $machine_name,
       'class_name'   => 'CommerceAkeneoMigrateTaxonomy',
-      'description'  => t('Import category from Akeneo: %type.', array('%type' => $category['code'])),
+      'description'  => t('Import category from Akeneo: %code.', array('%code' => $category['code'])),
       'type'         => 'category',
       'code'         => $category['code'],
       'bundle'       => $category['vocabulary'],
@@ -118,7 +118,7 @@ function commerce_akeneo_migrate_register_option(&$api) {
     $migrations[$machine_name] = array(
       'machine_name' => $machine_name,
       'class_name'   => 'CommerceAkeneoMigrateTaxonomy',
-      'description'  => t('Import option from Akeneo: %type.', array('%type' => $option['code'])),
+      'description'  => t('Import option from Akeneo: %code.', array('%code' => $option['code'])),
       'type'         => 'option',
       'code'         => $option['code'],
       'bundle'       => $option['vocabulary'],

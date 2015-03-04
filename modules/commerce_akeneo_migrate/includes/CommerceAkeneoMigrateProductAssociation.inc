@@ -5,9 +5,9 @@
  */
 
 /**
- * Class CommerceAkeneoMigrateProduct
+ * Class CommerceAkeneoMigrateProductAssociation
  */
-class CommerceAkeneoMigrateProduct extends Migration {
+class CommerceAkeneoMigrateProductAssociation extends Migration {
   /**
    * @var array
    */
@@ -20,11 +20,10 @@ class CommerceAkeneoMigrateProduct extends Migration {
     global $user;
 
     parent::__construct($arguments);
-    $this->description = t('Import product from Akeneo services.');
+    $this->description = t('Import product association from Akeneo services.');
 
-    $family = commerce_akeneo_family_load($arguments['code']);
-//    $bundle = $family['product_type'];
-    $this->addArguments(array('bundle' => $family['product_type']));
+    $bundle = commerce_akeneo_get_machine_name($arguments['type'], 'product');
+    $this->addArguments(array('bundle' => $bundle));
 
     // Create a map object for tracking the relationships between source rows.
     $this->map = new MigrateSQLEntityAPIQueueMap(
@@ -37,9 +36,9 @@ class CommerceAkeneoMigrateProduct extends Migration {
           'description' => 'SKU',
         ),
       ),
-      MigrateDestinationEntityAPI::getKeySchema('commerce_product', $family['product_type']),
+      MigrateDestinationEntityAPI::getKeySchema('commerce_product', $bundle),
       'default',
-      array('entity_type' => 'commerce_product', 'bundle' => $family['product_type'], 'track_last_imported' => TRUE)
+      array('entity_type' => 'commerce_product', 'bundle' => $bundle, 'track_last_imported' => TRUE)
     );
 
     $sourceFields = array(
@@ -48,7 +47,7 @@ class CommerceAkeneoMigrateProduct extends Migration {
       'status'               => t('Status'),
       'created'              => t('Created date'),
       'updated'              => t('Updated date'),
-//      'categories'           => t('Categories'),
+      'categories'           => t('Categories'),
       'title'                => t('Product title'),
       'commerce_price_value' => t('Commerce price'),
       'path'                 => t('Path'),
@@ -68,7 +67,7 @@ class CommerceAkeneoMigrateProduct extends Migration {
 //    $this->addFieldMapping('commerce_price', 'commerce_price_value')->defaultValue(0);
 
     // Akeneo fields.
-    $attributes               = commerce_akeneo_attribute_load_all($arguments['code']);
+    $attributes               = commerce_akeneo_attribute_load_all($arguments['type']);
     $this->attributesByFields = commerce_akeneo_attribute_dispatch_by_fields($attributes);
     $this->pluginFields       = array();
 
@@ -78,7 +77,7 @@ class CommerceAkeneoMigrateProduct extends Migration {
       if ($field && $plugin = commerce_akeneo_field_get_plugin(
           $field['type'],
           'commerce_product',
-          $family['product_type'],
+          $bundle,
           $field_name
         )
       ) {
@@ -91,7 +90,7 @@ class CommerceAkeneoMigrateProduct extends Migration {
         drupal_set_message(
           t(
             'Destination field not found: @field (bundle: @bundle)',
-            array('@bundle' => $family['product_type'], '@field' => $field_name)
+            array('@bundle' => $bundle, '@field' => $field_name)
           ),
           'warning'
         );
@@ -100,15 +99,15 @@ class CommerceAkeneoMigrateProduct extends Migration {
         drupal_set_message(
           t(
             'Destination field type not supported: @type (bundle: @bundle, field: @field)',
-            array('@type' => $field['type'], '@bundle' => $family['product_type'], '@field' => $field_name)
+            array('@type' => $field['type'], '@bundle' => $bundle, '@field' => $field_name)
           ),
           'warning'
         );
       }
     }
 
-    $this->source      = new MigrateSourceQueue('product:' . $arguments['code'], $sourceFields);
-    $this->destination = new MigrateAkeneoDestinationCommerceProduct('commerce_product', $family['product_type']);
+    $this->source      = new MigrateSourceQueue('product:' . $arguments['type'], $sourceFields);
+    $this->destination = new MigrateAkeneoDestinationCommerceProduct('commerce_product', $bundle);
   }
 
   /**
@@ -144,20 +143,6 @@ class CommerceAkeneoMigrateProduct extends Migration {
     $row->created = strtotime($row->created);
     $row->updated = strtotime($row->updated);
     $row->title   = commerce_akeneo_get_language($row->labels);
-
-    // Copy categories to values attribute.
-    foreach ($row->categories as $catalog => $categories) {
-      if ($category = commerce_akeneo_taxonomy_load(strtolower($catalog), 'category')) {
-        foreach ($categories as $category_code) {
-          if ($term = taxonomy_term_machine_name_load($category_code, $category['vocabulary'])) {
-            $row->values['category_' . $category['code']][LANGUAGE_NONE][] = array(
-              'type' => 'pim_catalog_multiselect',
-              'code' => $term->tid,
-            );
-          }
-        }
-      }
-    }
 
     // Loop over plugins to map attributes vs fields/properties.
     foreach ($this->attributesByFields as $field_name => $field_info) {
@@ -236,8 +221,7 @@ class CommerceAkeneoMigrateProduct extends Migration {
     }
 
     // Remove processed items from queue.
-    // TODO: remove comment.
-//    $this->getSource()->deleteItem($row->migrate_source_item_id);
+    $this->getSource()->deleteItem($row->migrate_source_item_id);
   }
 
   /**
