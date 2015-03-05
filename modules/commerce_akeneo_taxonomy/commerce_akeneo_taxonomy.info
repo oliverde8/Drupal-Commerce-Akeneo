@@ -8,6 +8,7 @@ dependencies[] = taxonomy_machine_name
 dependencies[] = services
 
 files[] = includes/CommerceAkeneoAttributePimCatalogAbstractSelect.inc
+files[] = includes/CommerceAkeneoAttributePimCatalogMultiSelectAbstract.inc
 
 ; Information added by drush on 2015-02-17
 version = "7.x-1.x-dev"

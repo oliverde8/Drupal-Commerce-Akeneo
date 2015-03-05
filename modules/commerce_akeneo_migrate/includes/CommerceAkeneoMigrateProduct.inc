@@ -107,6 +107,8 @@ class CommerceAkeneoMigrateProduct extends Migration {
       }
     }
 
+    /*$queu = commerce_akeneo_queue_load('product:' . $arguments['code']);
+    $queu->deleteQueue();/**/
     $this->source      = new MigrateSourceQueue('product:' . $arguments['code'], $sourceFields);
     $this->destination = new MigrateAkeneoDestinationCommerceProduct('commerce_product', $family['product_type']);
   }
@@ -237,7 +239,7 @@ class CommerceAkeneoMigrateProduct extends Migration {
 
     // Remove processed items from queue.
     // TODO: remove comment.
-//    $this->getSource()->deleteItem($row->migrate_source_item_id);
+    $this->getSource()->deleteItem($row->migrate_source_item_id);
   }
 
   /**
