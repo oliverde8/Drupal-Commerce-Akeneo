@@ -22,8 +22,8 @@ function commerce_akeneo_attribute_ctools_plugin_directory($owner, $plugin_type)
  */
 function commerce_akeneo_attribute_commerce_akeneo_attribute_mapping_info() {
   $attributes['sku'] = array(
-    'names'   => array('sku'),
-    'skip'    => TRUE,
+    'names' => array('sku'),
+    'skip'  => TRUE,
   );
 
   $attributes['pictures'] = array(
@@ -235,19 +235,18 @@ function commerce_akeneo_attribute_save(&$attribute) {
 }
 
 /**
- * @param string $code
  * @param string $family
+ * @param string $section
+ * @param string $code
  *
  * @return \DatabaseStatementInterface
  */
-function commerce_akeneo_attribute_delete($code, $family = NULL) {
+function commerce_akeneo_attribute_delete($family = NULL, $section = NULL, $code = NULL) {
   $query = db_delete('commerce_akeneo_attribute');
 
+  $query->condition('family', $family);
+  $query->condition('section', $section);
   $query->condition('code', $code);
-
-  if (!is_null($family)) {
-    $query->condition('family', $family);
-  }
 
   return $query->execute();
 }
@@ -257,4 +256,33 @@ function commerce_akeneo_attribute_delete($code, $family = NULL) {
  */
 function commerce_akeneo_attribute_commerce_akeneo_family_delete($family) {
   db_delete('commerce_akeneo_attribute')->condition('family', $family)->execute();
+}
+
+/**
+ * Implements hook_field_delete_field().
+ */
+function commerce_akeneo_attribute_field_delete_field($field) {
+  // Remove any attribute pointing at deleted $field.
+  db_delete('commerce_akeneo_attribute')->condition('field_name', $field['field_name'])->execute();
+}
+
+/**
+ * Implements hook_field_delete_instance().
+ */
+function commerce_akeneo_attribute_field_delete_instance($instance) {
+  // Remove attribute pointing at deleted instance field.
+  if ($instance['entity_type'] == 'commerce_product') {
+    $query = db_select('commerce_akeneo_attribute', 'a');
+    $query->join('commerce_akeneo_family', 'f', 'f.code = a.family');
+
+    $query->fields('a', array('aid'))
+      ->condition('f.product_type', $instance['bundle'])
+      ->condition('a.field_name', $instance['field_name']);
+
+    $attribute = $query->execute()->fetchAssoc();
+
+    if ($attribute) {
+      db_delete('commerce_akeneo_attribute')->condition('aid', $attribute['aid'])->execute();
+    }
+  }
 }

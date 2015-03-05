@@ -83,7 +83,9 @@ class CommerceAkeneoFieldMVFInteger extends CommerceAkeneoFieldAbstract {
           foreach ($values as $value) {
             switch ($attribute['type']) {
               case 'pim_catalog_metric':
-                $unit = units_unit_machine_name_load($value['unit']);
+                // Unit machine name are always lowercase.
+                $unit_name = strtolower($value['unit']);
+                $unit      = units_unit_machine_name_load($unit_name);
 
                 $properties[$field_name . '_value'][$language][]     = doubleval($value['value']);
                 $properties[$field_name . '_target_id'][$language][] = $unit->umid;

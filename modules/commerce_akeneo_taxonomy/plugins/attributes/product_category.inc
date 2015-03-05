@@ -15,7 +15,7 @@ $plugin = array(
 /**
  * Class CommerceAkeneoAttributePimCatalogProductCategory
  */
-class CommerceAkeneoAttributePimCatalogProductCategory extends CommerceAkeneoAttributePimCatalogMultiSelect {
+class CommerceAkeneoAttributePimCatalogProductCategory extends CommerceAkeneoAttributePimCatalogMultiSelectAbstract {
   /**
    * Create taxonomy vocabulary if missing.
    *

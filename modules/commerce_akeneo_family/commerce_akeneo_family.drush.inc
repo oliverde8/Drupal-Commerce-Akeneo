@@ -55,6 +55,7 @@ function commerce_akeneo_family_drush_import() {
       );
     }
 
+    // Don't go further.
     return;
   }
 
