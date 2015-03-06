@@ -111,3 +111,23 @@ function commerce_akeneo_family_delete($code) {
 
   db_delete('commerce_akeneo_family')->condition('code', $code)->execute();
 }
+
+/**
+ * Implements hook_commerce_product_type_delete().
+ */
+function commerce_akeneo_family_commerce_product_type_delete($product_type, $skip_reset) {
+  // Todo: move this part to commerce_akeneo_attribute with hook.
+  if (module_exists('commerce_akeneo_attribute')) {
+    $family = db_select('commerce_akeneo_family', 'f')
+      ->fields('f')
+      ->condition('product_type', $product_type)
+      ->execute()
+      ->fetchAssoc();
+
+    if ($family) {
+      db_delete('commerce_akeneo_attribute')->condition('family', $family['code'])->execute();
+    }
+  }
+
+  db_delete('commerce_akeneo_family')->condition('product_type', $product_type)->execute();
+}

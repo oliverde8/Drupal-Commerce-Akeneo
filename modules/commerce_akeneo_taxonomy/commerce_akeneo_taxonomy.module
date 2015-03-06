@@ -185,8 +185,15 @@ function commerce_akeneo_taxonomy_delete($code) {
 /**
  * Implements hook_entity_delete().
  */
-function commerce_akeneo_taxonomy_entity_delete($entity, $type) {
-  if ($type == 'taxonomy_vocabulary') {
-    db_delete('commerce_akeneo_taxonomy')->condition('vocabulary', $entity->machine_name)->execute();
-  }
+//function commerce_akeneo_taxonomy_entity_delete($entity, $type) {
+//  if ($type == 'taxonomy_vocabulary') {
+//    db_delete('commerce_akeneo_taxonomy')->condition('vocabulary', $entity->machine_name)->execute();
+//  }
+//}
+
+/**
+ * Implements hook_taxonomy_vocabulary_delete().
+ */
+function commerce_akeneo_taxonomy_taxonomy_vocabulary_delete($vocabulary) {
+  db_delete('commerce_akeneo_taxonomy')->condition('vocabulary', $vocabulary->machine_name)->execute();
 }

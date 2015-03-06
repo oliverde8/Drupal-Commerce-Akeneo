@@ -101,6 +101,9 @@ function commerce_akeneo_default_services_endpoint() {
         'association' => array(
           'enabled' => '1',
         ),
+        'group'       => array(
+          'enabled' => '1',
+        ),
         'family'      => array(
           'enabled' => '1',
         ),
@@ -167,6 +170,10 @@ function commerce_akeneo_resource_access($op, $args) {
 
     case 'association':
       $access = user_access('resource association commerce akeneo');
+      break;
+
+    case 'group':
+      $access = user_access('resource group commerce akeneo');
       break;
   }
 

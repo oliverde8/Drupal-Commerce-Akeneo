@@ -46,7 +46,7 @@ class CommerceAkeneoAttributePimCatalogBoolean extends CommerceAkeneoAttributeAb
     );
 
     // Custom part based on Akeneo information.
-    $field_details['field_instance']['widget']['settings']['display_label'] = TRUE;
+    $field_details['field_instance']['widget']['settings']['display_label']  = TRUE;
     $field_details['field_instance']['widget']['settings']['allowed_values'] = array(
       0 => '',
       1 => $field_label,

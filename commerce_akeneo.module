@@ -57,6 +57,10 @@ function commerce_akeneo_permission() {
       'title'       => t('Service: %service', array('%service' => 'association')),
       'description' => t("Store product association."),
     ),
+    'resource group commerce akeneo'          => array(
+      'title'       => t('Service: %service', array('%service' => 'group')),
+      'description' => t("Store product group."),
+    ),
     'resource family commerce akeneo'           => array(
       'title'       => t('Service: %service', array('%service' => 'family')),
       'description' => t('Synchronize families (product variant).'),

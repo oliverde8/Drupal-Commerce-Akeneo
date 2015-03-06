@@ -1,6 +1,10 @@
 <?php
 
 /**
+ * @file
+ */
+
+/**
  * Class CommerceAkeneoAttributePimCatalogMultiSelectAbstract
  */
 class CommerceAkeneoAttributePimCatalogMultiSelectAbstract extends CommerceAkeneoAttributePimCatalogAbstractSelect {
