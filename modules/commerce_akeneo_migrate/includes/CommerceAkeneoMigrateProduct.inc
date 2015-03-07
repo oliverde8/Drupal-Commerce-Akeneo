@@ -154,13 +154,15 @@ class CommerceAkeneoMigrateProduct extends Migration {
   protected function postImport() {
     $this->getSource()->releaseItems();
 
-    // Links terms if parent not created before child.
+    // Links products if not created before.
     $limit = 10;
 
-    // Keep going until we have no more orphan terms, or we're stuck in a
-    // seemingly infinite loop (only happens with bad data).
     while ($this->destination->hasDeferredImports() && ($limit > 0)) {
-      $this->destination->runDeferredImports();
+      if (!$this->destination->runDeferredImports()) {
+        break;
+      }
+
+      // Loop security.
       --$limit;
     }
 

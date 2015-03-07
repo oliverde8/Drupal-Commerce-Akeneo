@@ -64,18 +64,27 @@ class MigrateAkeneoDestinationCommerceProduct extends MigrateDestinationCommerce
   /**
    * Add entity to deferred queue to be processed again.
    *
-   * @param \stdClass $entity
-   *   Entity generated.
-   * @param \stdClass $row
-   *   Row from source.
+   * @param string    $method
+   *   Method to call in deferred process.
+   * @param string    $id
    */
-  public function addDeferredImports(stdClass $entity, stdClass $row) {
+  public function addDeferredImports($method, $id) {
+    $args = func_get_args();
+    // Remove method.
+    array_shift($args);
+    // Remove id.
+    array_shift($args);
+
+    $args_cloned = array();
+    foreach ($args as $arg) {
+      $args_cloned[] = clone $arg;
+    }
+
     $deferred_import = new stdClass();
+    $deferred_import->method = $method;
+    $deferred_import->args   = $args_cloned;
 
-    $deferred_import->entity = clone $entity;
-    $deferred_import->row    = clone $row;
-
-    $this->deferred[$entity->product_id] = $deferred_import;
+    $this->deferred[$id] = $deferred_import;
   }
 
   /**
@@ -110,9 +119,10 @@ class MigrateAkeneoDestinationCommerceProduct extends MigrateDestinationCommerce
    *
    * This will run import() again for each entity and row.
    *
-   * @param string $method
+   * @return bool
+   *   TRUE if an item as been successfully processed.
    */
-  public function runDeferredImports($method = 'complete') {
+  public function runDeferredImports() {
     $current = $this->deferred;
 
     // Clear the list of deferred imports, to be rebuilt during the import.
@@ -121,10 +131,12 @@ class MigrateAkeneoDestinationCommerceProduct extends MigrateDestinationCommerce
     foreach ($current as $import) {
       // This will automatically re-queue any imports that
       // still need to be deferred.
-      if (method_exists($this, $method)) {
+      if (method_exists($this, $import->method)) {
         $args = array($import->entity, $import->row);
-        call_user_func_array(array($this, $method), $args);
+        call_user_func_array(array($this, $import->method), $args);
       }
     }
+
+    return count($current) != count($this->deferred);
   }
 }

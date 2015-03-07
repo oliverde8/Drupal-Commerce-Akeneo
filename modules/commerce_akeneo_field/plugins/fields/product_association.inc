@@ -75,7 +75,7 @@ class CommerceAkeneoFieldProductAssociation extends CommerceAkeneoFieldAbstractE
     if ($deferred) {
       /** @var MigrateAkeneoDestinationCommerceProduct $destination */
       $destination = $migrate->getDestination();
-      $destination->addDeferredImports($entity, $row);
+      $destination->addDeferredImports('complete', $entity->product_id, $entity, $row);
     }
 
     // Save product associations.
