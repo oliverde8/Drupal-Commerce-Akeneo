@@ -6,6 +6,8 @@ core = 7.x
 dependencies[] = commerce_akeneo
 dependencies[] = commerce_akeneo_family
 
+files[] = includes/CommerceAkeneoAttributeInterface.inc
+files[] = includes/CommerceAkeneoAttributeAbstract.inc
 
 ; Information added by drush on 2015-02-17
 version = "7.x-1.x-dev"

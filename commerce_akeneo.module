@@ -5,9 +5,6 @@
  * Module file for Commerce Akeneo module.
  */
 
-require_once dirname(__FILE__) . '/includes/CommerceAkeneoFieldInterface.inc';
-require_once dirname(__FILE__) . '/includes/CommerceAkeneoException.inc';
-
 require_once 'commerce_akeneo.ctools.inc';
 require_once 'commerce_akeneo.api.inc';
 require_once 'commerce_akeneo.services.inc';

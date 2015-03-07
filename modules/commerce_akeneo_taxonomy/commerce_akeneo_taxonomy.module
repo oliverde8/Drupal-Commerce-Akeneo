@@ -67,7 +67,7 @@ function commerce_akeneo_taxonomy_handle_service($code, $type, $labels, $values)
   foreach ($values as $key => $item) {
     $item['machine_name'] = $key;
 
-    if ($item['parent'] == $code) {
+    if (!isset($item['parent']) || $item['parent'] == $code) {
       $item['parent'] = NULL;
     }
 

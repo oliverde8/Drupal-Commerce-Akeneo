@@ -9,6 +9,8 @@ dependencies[] = libraries
 dependencies[] = services
 dependencies[] = rest_server
 
+files[] = includes/CommerceAkeneoException.inc
+files[] = includes/CommerceAkeneoFieldInterface.inc
 
 ; Information added by drush on 2015-02-17
 version = "7.x-1.x-dev"

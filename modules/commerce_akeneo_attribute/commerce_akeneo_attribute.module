@@ -4,10 +4,6 @@
  * @file
  */
 
-// Classes and Interfaces.
-require_once dirname(__FILE__) . '/includes/CommerceAkeneoAttributeInterface.inc';
-require_once dirname(__FILE__) . '/includes/CommerceAkeneoAttributeAbstract.inc';
-
 /**
  * Implements hook_ctools_plugin_directory().
  */
