@@ -39,7 +39,7 @@ class CommerceAkeneoAttributeProductAssociation extends CommerceAkeneoAttributeA
     $field_details = $this->prepareFieldSettings(
       $field_name,
       $bundle,
-      'entityreference',
+      'commerce_product_reference',
       'inline_entity_form',
       $field_label,
       $localizable

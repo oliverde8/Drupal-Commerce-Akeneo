@@ -45,7 +45,7 @@ function commerce_akeneo_attribute_mapping($refresh = FALSE) {
   $cid = 'commerce_akeneo:attribute_mapping';
 
   if (($cache = cache_get($cid)) && !$refresh) {
-    return $cache->data;
+    //return $cache->data;
   }
 
   $attributes = module_invoke_all('commerce_akeneo_attribute_mapping_info');
@@ -70,6 +70,12 @@ function commerce_akeneo_attribute_mapping($refresh = FALSE) {
   return $attributes;
 }
 
+/**
+ * @param array $attributes
+ *
+ * @return array
+ * @throws \Exception
+ */
 function commerce_akeneo_attribute_dispatch_by_fields($attributes) {
   $fields   = array();
   $mappings = commerce_akeneo_attribute_mapping();
@@ -100,10 +106,8 @@ function commerce_akeneo_attribute_dispatch_by_fields($attributes) {
     }
 
     if (!$found) {
-      $field_name = commerce_akeneo_get_machine_name($attribute['code'], 'field');
-
-      $fields[$field_name] = array(
-        'field_name'   => $field_name,
+      $fields[$attribute['field_name']] = array(
+        'field_name'   => $attribute['field_name'],
         'field_locked' => FALSE,
         'attributes'   => array($attribute['code'] => $attribute),
       );

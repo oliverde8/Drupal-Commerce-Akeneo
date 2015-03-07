@@ -61,11 +61,6 @@ class CommerceAkeneoFieldMVFInteger extends CommerceAkeneoFieldAbstract {
   public function prepareRow($migrate, $row, $attributes) {
     $field_name = $this->field['field_name'];
 
-    $default_properties = array(
-      $field_name . '_value'     => '',
-      $field_name . '_target_id' => '',
-    );
-
     $properties = array(
       $field_name . '_value'     => array(),
       $field_name . '_target_id' => array(),
@@ -103,7 +98,7 @@ class CommerceAkeneoFieldMVFInteger extends CommerceAkeneoFieldAbstract {
       }
     }
 
-    $this->formatPrepareRowProperties($field_name, $row, $properties, $default_properties);
+    $this->formatPrepareRowProperties($field_name, $row, $properties);
 
     return TRUE;
   }

@@ -83,7 +83,7 @@ class CommerceAkeneoMigrateTaxonomy extends MigrationTaxonomyTermMachineName {
     );
 
     $this->source      = new MigrateSourceQueue($arguments['type'] . ':' . $arguments['code'], $sourceFields);
-    $this->destination = new MigrateDestinationTaxonomyTermMachineName($arguments['bundle']);
+    $this->destination = new MigrateDestinationTermMachineName($arguments['bundle']);
   }
 
   /**

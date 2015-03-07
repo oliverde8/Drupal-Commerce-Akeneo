@@ -429,6 +429,7 @@ function commerce_akeneo_family_services_family_attribute($family, $attribute, $
     $field_instance = field_create_instance($field_settings['field_instance']);
   }
   else {
+    // Todo: Useless if not updated in database.
     $field_instance['label']       = $field_settings['field_instance']['label'];
     $field_instance['description'] = $field_settings['field_instance']['description'];
     $field_instance['required']    = $field_settings['field_instance']['required'];

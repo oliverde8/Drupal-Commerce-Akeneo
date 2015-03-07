@@ -4,6 +4,8 @@ package = Commerce (product)
 core = 7.x
 
 files[] = includes/CommerceAkeneoFieldAbstract.inc
+files[] = includes/CommerceAkeneoFieldAbstractEntityReference.inc
+files[] = includes/CommerceAkeneoFieldAbstractTaxonomyTerm.inc
 files[] = includes/CommerceAkeneoFieldAbstractText.inc
 
 ; Drupal Core

@@ -53,11 +53,6 @@ class CommerceAkeneoFieldCommercePrice extends CommerceAkeneoFieldAbstract {
   public function prepareRow($migrate, $row, $attributes) {
     $field_name = $this->field['field_name'];
 
-    $default_properties = array(
-      $field_name . '_value'         => '',
-      $field_name . '_currency_code' => '',
-    );
-
     $properties = array(
       $field_name . '_value'         => array(),
       $field_name . '_currency_code' => array(),
@@ -88,7 +83,7 @@ class CommerceAkeneoFieldCommercePrice extends CommerceAkeneoFieldAbstract {
       }
     }
 
-    $this->formatPrepareRowProperties($field_name, $row, $properties, $default_properties);
+    $this->formatPrepareRowProperties($field_name, $row, $properties);
 
     return TRUE;
   }

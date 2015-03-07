@@ -14,6 +14,11 @@ class CommerceAkeneoMigrateProduct extends Migration {
   protected $attributesByFields;
 
   /**
+   * @var array
+   */
+  protected $pluginsByFields;
+  
+  /**
    * @param array $arguments
    */
   public function __construct($arguments) {
@@ -70,24 +75,39 @@ class CommerceAkeneoMigrateProduct extends Migration {
     $this->addFieldMapping('sku', 'sku');
     // Commerce Price.
     $default_currency = commerce_default_currency();
-    // Point commerce price data to fields.
+    // Todo: Point commerce price data to fields.
     $this->addFieldMapping('commerce_price', 'commerce_price_value')->defaultValue(0);
     $this->addFieldMapping('commerce_price:currency_code')->defaultValue($default_currency);
     $this->addFieldMapping('commerce_price:tax_rate')->defaultValue(0);
 
     $this->attributesByFields = array();
-    $this->pluginFields       = array();
+    $this->pluginsByFields     = array();
 
     // First we only handle generic attributes.
+    $this->loadFieldsAndPlugins($sourceFields, $family);
     // Association and categories are handle in second time.
-    $attributes         = commerce_akeneo_attribute_load_all($arguments['code'], '');
+    $this->loadFieldsAndPlugins($sourceFields, $family, 'category', 'product_category');
+    $this->loadFieldsAndPlugins($sourceFields, $family, 'association', 'product_association');
+
+    $this->source      = new MigrateSourceQueue('product:' . $arguments['code'], $sourceFields);
+    $this->destination = new MigrateAkeneoDestinationCommerceProduct('commerce_product', $family['product_type']);
+  }
+
+  /**
+   * @param array  $sourceFields
+   * @param array  $family
+   * @param string $section
+   * @param string $plugin_name
+   */
+  protected function loadFieldsAndPlugins(&$sourceFields, $family, $section = '', $plugin_name = '') {
+    $attributes         = commerce_akeneo_attribute_load_all($this->arguments['code'], $section);
     $attributesByFields = commerce_akeneo_attribute_dispatch_by_fields($attributes);
 
     foreach ($attributesByFields as $field_name => $field_info) {
       $field = field_info_field($field_name);
 
       if ($field && $plugin = commerce_akeneo_field_get_plugin(
-          $field['type'],
+          ($plugin_name ? $plugin_name : $field['type']),
           'commerce_product',
           $family['product_type'],
           $field_name
@@ -97,7 +117,7 @@ class CommerceAkeneoMigrateProduct extends Migration {
         $plugin->addFieldMappingToMigrate($this, $sourceFields);
 
         $this->attributesByFields[$field_name] = $field_info;
-        $this->pluginFields[$field_name]       = $plugin;
+        $this->pluginsByFields[$field_name]     = $plugin;
       }
       elseif ($field === NULL) {
         drupal_set_message(
@@ -118,31 +138,6 @@ class CommerceAkeneoMigrateProduct extends Migration {
         );
       }
     }
-
-    // Association and categories are handle in second time.
-    $attributes         = commerce_akeneo_attribute_load_all($arguments['code'], 'category');
-    $attributesByFields = commerce_akeneo_attribute_dispatch_by_fields($attributes);
-
-    foreach ($attributesByFields as $field_name => $field_info) {
-      $field = field_info_field($field_name);
-
-      if ($field && $plugin = commerce_akeneo_field_get_plugin(
-          'product_category',
-          'commerce_product',
-          $family['product_type'],
-          $field_name
-        )
-      ) {
-        /** @var CommerceAkeneoFieldInterface $plugin */
-        $plugin->addFieldMappingToMigrate($this, $sourceFields);
-
-        $this->attributesByFields[$field_name] = $field_info;
-        $this->pluginFields[$field_name]       = $plugin;
-      }
-    }
-
-    $this->source      = new MigrateSourceQueue('product:' . $arguments['code'], $sourceFields);
-    $this->destination = new MigrateAkeneoDestinationCommerceProduct('commerce_product', $family['product_type']);
   }
 
   /**
@@ -158,6 +153,27 @@ class CommerceAkeneoMigrateProduct extends Migration {
    */
   protected function postImport() {
     $this->getSource()->releaseItems();
+
+    // Links terms if parent not created before child.
+    $limit = 10;
+
+    // Keep going until we have no more orphan terms, or we're stuck in a
+    // seemingly infinite loop (only happens with bad data).
+    while ($this->destination->hasDeferredImports() && ($limit > 0)) {
+      $this->destination->runDeferredImports();
+      --$limit;
+    }
+
+    // Display an error if we still have orphans left over.
+    if ($this->destination->hasDeferredImports()) {
+      drupal_set_message(
+        t(
+          'One or more product(s) could not be fully imported because their associations could not be found: (%skus)',
+          array('%skus' => implode(', ', $this->destination->getDeferredImportKeys()))
+        ),
+        'warning'
+      );
+    }
   }
 
   /**
@@ -181,9 +197,9 @@ class CommerceAkeneoMigrateProduct extends Migration {
 
     // Loop over plugins to map attributes vs fields/properties.
     foreach ($this->attributesByFields as $field_name => $field_info) {
-      if (isset($this->pluginFields[$field_name])) {
+      if (isset($this->pluginsByFields[$field_name])) {
         /** @var CommerceAkeneoFieldInterface $plugin */
-        $plugin = $this->pluginFields[$field_name];
+        $plugin = $this->pluginsByFields[$field_name];
         $plugin->prepareRow($this, $row, $field_info['attributes']);
       }
     }
@@ -203,9 +219,9 @@ class CommerceAkeneoMigrateProduct extends Migration {
 
     // Loop over plugins to map attributes vs fields/properties.
     foreach ($this->attributesByFields as $field_name => $field_info) {
-      if (isset($this->pluginFields[$field_name])) {
+      if (isset($this->pluginsByFields[$field_name])) {
         /** @var CommerceAkeneoFieldInterface $plugin */
-        $plugin = $this->pluginFields[$field_name];
+        $plugin = $this->pluginsByFields[$field_name];
         $plugin->prepare($this, $entity, $row, $field_info['attributes']);
       }
 
@@ -248,16 +264,16 @@ class CommerceAkeneoMigrateProduct extends Migration {
   public function complete($entity, $row) {
     // Loop over plugins to map attributes vs fields/properties.
     foreach ($this->attributesByFields as $field_name => $field_info) {
-      if (isset($this->pluginFields[$field_name])) {
+      if (isset($this->pluginsByFields[$field_name])) {
         /** @var CommerceAkeneoFieldInterface $plugin */
-        $plugin = $this->pluginFields[$field_name];
+        $plugin = $this->pluginsByFields[$field_name];
         $plugin->complete($this, $entity, $row, $field_info['attributes']);
       }
     }
 
     // Remove processed items from queue.
     // TODO: remove comment.
-    $this->getSource()->deleteItem($row->migrate_source_item_id);
+//    $this->getSource()->deleteItem($row->migrate_source_item_id);
   }
 
   /**
@@ -265,5 +281,12 @@ class CommerceAkeneoMigrateProduct extends Migration {
    */
   public function getSource() {
     return $this->source;
+  }
+
+  /**
+   * @return \MigrateAkeneoDestinationCommerceProduct
+   */
+  public function getDestination() {
+    return $this->destination;
   }
 }

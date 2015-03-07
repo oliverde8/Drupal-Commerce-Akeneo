@@ -74,17 +74,8 @@ abstract class CommerceAkeneoFieldAbstract implements CommerceAkeneoFieldInterfa
    * @param string   $field_name
    * @param stdClass $row
    * @param array    $properties
-   * @param array    $default_properties
    */
-  protected function formatPrepareRowProperties($field_name, $row, $properties, $default_properties = array()) {
-//    if (empty($properties[$field_name . '_languages']) && $default_properties) {
-//      $properties = array();
-//      foreach ($default_properties as $property => $values) {
-//        $properties[$property] = array(LANGUAGE_NONE => array(array()));
-//      }
-//      $properties[$field_name . '_languages'] = array(LANGUAGE_NONE);
-//    }
-
+  protected function formatPrepareRowProperties($field_name, $row, $properties) {
     if ($this->field['cardinality'] == 1) {
       foreach ($properties as $property => $values) {
         if ($property != $field_name . '_languages') {

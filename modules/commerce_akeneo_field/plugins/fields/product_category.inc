@@ -16,7 +16,7 @@ $plugin = array(
 /**
  * Class CommerceAkeneoFieldProductCategory
  */
-class CommerceAkeneoFieldProductCategory extends CommerceAkeneoFieldTaxonomyTerm {
+class CommerceAkeneoFieldProductCategory extends CommerceAkeneoFieldAbstractTaxonomyTerm {
   /**
    * @param Migration $migrate
    * @param array     $sourceFields
@@ -30,12 +30,15 @@ class CommerceAkeneoFieldProductCategory extends CommerceAkeneoFieldTaxonomyTerm
     $migrate->addFieldMapping($field_name . ':create_term', NULL, FALSE)->defaultValue(FALSE);
   }
 
+  /**
+   * @param \Migration $migrate
+   * @param string     $row
+   * @param array      $attributes
+   *
+   * @return bool
+   */
   public function prepareRow($migrate, $row, $attributes) {
     $field_name = $this->field['field_name'];
-
-    $default_properties = array(
-      $field_name . '_value' => '',
-    );
 
     $properties = array(
       $field_name . '_value'     => array(),
@@ -52,7 +55,7 @@ class CommerceAkeneoFieldProductCategory extends CommerceAkeneoFieldTaxonomyTerm
       }
     }
 
-    $this->formatPrepareRowProperties($field_name, $row, $properties, $default_properties);
+    $this->formatPrepareRowProperties($field_name, $row, $properties);
 
     return TRUE;
   }

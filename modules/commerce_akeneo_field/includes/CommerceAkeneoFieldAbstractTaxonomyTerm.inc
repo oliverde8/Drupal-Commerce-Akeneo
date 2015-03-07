@@ -6,9 +6,9 @@
  */
 
 /**
- * Class CommerceAkeneoFieldAbstractText
+ * Class CommerceAkeneoFieldAbstractTaxonomyTerm
  */
-class CommerceAkeneoFieldAbstractText extends CommerceAkeneoFieldAbstract {
+class CommerceAkeneoFieldAbstractTaxonomyTerm extends CommerceAkeneoFieldAbstract {
   /**
    * @param Migration $migrate
    * @param array     $sourceFields
@@ -22,18 +22,11 @@ class CommerceAkeneoFieldAbstractText extends CommerceAkeneoFieldAbstract {
     $sourceFields[$field_name . '_value'] = t('@field value', array('@field' => $this->field_instance['label']));
     $migrate->addFieldMapping($field_name, $field_name . '_value');
 
-    // Settings.
-
-    // Support for translations.
-//    if ($this->field['translatable']) {
-    $sourceFields[$field_name . '_languages'] = t(
-      '@field languages',
-      array('@field' => $this->field_instance['label'])
-    );
-    $migrate->addFieldMapping($field_name . ':language', $field_name . '_languages')->defaultValue(array());
-//    }
-
-    return TRUE;
+    // Default settings.
+    $migrate->addFieldMapping($field_name . ':source_type')->defaultValue('');
+    $migrate->addFieldMapping($field_name . ':create_term')->defaultValue(TRUE);
+    $migrate->addFieldMapping($field_name . ':ignore_case')->defaultValue(FALSE);
+    $migrate->addFieldMapping($field_name . ':machine_name')->defaultValue(TRUE);
   }
 
   public function prepareRow($migrate, $row, $attributes) {
@@ -54,9 +47,17 @@ class CommerceAkeneoFieldAbstractText extends CommerceAkeneoFieldAbstract {
 
           foreach ($values as $value) {
             switch ($attribute['type']) {
-              default:
+              case 'pim_catalog_simpleselect':
+              case 'pim_catalog_multiselect':
+                $properties[$field_name . '_value'][$language][] = $value['code'];
+                break;
+
+              case 'pim_text':
                 $properties[$field_name . '_value'][$language][] = $value['value'];
                 break;
+
+              default:
+                // Not supported.
             }
           }
 
