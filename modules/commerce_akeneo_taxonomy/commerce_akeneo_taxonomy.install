@@ -18,7 +18,7 @@ function commerce_akeneo_taxonomy_schema() {
       ),
       'type'       => array(
         'type'        => 'varchar',
-        'length'      => 64,
+        'length'      => 32,
         'not null'    => TRUE,
         'description' => 'The type of the taxonomy (option|category).',
       ),

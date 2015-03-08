@@ -48,9 +48,8 @@ class CommerceAkeneoAttributePimCatalogAbstractSelect extends CommerceAkeneoAttr
 
       return $field_details;
     }
-    else {
-      return NULL;
-    }
+
+    return NULL;
   }
 
   /**
@@ -67,8 +66,7 @@ class CommerceAkeneoAttributePimCatalogAbstractSelect extends CommerceAkeneoAttr
     if ($taxonomy = commerce_akeneo_taxonomy_load($code, $type)) {
       return $taxonomy['vocabulary'];
     }
-    else {
-      return NULL;
-    }
+
+    return NULL;
   }
 }

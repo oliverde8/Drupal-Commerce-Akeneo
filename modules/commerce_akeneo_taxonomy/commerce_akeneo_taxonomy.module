@@ -28,39 +28,17 @@ function commerce_akeneo_taxonomy_handle_service($code, $type, $labels, $values)
 
   // Store locally details about Akeneo select attribute.
   if (!$taxonomy = commerce_akeneo_taxonomy_load($code, $type)) {
-    $taxonomy = array(
-      'code' => $code,
-      'type' => $type,
+    $vocabulary = commerce_akeneo_get_machine_name($code, $type);
+    $taxonomy   = array(
+      'code'       => $code,
+      'type'       => $type,
+      'vocabulary' => $vocabulary,
     );
   }
 
-  $taxonomy['label'] = commerce_akeneo_get_language($labels);
+  $taxonomy['label'] = filter_xss(commerce_akeneo_get_language($labels));
 
   commerce_akeneo_taxonomy_save($taxonomy);
-
-  // Create taxonomy vocabulary destination if not already exists.
-  if (!$vocabulary = taxonomy_vocabulary_machine_name_load($taxonomy['vocabulary'])) {
-    $vocabulary = (object) array(
-      'machine_name' => $taxonomy['vocabulary'],
-      'description'  => t('Vocabulary created via Akeneo PIM.'),
-      'i18n_mode'    => I18N_MODE_LOCALIZE,
-    );
-  }
-
-  // Refresh vocabulary name if changed on Akeneo side.
-  $vocabulary->name = $taxonomy['label'];
-
-  // Allow override.
-  $context = array(
-    'type'   => $type,
-    'code'   => $code,
-    'labels' => $labels,
-    'values' => $values,
-  );
-  drupal_alter('commerce_akeneo_taxonomy_vocabulary_save', $vocabulary, $context);
-
-  // Write the vocabulary to the database.
-  taxonomy_vocabulary_save($vocabulary);
 
   // Save product to Drupal Queue for future Migrate handle.
   $queue = commerce_akeneo_queue_load($type . ':' . $code, TRUE);
@@ -150,10 +128,6 @@ function commerce_akeneo_taxonomy_save(&$taxonomy) {
     'created' => REQUEST_TIME,
     'changed' => REQUEST_TIME,
   );
-
-  if (empty($taxonomy['vocabulary'])) {
-    $taxonomy['vocabulary'] = commerce_akeneo_get_machine_name($taxonomy['code'], $taxonomy['type']);
-  }
 
   if (empty($taxonomy['tid'])) {
     unset($taxonomy['tid']);

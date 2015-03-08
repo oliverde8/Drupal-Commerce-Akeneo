@@ -28,6 +28,8 @@ class CommerceAkeneoFieldProductCategory extends CommerceAkeneoFieldAbstractTaxo
 
     $field_name = $this->field['field_name'];
     $migrate->addFieldMapping($field_name . ':create_term', NULL, FALSE)->defaultValue(FALSE);
+
+    return TRUE;
   }
 
   /**

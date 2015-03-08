@@ -90,7 +90,35 @@ class CommerceAkeneoMigrateTaxonomy extends MigrationTaxonomyTermMachineName {
    *
    */
   protected function preImport() {
-    // Removes map entries pointing at removed entities.
+    // Create taxonomy vocabulary destination if not already exists.
+    $taxonomy = commerce_akeneo_taxonomy_load($this->arguments['code']);
+
+    if (!$vocabulary = taxonomy_vocabulary_machine_name_load($taxonomy['vocabulary'])) {
+      if (!user_access('administer taxonomy')) {
+        throw new CommerceAkeneoException('Not authorized to create vocabulary.');
+      }
+
+      $vocabulary = (object) array(
+        'machine_name' => $taxonomy['vocabulary'],
+        'description'  => t('Vocabulary created via Akeneo PIM.'),
+        'i18n_mode'    => I18N_MODE_LOCALIZE,
+      );
+    }
+
+    if (user_access('administer taxonomy')) {
+      // Refresh vocabulary name if changed on Akeneo side.
+      $vocabulary->name = $taxonomy['label'];
+
+      // Write the vocabulary to the database.
+      taxonomy_vocabulary_save($vocabulary);
+    }
+
+    // Break if not allowed to create terms for this vocabulary.
+    if (!user_access('edit terms in' . $vocabulary->vid)) {
+      throw new CommerceAkeneoException('Not allowed to create terms.');
+    }
+
+    // Removes map entries pointing at removed terms.
     $this->map->purgeMissingEntities('taxonomy_term', $this->arguments['bundle']);
   }
 
