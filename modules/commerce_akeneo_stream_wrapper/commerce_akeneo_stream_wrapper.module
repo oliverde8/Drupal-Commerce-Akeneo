@@ -304,8 +304,7 @@ function commerce_akeneo_stream_wrapper_file_add_form_submit($form, &$form_state
       $file = $form_state['#file'];
       file_save($file);
     }
-  }
-  catch (Exception $e) {
+  } catch (Exception $e) {
     form_set_error('url', $e->getMessage());
 
     return;

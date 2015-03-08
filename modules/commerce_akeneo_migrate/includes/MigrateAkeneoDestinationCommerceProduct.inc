@@ -64,9 +64,9 @@ class MigrateAkeneoDestinationCommerceProduct extends MigrateDestinationCommerce
   /**
    * Add entity to deferred queue to be processed again.
    *
-   * @param string    $method
+   * @param string $method
    *   Method to call in deferred process.
-   * @param string    $id
+   * @param string $id
    */
   public function addDeferredImports($method, $id) {
     $args = func_get_args();
@@ -80,7 +80,7 @@ class MigrateAkeneoDestinationCommerceProduct extends MigrateDestinationCommerce
       $args_cloned[] = clone $arg;
     }
 
-    $deferred_import = new stdClass();
+    $deferred_import         = new stdClass();
     $deferred_import->method = $method;
     $deferred_import->args   = $args_cloned;
 

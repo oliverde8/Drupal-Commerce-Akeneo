@@ -50,13 +50,11 @@ function commerce_akeneo_migrate_services_group($request) {
 
     // Reload migrate job list.
     migrate_static_registration();
-  }
-  catch (CommerceAkeneoException $e) {
+  } catch (CommerceAkeneoException $e) {
     watchdog_exception('akeneo', $e);
 
     return services_error($e->getMessage(), $e->getCode() ? $e->getCode() : 500);
-  }
-  catch (Exception $e) {
+  } catch (Exception $e) {
     watchdog_exception('akeneo', $e);
 
     return services_error('Internal Server Error', 500);

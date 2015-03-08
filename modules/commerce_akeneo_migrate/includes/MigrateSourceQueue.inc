@@ -61,10 +61,11 @@ class MigrateSourceQueue extends MigrateSource {
   /**
    * @param bool $refresh
    *   Refresh.
+   *
    * @return int
    *   Count of items.
    */
-  public function count($refresh = false) {
+  public function count($refresh = FALSE) {
     return $this->queue->numberOfItems();
   }
 

@@ -24,7 +24,9 @@ function commerce_akeneo_stream_wrapper_form_commerce_akeneo_settings_form_alter
   $form['commerce_akeneo_stream_wrapper']['commerce_akeneo_stream_wrapper_base_url'] = array(
     '#type'          => 'textfield',
     '#title'         => t('Akeneo base URL'),
-    '#description'   => t('Indicate the Akeneo base URL which allows Drupal to retrieve media, etc... Must start by "http" or "https".'),
+    '#description'   => t(
+      'Indicate the Akeneo base URL which allows Drupal to retrieve media, etc... Must start by "http" or "https".'
+    ),
     '#default_value' => variable_get(
       'commerce_akeneo_stream_wrapper_base_url',
       NULL
