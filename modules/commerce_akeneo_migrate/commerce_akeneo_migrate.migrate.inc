@@ -29,8 +29,7 @@ function commerce_akeneo_migrate_migrate_api() {
  */
 function commerce_akeneo_migrate_register_product(&$api) {
   $migrations = array();
-
-  $families = commerce_akeneo_family_load_all();
+  $families   = commerce_akeneo_family_load_all();
 
   foreach ($families as $family) {
     $name = str_replace('_', ' ', $family->code);
@@ -71,7 +70,6 @@ function commerce_akeneo_migrate_register_product(&$api) {
  */
 function commerce_akeneo_migrate_register_category(&$api) {
   $migrations = array();
-
   $categories = commerce_akeneo_taxonomy_load_all('category');
 
   foreach ($categories as $category) {
@@ -115,8 +113,7 @@ function commerce_akeneo_migrate_register_category(&$api) {
  */
 function commerce_akeneo_migrate_register_option(&$api) {
   $migrations = array();
-
-  $options = commerce_akeneo_taxonomy_load_all('option');
+  $options    = commerce_akeneo_taxonomy_load_all('option');
 
   foreach ($options as $option) {
     $name = str_replace('_', ' ', $option['code']);

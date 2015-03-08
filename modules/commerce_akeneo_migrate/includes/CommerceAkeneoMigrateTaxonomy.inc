@@ -99,7 +99,9 @@ class CommerceAkeneoMigrateTaxonomy extends MigrationTaxonomyTermMachineName {
    */
   protected function preImport() {
     // Create taxonomy vocabulary destination if not already exists.
-    $taxonomy = commerce_akeneo_taxonomy_load($this->arguments['code']);
+    if (!$taxonomy = commerce_akeneo_taxonomy_load($this->arguments['code'], $this->arguments['type'])) {
+      throw new CommerceAkeneoException('Missing taxonomy origin.');
+    }
 
     if (!$vocabulary = taxonomy_vocabulary_machine_name_load($taxonomy['vocabulary'])) {
       if (!user_access('administer taxonomy')) {
