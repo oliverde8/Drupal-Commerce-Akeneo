@@ -10,7 +10,7 @@
  *
  * @param stdClass $vocabulary
  *   Vocabulary.
- * @param array $request
+ * @param array    $request
  *   Service request.
  */
 function hook_commerce_akeneo_taxonomy_category_alter(&$vocabulary, $request) {
@@ -22,7 +22,7 @@ function hook_commerce_akeneo_taxonomy_category_alter(&$vocabulary, $request) {
  *
  * @param stdClass $vocabulary
  *   Vocabulary.
- * @param array $request
+ * @param array    $request
  *   Service request.
  */
 function hook_commerce_akeneo_taxonomy_category($vocabulary, $request) {

@@ -88,8 +88,7 @@ function commerce_akeneo_family_batch_process($queue, &$context) {
         )
       );
     }
-  }
-  catch (Exception $e) {
+  } catch (Exception $e) {
     // In case of exception log it and leave the item in the queue
     // to be processed again later.
     drupal_set_message($e->getMessage(), 'error', FALSE);

@@ -17,5 +17,5 @@ $plugin = array(
  * Class CommerceAkeneoFieldTaxonomyTerm
  */
 class CommerceAkeneoFieldTaxonomyTerm extends CommerceAkeneoFieldAbstractTaxonomyTerm {
-  
+
 }
