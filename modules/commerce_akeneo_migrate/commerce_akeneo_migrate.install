@@ -12,7 +12,6 @@ function commerce_akeneo_migrate_disable() {
   MigrateGroup::deregister(COMMERCE_AKENEO_MIGRATE_GROUP_NAME_PRODUCT);
   MigrateGroup::deregister(COMMERCE_AKENEO_MIGRATE_GROUP_NAME_CATEGORY);
   MigrateGroup::deregister(COMMERCE_AKENEO_MIGRATE_GROUP_NAME_OPTION);
-  MigrateGroup::deregister(COMMERCE_AKENEO_MIGRATE_GROUP_NAME_ASSOCIATION);
 }
 
 /**

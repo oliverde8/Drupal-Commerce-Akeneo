@@ -29,6 +29,13 @@ class CommerceAkeneoFieldAbstractTaxonomyTerm extends CommerceAkeneoFieldAbstrac
     $migrate->addFieldMapping($field_name . ':machine_name')->defaultValue(TRUE);
   }
 
+  /**
+   * @param \Migration $migrate
+   * @param string     $row
+   * @param array      $attributes
+   *
+   * @return bool
+   */
   public function prepareRow($migrate, $row, $attributes) {
     $field_name = $this->field['field_name'];
 

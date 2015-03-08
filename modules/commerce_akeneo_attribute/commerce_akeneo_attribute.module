@@ -17,6 +17,7 @@ function commerce_akeneo_attribute_ctools_plugin_directory($owner, $plugin_type)
  * Implements hook_commerce_akeneo_attribute_mapping_info().
  */
 function commerce_akeneo_attribute_commerce_akeneo_attribute_mapping_info() {
+  // Skip field creation for SKU Akeneo attribute.
   $attributes['sku'] = array(
     'names' => array('sku'),
     'skip'  => TRUE,
@@ -33,15 +34,22 @@ function commerce_akeneo_attribute_commerce_akeneo_attribute_mapping_info() {
 }
 
 /**
+ * Expires data from the cache for attribute mapping.
+ */
+function commerce_akeneo_attribute_cache_clear() {
+  cache_clear_all('commerce_akeneo:attribute:mapping');
+}
+
+/**
  * @param bool $refresh
  *
  * @return array
  */
 function commerce_akeneo_attribute_mapping($refresh = FALSE) {
-  $cid = 'commerce_akeneo:attribute_mapping';
+  $cid = 'commerce_akeneo:attribute:mapping';
 
   if (($cache = cache_get($cid)) && !$refresh) {
-    //return $cache->data;
+    return $cache->data;
   }
 
   $attributes = module_invoke_all('commerce_akeneo_attribute_mapping_info');
@@ -192,21 +200,19 @@ function commerce_akeneo_attribute_save(&$attribute) {
 
   // Set default values.
   $attribute += array(
-    'aid'        => NULL,
-    'section'    => '',
-    'label'      => $attribute['code'],
-    'settings'   => array(),
-    'checksum'   => '',
-    'field_name' => '',
-    'required'   => 0,
-    'created'    => REQUEST_TIME,
-    'changed'    => REQUEST_TIME,
+    'aid'      => NULL,
+    'section'  => '',
+    'label'    => $attribute['code'],
+    'settings' => array(),
+    'checksum' => '',
+    'required' => 0,
+    'created'  => REQUEST_TIME,
+    'changed'  => REQUEST_TIME,
   );
 
   // Serialize for database storing.
   $settings              = $attribute['settings'];
   $attribute['settings'] = serialize($attribute['settings']);
-
   $attribute['required'] = $attribute['required'] ? 1 : 0;
 
   if (empty($attribute['aid'])) {

@@ -11,7 +11,7 @@ $plugin = array(
   'weight'   => 10,
   'settings' => array(
     'help'     => t("Save a product based on it's SKU."),
-    'callback' => 'commerce_akeneo_product_services_product',
+    'callback' => 'commerce_akeneo_migrate_services_product',
   ),
 );
 
@@ -24,7 +24,7 @@ $plugin = array(
  * @return object
  *   Confirmation message.
  */
-function commerce_akeneo_product_services_product($request) {
+function commerce_akeneo_migrate_services_product($request) {
   if (!isset($request['sku']) || !is_scalar($request['sku'])) {
     return services_error('Missing SKU.', 406);
   }

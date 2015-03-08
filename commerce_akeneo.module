@@ -50,10 +50,6 @@ function commerce_akeneo_permission() {
       'title'       => t('Service: %service', array('%service' => 'product')),
       'description' => t("Save a product based on it's SKU (create/update)."),
     ),
-    'resource association commerce akeneo'          => array(
-      'title'       => t('Service: %service', array('%service' => 'association')),
-      'description' => t("Store product association."),
-    ),
     'resource group commerce akeneo'          => array(
       'title'       => t('Service: %service', array('%service' => 'group')),
       'description' => t("Store product group."),

@@ -43,9 +43,11 @@ function commerce_akeneo_taxonomy_handle_service($code, $type, $labels, $values)
     $vocabulary = (object) array(
       'machine_name' => $taxonomy['vocabulary'],
       'description'  => t('Vocabulary created via Akeneo PIM.'),
+      'i18n_mode'    => I18N_MODE_LOCALIZE,
     );
   }
 
+  // Refresh vocabulary name if changed on Akeneo side.
   $vocabulary->name = $taxonomy['label'];
 
   // Allow override.
@@ -181,15 +183,6 @@ function commerce_akeneo_taxonomy_save(&$taxonomy) {
 function commerce_akeneo_taxonomy_delete($code) {
   db_delete('commerce_akeneo_taxonomy')->condition('code', $code)->execute();
 }
-
-/**
- * Implements hook_entity_delete().
- */
-//function commerce_akeneo_taxonomy_entity_delete($entity, $type) {
-//  if ($type == 'taxonomy_vocabulary') {
-//    db_delete('commerce_akeneo_taxonomy')->condition('vocabulary', $entity->machine_name)->execute();
-//  }
-//}
 
 /**
  * Implements hook_taxonomy_vocabulary_delete().

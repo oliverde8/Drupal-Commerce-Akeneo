@@ -5,6 +5,11 @@
  */
 
 /**
+ * @addtogroup hooks
+ * @{
+ */
+
+/**
  * @return mixed
  */
 function hook_commerce_akeneo_attribute_mapping_info() {
@@ -29,3 +34,7 @@ function hook_commerce_akeneo_attribute_mapping_info() {
 function hook_commerce_akeneo_attribute_mapping_info_alter(&$attributes) {
 
 }
+
+/**
+ * @} End of "addtogroup hooks".
+ */

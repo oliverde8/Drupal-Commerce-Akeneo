@@ -17,7 +17,12 @@ class CommerceAkeneoMigrateProduct extends Migration {
    * @var array
    */
   protected $pluginsByFields;
-  
+
+  /**
+   * @var DrupalReliableQueueInterface
+   */
+  protected $productDisplayQueue;
+
   /**
    * @param array $arguments
    */
@@ -28,7 +33,6 @@ class CommerceAkeneoMigrateProduct extends Migration {
     $this->description = t('Import product from Akeneo services.');
 
     $family = commerce_akeneo_family_load($arguments['code']);
-//    $bundle = $family['product_type'];
     $this->addArguments(array('bundle' => $family['product_type']));
 
     // Create a map object for tracking the relationships between source rows.
@@ -81,7 +85,7 @@ class CommerceAkeneoMigrateProduct extends Migration {
     $this->addFieldMapping('commerce_price:tax_rate')->defaultValue(0);
 
     $this->attributesByFields = array();
-    $this->pluginsByFields     = array();
+    $this->pluginsByFields    = array();
 
     // First we only handle generic attributes.
     $this->loadFieldsAndPlugins($sourceFields, $family);
@@ -91,6 +95,20 @@ class CommerceAkeneoMigrateProduct extends Migration {
 
     $this->source      = new MigrateSourceQueue('product:' . $arguments['code'], $sourceFields);
     $this->destination = new MigrateAkeneoDestinationCommerceProduct('commerce_product', $family['product_type']);
+  }
+
+  /**
+   * @return \MigrateSourceQueue
+   */
+  public function getSource() {
+    return $this->source;
+  }
+
+  /**
+   * @return \MigrateAkeneoDestinationCommerceProduct
+   */
+  public function getDestination() {
+    return $this->destination;
   }
 
   /**
@@ -117,7 +135,7 @@ class CommerceAkeneoMigrateProduct extends Migration {
         $plugin->addFieldMappingToMigrate($this, $sourceFields);
 
         $this->attributesByFields[$field_name] = $field_info;
-        $this->pluginsByFields[$field_name]     = $plugin;
+        $this->pluginsByFields[$field_name]    = $plugin;
       }
       elseif ($field === NULL) {
         drupal_set_message(
@@ -146,36 +164,9 @@ class CommerceAkeneoMigrateProduct extends Migration {
   protected function preImport() {
     // Removes map entries pointing at removed entities.
     $this->map->purgeMissingEntities('commerce_product', $this->arguments['bundle']);
-  }
 
-  /**
-   * Release items from queue which have not been correctly imported.
-   */
-  protected function postImport() {
-    $this->getSource()->releaseItems();
-
-    // Links products if not created before.
-    $limit = 10;
-
-    while ($this->destination->hasDeferredImports() && ($limit > 0)) {
-      if (!$this->destination->runDeferredImports()) {
-        break;
-      }
-
-      // Loop security.
-      --$limit;
-    }
-
-    // Display an error if we still have orphans left over.
-    if ($this->destination->hasDeferredImports()) {
-      drupal_set_message(
-        t(
-          'One or more product(s) could not be fully imported because their associations could not be found: (%skus)',
-          array('%skus' => implode(', ', $this->destination->getDeferredImportKeys()))
-        ),
-        'warning'
-      );
-    }
+    // Create a queue to prepare product display migration.
+    $this->productDisplayQueue = commerce_akeneo_queue_load('product_display:' . $this->arguments['code'], TRUE);
   }
 
   /**
@@ -200,9 +191,16 @@ class CommerceAkeneoMigrateProduct extends Migration {
     // Loop over plugins to map attributes vs fields/properties.
     foreach ($this->attributesByFields as $field_name => $field_info) {
       if (isset($this->pluginsByFields[$field_name])) {
-        /** @var CommerceAkeneoFieldInterface $plugin */
+        /* @var CommerceAkeneoFieldInterface $plugin */
         $plugin = $this->pluginsByFields[$field_name];
-        $plugin->prepareRow($this, $row, $field_info['attributes']);
+
+        // Skip this row if requested by plugin.
+        if (!$plugin->prepareRow($this, $row, $field_info['attributes'])) {
+          $args = array('@sku' => $row->sku, '@plugin' => get_class($plugin));
+          drupal_set_message(t('Product @sku skipped by plugin @plugin.', $args), 'warning');
+
+          return FALSE;
+        }
       }
     }
 
@@ -214,8 +212,6 @@ class CommerceAkeneoMigrateProduct extends Migration {
    * @param stdClass $row
    */
   public function prepare(&$entity, $row) {
-    // Todo: check behavior when type change.
-
     // Add support for languages.
     $languages = array();
 
@@ -273,22 +269,44 @@ class CommerceAkeneoMigrateProduct extends Migration {
       }
     }
 
+    // Register product to be processed as product display.
+    $item = array(
+      'entity_id' => $entity->product_id,
+      'row'       => $row,
+    );
+    $this->productDisplayQueue->createItem($item);
+
     // Remove processed items from queue.
-    // TODO: remove comment.
     $this->getSource()->deleteItem($row->migrate_source_item_id);
   }
 
   /**
-   * @return \MigrateSourceQueue
+   * Release items from queue which have not been correctly imported.
    */
-  public function getSource() {
-    return $this->source;
-  }
+  protected function postImport() {
+    $this->getSource()->releaseItems();
 
-  /**
-   * @return \MigrateAkeneoDestinationCommerceProduct
-   */
-  public function getDestination() {
-    return $this->destination;
+    // Links products if not created before.
+    $limit = 10;
+
+    while ($this->destination->hasDeferredImports() && ($limit > 0)) {
+      if (!$this->destination->runDeferredImports()) {
+        break;
+      }
+
+      // Loop security.
+      --$limit;
+    }
+
+    // Display an error if we still have orphans left over.
+    if ($this->destination->hasDeferredImports()) {
+      drupal_set_message(
+        t(
+          'One or more product(s) could not be fully imported because their associations could not be found: (%skus)',
+          array('%skus' => implode(', ', $this->destination->getDeferredImportKeys()))
+        ),
+        'warning'
+      );
+    }
   }
 }

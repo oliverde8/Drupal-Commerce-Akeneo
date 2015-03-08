@@ -36,6 +36,13 @@ class CommerceAkeneoFieldAbstractText extends CommerceAkeneoFieldAbstract {
     return TRUE;
   }
 
+  /**
+   * @param \Migration $migrate
+   * @param string     $row
+   * @param array      $attributes
+   *
+   * @return bool
+   */
   public function prepareRow($migrate, $row, $attributes) {
     $field_name = $this->field['field_name'];
 

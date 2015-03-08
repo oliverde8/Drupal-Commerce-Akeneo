@@ -101,7 +101,25 @@ class MigrateSourceQueue extends MigrateSource {
   }
 
   /**
+   * Give the calling migration a shot at manipulating, and possibly rejecting,
+   * the source row.
    *
+   * @return bool
+   *  FALSE if the row is to be skipped.
+   */
+  protected function prepareRow($row) {
+    $return = parent::prepareRow($row);
+
+    if (!$return) {
+      // Remove ignored item from queue.
+      $this->deleteItem($row->migrate_source_item_id);
+    }
+
+    return $return;
+  }
+
+  /**
+   * Release all items in the current stack.
    */
   public function releaseItems() {
     foreach ($this->stack as $item) {

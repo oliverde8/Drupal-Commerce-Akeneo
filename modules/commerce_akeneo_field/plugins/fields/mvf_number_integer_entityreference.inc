@@ -20,6 +20,8 @@ class CommerceAkeneoFieldMVFInteger extends CommerceAkeneoFieldAbstract {
   /**
    * @param Migration $migrate
    * @param array     $sourceFields
+   *
+   * @return bool
    */
   public function addFieldMappingToMigrate($migrate, &$sourceFields) {
     $field_name = $this->field['field_name'];
@@ -56,8 +58,17 @@ class CommerceAkeneoFieldMVFInteger extends CommerceAkeneoFieldAbstract {
 //      $sourceFields[$field_name . '_languages'] = t('@field languages', array('@field' => $this->field_instance['label']));
 //      $migrate->addFieldMapping($field_name . ':language', $field_name . '_languages')->defaultValue(array());
 //    }
+
+    return TRUE;
   }
 
+  /**
+   * @param \Migration $migrate
+   * @param string     $row
+   * @param array      $attributes
+   *
+   * @return bool
+   */
   public function prepareRow($migrate, $row, $attributes) {
     $field_name = $this->field['field_name'];
 

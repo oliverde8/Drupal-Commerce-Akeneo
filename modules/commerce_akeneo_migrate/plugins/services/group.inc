@@ -11,7 +11,7 @@ $plugin = array(
   'weight'   => 10,
   'settings' => array(
     'help'     => t('Store product groups.'),
-    'callback' => 'commerce_akeneo_product_services_group',
+    'callback' => 'commerce_akeneo_migrate_services_group',
   ),
 );
 
@@ -24,7 +24,7 @@ $plugin = array(
  * @return object
  *   Confirmation message.
  */
-function commerce_akeneo_product_services_group($request) {
+function commerce_akeneo_migrate_services_group($request) {
 //  if (!isset($request['sku']) || !is_scalar($request['sku'])) {
 //    return services_error('Missing SKU.', 406);
 //  }
