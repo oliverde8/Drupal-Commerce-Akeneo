@@ -20,36 +20,43 @@ function commerce_akeneo_ctools_plugin_type() {
 }
 
 /**
- * Load attribute plugin.
+ * Load attribute plugin instance.
  *
  * @param string $type
  *   Type.
  *
  * @return CommerceAkeneoAttributeInterface
- *   Plugin class.
+ *   Plugin instance.
  */
 function commerce_akeneo_get_attribute_plugin($type) {
-  $attributePlugins = &drupal_static(__METHOD__, array());
+  $attribute_plugins = &drupal_static(__METHOD__, array());
 
-  if (!isset($attributePlugins[$type])) {
+  if (!isset($attribute_plugins[$type])) {
     ctools_include('context');
     ctools_include('plugins');
 
     if ($class_name = ctools_plugin_load_class('commerce_akeneo', 'attributes', $type, 'class_name')) {
-      $attributePlugins[$type] = new $class_name($type);
+      $attribute_plugins[$type] = new $class_name($type);
     }
   }
 
-  return $attributePlugins[$type];
+  return $attribute_plugins[$type];
 }
 
 /**
+ * Load field plugin instance.
+ *
  * @param string $type
+ *   Type.
  * @param string $entity_type
+ *   Entity type.
  * @param string $bundle
+ *   Bundle.
  * @param string $field_name
+ *   Field name.
  *
  * @return CommerceAkeneoFieldInterface|bool
+ *   Plugin instance.
  */
 function commerce_akeneo_get_field_plugin($type, $entity_type, $bundle, $field_name) {
   ctools_include('context');

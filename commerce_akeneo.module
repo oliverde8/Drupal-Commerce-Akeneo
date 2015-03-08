@@ -167,11 +167,17 @@ function commerce_akeneo_locale_to_language($locale) {
 }
 
 /**
+ * Obtain a value based on localized key.
+ *
  * @param array  $values
+ *   Values.
  * @param string $language
+ *   Language.
  * @param bool   $fallback
+ *   Fallback use.
  *
  * @return mixed
+ *   The value localized.
  */
 function commerce_akeneo_get_language($values, $language = NULL, $fallback = TRUE) {
   if (empty($values)) {
@@ -208,6 +214,7 @@ function commerce_akeneo_get_language($values, $language = NULL, $fallback = TRU
  *   Create the queue.
  *
  * @return \DrupalReliableQueueInterface
+ *   Queue.
  */
 function commerce_akeneo_queue_load($name, $create = FALSE) {
   $cid = array(
@@ -215,7 +222,7 @@ function commerce_akeneo_queue_load($name, $create = FALSE) {
     drupal_strtolower($name),
   );
 
-  /** @var DrupalReliableQueueInterface $queue */
+  /* @var DrupalReliableQueueInterface $queue */
   $queue = DrupalQueue::get(implode(':', $cid));
 
   if ($create) {
