@@ -95,19 +95,19 @@ function commerce_akeneo_default_services_endpoint() {
   $endpoint->resources = array(
     'akeneo' => array(
       'actions' => array(
-        'product'     => array(
+        'product'  => array(
           'enabled' => '1',
         ),
-        'group'       => array(
+        'group'    => array(
           'enabled' => '1',
         ),
-        'family'      => array(
+        'family'   => array(
           'enabled' => '1',
         ),
-        'category'    => array(
+        'category' => array(
           'enabled' => '1',
         ),
-        'option'      => array(
+        'option'   => array(
           'enabled' => '1',
         ),
       ),
