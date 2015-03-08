@@ -18,28 +18,24 @@ $plugin = array(
  */
 class CommerceAkeneoFieldProductAssociation extends CommerceAkeneoFieldAbstractEntityReference {
   /**
-   * @param Migration $migrate
-   * @param array     $source_fields
+   * Map source and destination fields.
    *
-   * @return bool
+   * @inheritdoc
    */
   public function addFieldMappingToMigrate($migrate, &$source_fields) {
     $field_name = $this->field['field_name'];
 
     // Default value field.
-    $source_fields[$field_name . '_value'] = t('@field value', array('@field' => $this->field_instance['label']));
+    $source_fields[$field_name . '_value'] = t('@field value', array('@field' => $this->fieldInstance['label']));
     $migrate->addFieldMapping($field_name, $field_name . '_value')->defaultValue(array());
 
     return TRUE;
   }
 
   /**
-   * @param Migration $migrate
-   * @param stdClass  $entity
-   * @param string    $row
-   * @param array     $attributes
+   * Complete destination entity process.
    *
-   * @return bool
+   * @inheritdoc
    */
   public function complete($migrate, $entity, $row, $attributes) {
 
@@ -67,7 +63,7 @@ class CommerceAkeneoFieldProductAssociation extends CommerceAkeneoFieldAbstractE
 
     // Register entity to be processed again.
     if ($deferred) {
-      /** @var MigrateAkeneoDestinationCommerceProduct $destination */
+      /* @var MigrateAkeneoDestinationCommerceProduct $destination */
       $destination = $migrate->getDestination();
       $destination->addDeferredImports('complete', $entity->product_id, $entity, $row);
     }
@@ -81,9 +77,13 @@ class CommerceAkeneoFieldProductAssociation extends CommerceAkeneoFieldAbstractE
   }
 
   /**
+   * Internal function to obtain product_id from sku.
+   *
    * @param string $sku
+   *   Product SKU.
    *
    * @return int
+   *   Product id.
    */
   protected function getProductIdFromSku($sku) {
     static $sku_list = array();

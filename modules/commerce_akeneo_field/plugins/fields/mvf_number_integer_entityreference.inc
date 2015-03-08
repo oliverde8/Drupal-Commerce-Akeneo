@@ -18,16 +18,15 @@ $plugin = array(
  */
 class CommerceAkeneoFieldMVFInteger extends CommerceAkeneoFieldAbstract {
   /**
-   * @param Migration $migrate
-   * @param array     $source_fields
+   * Map source and destination fields.
    *
-   * @return bool
+   * @inheritdoc
    */
   public function addFieldMappingToMigrate($migrate, &$source_fields) {
     $field_name = $this->field['field_name'];
 
-    if (!empty($this->field_instance['default_value'][0]['target_id'])) {
-      $target_id = $this->field_instance['default_value'][0]['target_id'];
+    if (!empty($this->fieldInstance['default_value'][0]['target_id'])) {
+      $target_id = $this->fieldInstance['default_value'][0]['target_id'];
     }
     elseif ($target_bundle = reset($this->field['settings']['unit']['handler_settings']['target_bundles'])) {
       $units = units_akeneo_family_load_all();
@@ -46,28 +45,26 @@ class CommerceAkeneoFieldMVFInteger extends CommerceAkeneoFieldAbstract {
     }
 
     // Default value field.
-    $source_fields[$field_name . '_value'] = t('@field value', array('@field' => $this->field_instance['label']));
+    $source_fields[$field_name . '_value'] = t('@field value', array('@field' => $this->fieldInstance['label']));
     $migrate->addFieldMapping($field_name, $field_name . '_value');
 
     // Settings.
-    $source_fields[$field_name . '_target_id'] = t('@field unit', array('@field' => $this->field_instance['label']));
+    $source_fields[$field_name . '_target_id'] = t('@field unit', array('@field' => $this->fieldInstance['label']));
     $migrate->addFieldMapping($field_name . ':target_id', $field_name . '_target_id')->defaultValue($target_id);
 
-//    // Support for translations.
-//    if ($this->field['translatable']) {
-//      $source_fields[$field_name . '_languages'] = t('@field languages', array('@field' => $this->field_instance['label']));
-//      $migrate->addFieldMapping($field_name . ':language', $field_name . '_languages')->defaultValue(array());
-//    }
+    // Support for translations.
+    if ($this->field['translatable']) {
+      $source_fields[$field_name . '_languages'] = t('@field languages', array('@field' => $this->fieldInstance['label']));
+      $migrate->addFieldMapping($field_name . ':language', $field_name . '_languages')->defaultValue(array());
+    }
 
     return TRUE;
   }
 
   /**
-   * @param \Migration $migrate
-   * @param string     $row
-   * @param array      $attributes
+   * Prepare source row to match mapping.
    *
-   * @return bool
+   * @inheritdoc
    */
   public function prepareRow($migrate, $row, $attributes) {
     $field_name = $this->field['field_name'];
@@ -93,12 +90,12 @@ class CommerceAkeneoFieldMVFInteger extends CommerceAkeneoFieldAbstract {
                 $unit_name = strtolower($value['unit']);
                 $unit      = units_unit_machine_name_load($unit_name);
 
-                $properties[$field_name . '_value'][$language][]     = doubleval($value['value']);
+                $properties[$field_name . '_value'][$language][]     = floatval($value['value']);
                 $properties[$field_name . '_target_id'][$language][] = $unit->umid;
                 break;
 
               default:
-                $properties[$field_name . '_value'][$language][]     = doubleval($value['value']);
+                $properties[$field_name . '_value'][$language][]     = floatval($value['value']);
                 $properties[$field_name . '_target_id'][$language][] = NULL;
                 break;
             }

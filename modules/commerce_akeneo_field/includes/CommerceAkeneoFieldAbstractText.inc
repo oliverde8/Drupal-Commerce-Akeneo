@@ -10,10 +10,9 @@
  */
 class CommerceAkeneoFieldAbstractText extends CommerceAkeneoFieldAbstract {
   /**
-   * @param Migration $migrate
-   * @param array     $source_fields
+   * Map source and destination fields.
    *
-   * @return bool
+   * @inheritdoc
    */
   public function addFieldMappingToMigrate($migrate, &$source_fields) {
     $field_name = $this->field['field_name'];
@@ -37,11 +36,9 @@ class CommerceAkeneoFieldAbstractText extends CommerceAkeneoFieldAbstract {
   }
 
   /**
-   * @param \Migration $migrate
-   * @param string     $row
-   * @param array      $attributes
+   * Prepare source row to match mapping.
    *
-   * @return bool
+   * @inheritdoc
    */
   public function prepareRow($migrate, $row, $attributes) {
     $field_name = $this->field['field_name'];
@@ -60,11 +57,7 @@ class CommerceAkeneoFieldAbstractText extends CommerceAkeneoFieldAbstract {
           );
 
           foreach ($values as $value) {
-            switch ($attribute['type']) {
-              default:
-                $properties[$field_name . '_value'][$language][] = $value['value'];
-                break;
-            }
+            $properties[$field_name . '_value'][$language][] = $value['value'];
           }
 
           $properties[$field_name . '_languages'][$language] = $language;

@@ -10,10 +10,9 @@
  */
 class CommerceAkeneoFieldAbstractTaxonomyTerm extends CommerceAkeneoFieldAbstract {
   /**
-   * @param Migration $migrate
-   * @param array     $source_fields
+   * Map source and destination fields.
    *
-   * @return bool
+   * @inheritdoc
    */
   public function addFieldMappingToMigrate($migrate, &$source_fields) {
     $field_name = $this->field['field_name'];
@@ -30,11 +29,9 @@ class CommerceAkeneoFieldAbstractTaxonomyTerm extends CommerceAkeneoFieldAbstrac
   }
 
   /**
-   * @param \Migration $migrate
-   * @param string     $row
-   * @param array      $attributes
+   * Prepare source row to match mapping.
    *
-   * @return bool
+   * @inheritdoc
    */
   public function prepareRow($migrate, $row, $attributes) {
     $field_name = $this->field['field_name'];

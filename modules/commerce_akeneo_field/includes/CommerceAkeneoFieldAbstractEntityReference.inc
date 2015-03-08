@@ -10,10 +10,9 @@
  */
 class CommerceAkeneoFieldAbstractEntityReference extends CommerceAkeneoFieldAbstract {
   /**
-   * @param Migration $migrate
-   * @param array     $source_fields
+   * Map source and destination fields.
    *
-   * @return bool
+   * @inheritdoc
    */
   public function addFieldMappingToMigrate($migrate, &$source_fields) {
     $field_name = $this->field['field_name'];

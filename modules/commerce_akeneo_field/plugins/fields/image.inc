@@ -18,16 +18,15 @@ $plugin = array(
  */
 class CommerceAkeneoFieldImage extends CommerceAkeneoFieldAbstract {
   /**
-   * @param Migration $migrate
-   * @param array     $source_fields
+   * Map source and destination fields.
    *
-   * @return bool
+   * @inheritdoc
    */
   public function addFieldMappingToMigrate($migrate, &$source_fields) {
     $field_name = $this->field['field_name'];
 
     // Default value field.
-    $source_fields[$field_name . '_value'] = t('@field value', array('@field' => $this->field_instance['label']));
+    $source_fields[$field_name . '_value'] = t('@field value', array('@field' => $this->fieldInstance['label']));
     $migrate->addFieldMapping($field_name, $field_name . '_value');
 
     // Settings.
@@ -38,26 +37,26 @@ class CommerceAkeneoFieldImage extends CommerceAkeneoFieldAbstract {
     $migrate->addFieldMapping($field_name . ':urlencode')->defaultValue(TRUE);
 
     $uri_scheme      = $this->field['settings']['uri_scheme'];
-    $file_directory  = $this->field_instance['settings']['file_directory'];
+    $file_directory  = $this->fieldInstance['settings']['file_directory'];
     $destination_dir = file_stream_wrapper_uri_normalize($uri_scheme . '://' . $file_directory);
     $migrate->addFieldMapping($field_name . ':destination_dir')->defaultValue($destination_dir);
 
     $source_fields[$field_name . '_destination_file'] = t(
       '@field destination file',
-      array('@field' => $this->field_instance['label'])
+      array('@field' => $this->fieldInstance['label'])
     );
     $migrate->addFieldMapping($field_name . ':destination_file', $field_name . '_destination_file')->defaultValue(NULL);
 
-    $source_fields[$field_name . '_alt'] = t('@field alt', array('@field' => $this->field_instance['label']));
+    $source_fields[$field_name . '_alt'] = t('@field alt', array('@field' => $this->fieldInstance['label']));
     $migrate->addFieldMapping($field_name . ':alt', $field_name . '_alt')->defaultValue(NULL);
 
-    $source_fields[$field_name . '_title'] = t('@field title', array('@field' => $this->field_instance['label']));
+    $source_fields[$field_name . '_title'] = t('@field title', array('@field' => $this->fieldInstance['label']));
     $migrate->addFieldMapping($field_name . ':title', $field_name . '_title')->defaultValue(NULL);
 
     // Support for translations.
     $source_fields[$field_name . '_languages'] = t(
       '@field languages',
-      array('@field' => $this->field_instance['label'])
+      array('@field' => $this->fieldInstance['label'])
     );
 
     $migrate->addFieldMapping($field_name . ':language', $field_name . '_languages')->defaultValue(array());
@@ -66,11 +65,9 @@ class CommerceAkeneoFieldImage extends CommerceAkeneoFieldAbstract {
   }
 
   /**
-   * @param \Migration $migrate
-   * @param string     $row
-   * @param array      $attributes
+   * Prepare source row to match mapping.
    *
-   * @return bool
+   * @inheritdoc
    */
   public function prepareRow($migrate, $row, $attributes) {
     $field_name = $this->field['field_name'];
@@ -117,66 +114,5 @@ class CommerceAkeneoFieldImage extends CommerceAkeneoFieldAbstract {
     $this->formatPrepareRowProperties($field_name, $row, $properties);
 
     return TRUE;
-  }
-
-  public function prepare($migrate, $entity, $row, $attributes) {
-    return TRUE;
-//
-//    global $user;
-//
-//    $field_name = $this->field['field_name'];
-//
-//    foreach ($attributes as $code => $attribute) {
-//      if (isset($row->values[$code])) {
-//        foreach ($row->values[$code] as $locale => $values) {
-//          $language = ($this->field['translatable'] ?
-//            $language = commerce_akeneo_locale_to_language($locale) :
-//            LANGUAGE_NONE
-//          );
-//
-//          foreach ($values as $value) {
-//            switch ($attribute['type']) {
-//              case 'pim_catalog_image':
-//                $uri = preg_replace('/^http/i', 'akeneo', $value['rest_url']);
-//
-////                file_save()
-//
-////                file_save()
-//
-//                if ($files = file_load_multiple(NULL, array('uri' => $uri))) {
-//                  $file = reset($files);
-//                }
-//                else {
-//                  $file      = new stdClass();
-//                  $file->fid = NULL;
-//                  $file->uri = $uri;
-//                }
-//
-//                $file->filename = drupal_basename($value['filename_original']);
-//                $file->filemime = DrupalLocalStreamWrapper::getMimeType($value['filename']);
-//                $file->filesize = (int) $value['length'];
-//                $file->uid      = $user->uid;
-//                $file->status   = FILE_STATUS_PERMANENT;
-//
-//                // Avoid warning about file size call.
-//                $image = file_save_akeneo($file);
-//
-//                $entity->{$field_name}[$language][] = array(
-//                  'fid' => $image->fid,
-//                );
-//                break;
-//
-//              default:
-//                // Not supported.
-//            }
-//          }
-//        }
-//      }
-//    }
-//
-////    var_dump($properties);die;
-////    var_dump($row);die;
-//
-//    return TRUE;
   }
 }

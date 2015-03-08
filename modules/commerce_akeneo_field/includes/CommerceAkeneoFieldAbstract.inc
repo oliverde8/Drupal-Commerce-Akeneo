@@ -2,7 +2,11 @@
 
 /**
  * @file
- * Commerce Akeneo Field Class file.
+ * CommerceAkeneoFieldAbstract class file.
+ */
+
+/**
+ * Class CommerceAkeneoFieldAbstract
  */
 abstract class CommerceAkeneoFieldAbstract implements CommerceAkeneoFieldInterface {
   /**
@@ -13,67 +17,102 @@ abstract class CommerceAkeneoFieldAbstract implements CommerceAkeneoFieldInterfa
   /**
    * @var array
    */
-  protected $field_instance;
+  protected $fieldInstance;
 
   /**
+   * Constructor.
+   *
    * @param string $entity_type
+   *   Entity type.
    * @param string $bundle
+   *   Bundle.
    * @param string $field_name
+   *   Field name.
    */
   public function __construct($entity_type, $bundle, $field_name) {
-    $this->field          = field_info_field($field_name);
-    $this->field_instance = field_info_instance($entity_type, $field_name, $bundle);
+    $this->field         = field_info_field($field_name);
+    $this->fieldInstance = field_info_instance($entity_type, $field_name, $bundle);
   }
 
   /**
+   * Map source and destination fields.
+   *
    * @param Migration $migrate
+   *   Migrate script.
    * @param array     $source_fields
+   *   Source fields.
    *
    * @return bool
+   *   TRUE if valid.
    */
   public function addFieldMappingToMigrate($migrate, &$source_fields) {
     return TRUE;
   }
 
   /**
+   * Prepare source row to match mapping.
+   *
    * @param Migration $migrate
+   *   Migrate script.
    * @param string    $row
+   *   Source row.
    * @param array     $attributes
+   *   Attributes.
    *
    * @return bool
+   *   TRUE if valid.
    */
   public function prepareRow($migrate, $row, $attributes) {
     return TRUE;
   }
 
   /**
+   * Prepare destination entity.
+   *
    * @param Migration $migrate
-   * @param stdClass  $entity
+   *   Migrate script.
+   * @param stdclass  $entity
+   *   Destination entity.
    * @param string    $row
+   *   Source row.
    * @param array     $attributes
+   *   Attributes.
    *
    * @return bool
+   *   TRUE if valid.
    */
   public function prepare($migrate, $entity, $row, $attributes) {
     return TRUE;
   }
 
   /**
+   * Complete destination entity process.
+   *
    * @param Migration $migrate
-   * @param stdClass  $entity
+   *   Migrate script.
+   * @param stdclass  $entity
+   *   Destination entity.
    * @param string    $row
+   *   Source row.
    * @param array     $attributes
+   *   Attributes.
    *
    * @return bool
+   *   TRUE if valid.
    */
   public function complete($migrate, $entity, $row, $attributes) {
     return TRUE;
   }
 
   /**
+   * Internal helper.
+   *
    * @param string   $field_name
-   * @param stdClass $row
+   *   Field name.
+   * @param stdclass $row
+   *   Source row.
    * @param array    $properties
+   *   Properties.
    */
   protected function formatPrepareRowProperties($field_name, $row, $properties) {
     if ($this->field['cardinality'] == 1) {

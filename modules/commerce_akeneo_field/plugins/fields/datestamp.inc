@@ -18,16 +18,15 @@ $plugin = array(
  */
 class CommerceAkeneoFieldDatestamp extends CommerceAkeneoFieldAbstract {
   /**
-   * @param Migration $migrate
-   * @param array     $source_fields
+   * Map source and destination fields.
    *
-   * @return bool
+   * @inheritdoc
    */
   public function addFieldMappingToMigrate($migrate, &$source_fields) {
     $field_name = $this->field['field_name'];
 
     // Default value field.
-    $source_fields[$field_name . '_value'] = t('@field value', array('@field' => $this->field_instance['label']));
+    $source_fields[$field_name . '_value'] = t('@field value', array('@field' => $this->fieldInstance['label']));
     $migrate->addFieldMapping($field_name, $field_name . '_value');
 
     // Settings.
@@ -39,7 +38,7 @@ class CommerceAkeneoFieldDatestamp extends CommerceAkeneoFieldAbstract {
     if ($this->field['translatable']) {
       $source_fields[$field_name . '_languages'] = t(
         '@field languages',
-        array('@field' => $this->field_instance['label'])
+        array('@field' => $this->fieldInstance['label'])
       );
       $migrate->addFieldMapping($field_name . ':language', $field_name . '_languages')->defaultValue(array());
     }
@@ -48,11 +47,9 @@ class CommerceAkeneoFieldDatestamp extends CommerceAkeneoFieldAbstract {
   }
 
   /**
-   * @param \Migration $migrate
-   * @param string     $row
-   * @param array      $attributes
+   * Prepare source row to match mapping.
    *
-   * @return bool
+   * @inheritdoc
    */
   public function prepareRow($migrate, $row, $attributes) {
     $field_name = $this->field['field_name'];
