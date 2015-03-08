@@ -6,25 +6,27 @@
  */
 
 /**
- * Implements hook_commerce_akeneo_attribute_AKENEO_TYPE().
+ * @addtogroup hooks
+ * @{
  */
-function hook_commerce_akeneo_attribute_AKENEO_TYPE($code, $labels = array(), $settings = array()) {
+
+/**
+ * Allow to override resources exposed.
+ *
+ * @param array $resources
+ *   Resources to alter.
+ */
+function hook_commerce_akeneo_services_resources_alter(&$resources) {
+
 }
 
 /**
- * Implements hook_commerce_akeneo_field_alter().
- */
-function hook_commerce_akeneo_field_alter(&$field, $settings, $request) {
-}
-
-/**
- * Implements hook_commerce_akeneo_field_instance().
- */
-function hook_commerce_akeneo_field_instance_alter(&$field_instance, $settings, $request) {
-}
-
-/**
- * Implements hook_commerce_akeneo_locale_to_language_alter().
+ * Allow to define your own logic between locale and language translation.
+ *
+ * @param string $language
+ *   Language to alter.
+ * @param string $locale
+ *   Locale provided as reference.
  */
 function hook_commerce_akeneo_locale_to_language_alter(&$language, $locale) {
   switch ($locale) {
@@ -39,3 +41,7 @@ function hook_commerce_akeneo_locale_to_language_alter(&$language, $locale) {
       break;
   }
 }
+
+/**
+ * @} End of "addtogroup hooks".
+ */

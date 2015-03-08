@@ -23,13 +23,6 @@ function commerce_akeneo_attribute_commerce_akeneo_attribute_mapping_info() {
     'skip'  => TRUE,
   );
 
-  $attributes['pictures'] = array(
-    'match'        => '/^pictures_[0-9]+$/',
-    'type'         => 'pim_akeneo_image',
-    'field_name'   => 'pictures',
-    'field_locked' => TRUE,
-  );
-
   return $attributes;
 }
 
