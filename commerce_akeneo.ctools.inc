@@ -20,25 +20,27 @@ function commerce_akeneo_ctools_plugin_type() {
 }
 
 /**
- * @return array
- */
-function commerce_akeneo_get_attributes() {
-  ctools_include('context');
-  ctools_include('plugins');
-
-  return ctools_get_plugins('commerce_akeneo', 'attributes');
-}
-
-/**
- * @param string $name
+ * Load attribute plugin.
  *
- * @return mixed
+ * @param string $type
+ *   Type.
+ *
+ * @return CommerceAkeneoAttributeInterface
+ *   Plugin class.
  */
-function commerce_akeneo_get_attribute($name) {
-  ctools_include('context');
-  ctools_include('plugins');
+function commerce_akeneo_get_attribute_plugin($type) {
+  $attributePlugins = &drupal_static(__METHOD__, array());
 
-  return ctools_get_plugins('commerce_akeneo', 'attributes', $name);
+  if (!isset($attributePlugins[$type])) {
+    ctools_include('context');
+    ctools_include('plugins');
+
+    if ($class_name = ctools_plugin_load_class('commerce_akeneo', 'attributes', $type, 'class_name')) {
+      $attributePlugins[$type] = new $class_name($type);
+    }
+  }
+
+  return $attributePlugins[$type];
 }
 
 /**
@@ -49,7 +51,7 @@ function commerce_akeneo_get_attribute($name) {
  *
  * @return CommerceAkeneoFieldInterface|bool
  */
-function commerce_akeneo_field_get_plugin($type, $entity_type, $bundle, $field_name) {
+function commerce_akeneo_get_field_plugin($type, $entity_type, $bundle, $field_name) {
   ctools_include('context');
   ctools_include('plugins');
 

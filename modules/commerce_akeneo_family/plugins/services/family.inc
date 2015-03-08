@@ -44,15 +44,18 @@ function commerce_akeneo_family_services_family($request) {
     if (!$queue->createItem($request)) {
       throw new CommerceAkeneoException('Error while trying to add item to queue.', 500);
     }
-  } catch (FieldException $e) {
+  }
+  catch (FieldException $e) {
     watchdog_exception('akeneo', $e);
 
     return services_error($e->getMessage(), 500);
-  } catch (CommerceAkeneoException $e) {
+  }
+  catch (CommerceAkeneoException $e) {
     watchdog_exception('akeneo', $e);
 
     return services_error($e->getMessage(), $e->getCode() ? $e->getCode() : 500);
-  } catch (Exception $e) {
+  }
+  catch (Exception $e) {
     watchdog_exception('akeneo', $e);
 
     return services_error('Internal Server Error', 500);

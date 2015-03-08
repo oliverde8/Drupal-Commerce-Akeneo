@@ -61,15 +61,18 @@ function commerce_akeneo_family_drush_import() {
     $operations = array();
     foreach ($batch['operations'] as $operation) {
       // First element is the batch process callback, second is the argument.
-      $operations[] = array($operation[0], array_merge(array($queue), $operation[1]));
+      $operations[] = array(
+        $operation[0],
+        array_merge(array($queue), $operation[1]),
+      );
     }
     $batch['operations'] = $operations;
 
-    //Get the batch process all ready!
+    // Get the batch process all ready.
     batch_set($batch);
     $batch = &batch_get();
 
-    //Because we are doing this on the back-end, we set progressive to false.
+    // Because we are doing this on the back-end, we set progressive to false.
     $batch['progressive'] = FALSE;
 
     // Process the batch.

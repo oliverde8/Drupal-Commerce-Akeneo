@@ -2,7 +2,7 @@
 
 /**
  * @file
- * Commerce Akeneo Field Group module.
+ * Commerce Akeneo Family module.
  */
 
 require_once dirname(__FILE__) . '/commerce_akeneo_family.batch.inc';
@@ -17,9 +17,13 @@ function commerce_akeneo_family_ctools_plugin_directory($owner, $plugin_type) {
 }
 
 /**
+ * Load family.
+ *
  * @param string $code
+ *   Code.
  *
  * @return mixed
+ *   Family.
  */
 function commerce_akeneo_family_load($code) {
   $result = db_select('commerce_akeneo_family', 't')
@@ -37,7 +41,10 @@ function commerce_akeneo_family_load($code) {
 }
 
 /**
+ * Load all families.
+ *
  * @return array
+ *   Families.
  */
 function commerce_akeneo_family_load_all() {
   $results = db_select('commerce_akeneo_family', 't')
@@ -49,9 +56,13 @@ function commerce_akeneo_family_load_all() {
 }
 
 /**
- * @param array $family
+ * Create or update family.
  *
- * @return \DatabaseStatementInterface|int
+ * @param array $family
+ *   Family.
+ *
+ * @return bool
+ *   TRUE.
  * @throws \Exception
  */
 function commerce_akeneo_family_save(&$family) {
@@ -99,7 +110,10 @@ function commerce_akeneo_family_save(&$family) {
 }
 
 /**
+ * Delete family.
+ *
  * @param string $code
+ *   Code.
  */
 function commerce_akeneo_family_delete($code) {
   module_invoke_all('commerce_akeneo_family_delete', $code);

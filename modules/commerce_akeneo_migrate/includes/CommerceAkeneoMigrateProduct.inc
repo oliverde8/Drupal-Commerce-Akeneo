@@ -124,7 +124,7 @@ class CommerceAkeneoMigrateProduct extends Migration {
     foreach ($attributesByFields as $field_name => $field_info) {
       $field = field_info_field($field_name);
 
-      if ($field && $plugin = commerce_akeneo_field_get_plugin(
+      if ($field && $plugin = commerce_akeneo_get_field_plugin(
           ($plugin_name ? $plugin_name : $field['type']),
           'commerce_product',
           $family['product_type'],
