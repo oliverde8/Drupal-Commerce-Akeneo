@@ -69,11 +69,6 @@ function commerce_akeneo_family_save(&$family) {
     'changed'  => REQUEST_TIME,
   );
 
-  // Update or create product type only if necessary.
-  if (empty($family['product_type'])) {
-    $family['product_type'] = commerce_akeneo_get_machine_name($family['code'], 'product');
-  }
-
   // Serialize for database storing.
   $settings           = $family['settings'];
   $family['settings'] = serialize($family['settings']);

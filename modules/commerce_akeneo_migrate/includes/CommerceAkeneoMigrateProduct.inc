@@ -186,7 +186,7 @@ class CommerceAkeneoMigrateProduct extends Migration {
     $row->uid     = $user->uid;
     $row->created = strtotime($row->created);
     $row->updated = strtotime($row->updated);
-    $row->label   = commerce_akeneo_get_language($row->labels);
+    $row->label   = filter_xss(commerce_akeneo_get_language($row->labels));
 
     // Loop over plugins to map attributes vs fields/properties.
     foreach ($this->attributesByFields as $field_name => $field_info) {

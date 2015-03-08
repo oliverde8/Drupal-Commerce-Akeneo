@@ -145,7 +145,7 @@ class CommerceAkeneoMigrateTaxonomy extends MigrationTaxonomyTermMachineName {
     }
 
     // Common values.
-    $row->label = commerce_akeneo_get_language($row->labels);
+    $row->label = filter_xss(commerce_akeneo_get_language($row->labels));
 
     // Default.
     if (empty($row->parent)) {
