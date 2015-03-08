@@ -2,10 +2,10 @@
 
 /**
  * @file
- * Migrate class file.
+ * Migrate script registration.
  */
 
-/*/*
+/**
  * Implements hook_migrate_api().
  */
 function commerce_akeneo_migrate_migrate_api() {
@@ -22,7 +22,10 @@ function commerce_akeneo_migrate_migrate_api() {
 }
 
 /**
+ * Subscribe product migrate scripts.
+ *
  * @param array $api
+ *   Api.
  */
 function commerce_akeneo_migrate_register_product(&$api) {
   $migrations = array();
@@ -61,7 +64,10 @@ function commerce_akeneo_migrate_register_product(&$api) {
 }
 
 /**
+ * Subscribe product migrate scripts.
+ *
  * @param array $api
+ *   Api.
  */
 function commerce_akeneo_migrate_register_category(&$api) {
   $migrations = array();
@@ -102,7 +108,10 @@ function commerce_akeneo_migrate_register_category(&$api) {
 }
 
 /**
+ * Subscribe product migrate scripts.
+ *
  * @param array $api
+ *   Api.
  */
 function commerce_akeneo_migrate_register_option(&$api) {
   $migrations = array();

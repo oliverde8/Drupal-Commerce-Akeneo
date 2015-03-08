@@ -2,6 +2,7 @@
 
 /**
  * @file
+ * MigrateAkeneoDestinationCommerceProduct class file.
  */
 
 /**
@@ -14,12 +15,14 @@ class MigrateAkeneoDestinationCommerceProduct extends MigrateDestinationCommerce
   protected $deferred;
 
   /**
-   * Basic initialization
+   * Basic initialization.
    *
    * @param string $entity_type
+   *   Entity type.
    * @param string $bundle
+   *   Bundle.
    * @param array  $options
-   *  Options (language, text_format) used for creating fields.
+   *   Options (language, text_format) used for creating fields.
    */
   public function __construct($entity_type, $bundle, array $options = array()) {
     parent::__construct($entity_type, $bundle, $options);
@@ -47,26 +50,12 @@ class MigrateAkeneoDestinationCommerceProduct extends MigrateDestinationCommerce
   }
 
   /**
-   * Give handlers a shot at modifying the object (or taking additional action)
-   * after saving it.
-   *
-   * @param $entity
-   *  Entity object to build. This is the complete object after saving.
-   * @param $source_row
-   *  Raw source data object - passed through to complete handlers.
-   */
-  public function complete($entity, stdClass $source_row) {
-
-
-    parent::complete($entity, $source_row);
-  }
-
-  /**
    * Add entity to deferred queue to be processed again.
    *
    * @param string $method
    *   Method to call in deferred process.
    * @param string $id
+   *   Id.
    */
   public function addDeferredImports($method, $id) {
     $args = func_get_args();

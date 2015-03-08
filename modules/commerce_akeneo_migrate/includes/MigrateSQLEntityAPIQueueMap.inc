@@ -2,9 +2,8 @@
 
 /**
  * @file
+ * MigrateSQLEntityAPIQueueMap class file.
  */
-
-require_once 'MigrateSQLEntityAPIMap.inc';
 
 /**
  * Class MigrateSQLEntityAPIQueueMap
@@ -14,8 +13,10 @@ class MigrateSQLEntityAPIQueueMap extends MigrateSQLEntityAPIMap {
    * Overrides update mechanism to force it.
    *
    * @param array $source_id
+   *   Source ID.
    *
-   * @return mixed
+   * @return array
+   *   Source row.
    */
   public function getRowBySource(array $source_id) {
     $row = parent::getRowBySource($source_id);

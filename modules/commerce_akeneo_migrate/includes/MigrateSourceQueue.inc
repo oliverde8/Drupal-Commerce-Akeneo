@@ -2,6 +2,7 @@
 
 /**
  * @file
+ * MigrateSourceQueue class file.
  */
 
 /**
@@ -24,6 +25,8 @@ class MigrateSourceQueue extends MigrateSource {
   protected $stack;
 
   /**
+   * Constructor.
+   *
    * @param string $queue_name
    *   Name of the queue.
    * @param array  $fields
@@ -38,7 +41,7 @@ class MigrateSourceQueue extends MigrateSource {
   }
 
   /**
-   *
+   * Destructor.
    */
   public function __destruct() {
     if ($this->queue) {
@@ -47,8 +50,7 @@ class MigrateSourceQueue extends MigrateSource {
   }
 
   /**
-   * Derived classes must implement fields(), returning a list of available
-   * source fields.
+   * Derived classes must implement fields(), returning a list fields.
    *
    * @return array
    *   Keys: machine names of the fields (to be passed to addFieldMapping)
@@ -59,6 +61,8 @@ class MigrateSourceQueue extends MigrateSource {
   }
 
   /**
+   * Return total count of items.
+   *
    * @param bool $refresh
    *   Refresh.
    *
@@ -71,8 +75,6 @@ class MigrateSourceQueue extends MigrateSource {
 
   /**
    * Implementation of MigrateSource::performRewind().
-   *
-   * @return void
    */
   public function performRewind() {
     $this->releaseItems();
@@ -81,7 +83,8 @@ class MigrateSourceQueue extends MigrateSource {
   /**
    * Implementation of MigrateSource::getNextRow().
    *
-   * @return null|stdClass
+   * @return null|stdclass
+   *   Next row.
    */
   public function getNextRow() {
     $lease_time = variable_get('commerce_akeneo_migrate_lease_time', COMMERCE_AKENEO_MIGRATE_DEFAULT_LEASE_TIME);
@@ -102,11 +105,10 @@ class MigrateSourceQueue extends MigrateSource {
   }
 
   /**
-   * Give the calling migration a shot at manipulating, and possibly rejecting,
-   * the source row.
+   * Give the calling migration a shot at manipulating, and possibly rejecting.
    *
    * @return bool
-   *  FALSE if the row is to be skipped.
+   *   FALSE if the row is to be skipped.
    */
   protected function prepareRow($row) {
     $return = parent::prepareRow($row);
@@ -131,7 +133,10 @@ class MigrateSourceQueue extends MigrateSource {
   }
 
   /**
+   * Release item in the queue.
+   *
    * @param int $item_id
+   *   Item id.
    */
   public function releaseItem($item_id) {
     if (isset($this->stack[$item_id])) {
@@ -140,7 +145,10 @@ class MigrateSourceQueue extends MigrateSource {
   }
 
   /**
+   * Delete item in the queue.
+   *
    * @param int $item_id
+   *   Item id.
    */
   public function deleteItem($item_id) {
     if (isset($this->stack[$item_id])) {
@@ -149,7 +157,10 @@ class MigrateSourceQueue extends MigrateSource {
   }
 
   /**
+   * Magic function for internal use only.
+   *
    * @return string
+   *   Name of the class.
    */
   public function __toString() {
     return __CLASS__;

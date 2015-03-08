@@ -2,6 +2,7 @@
 
 /**
  * @file
+ * CommerceAkeneoMigrateTaxonomy class file.
  */
 
 /**
@@ -14,7 +15,10 @@ class CommerceAkeneoMigrateTaxonomy extends MigrationTaxonomyTermMachineName {
   protected $attributesByFields;
 
   /**
+   * Constructor.
+   *
    * @param array $arguments
+   *   Arguments.
    */
   public function __construct($arguments) {
     parent::__construct($arguments);
@@ -33,7 +37,11 @@ class CommerceAkeneoMigrateTaxonomy extends MigrationTaxonomyTermMachineName {
       ),
       MigrateDestinationEntityAPI::getKeySchema('taxonomy_term', $arguments['bundle']),
       'default',
-      array('entity_type' => 'taxonomy_term', 'bundle' => $arguments['bundle'], 'track_last_imported' => TRUE)
+      array(
+        'entity_type'         => 'taxonomy_term',
+        'bundle'              => $arguments['bundle'],
+        'track_last_imported' => TRUE,
+      )
     );
 
     $source_fields = array(
@@ -87,7 +95,7 @@ class CommerceAkeneoMigrateTaxonomy extends MigrationTaxonomyTermMachineName {
   }
 
   /**
-   *
+   * Purge map table from missing destination entities.
    */
   protected function preImport() {
     // Create taxonomy vocabulary destination if not already exists.
@@ -123,7 +131,7 @@ class CommerceAkeneoMigrateTaxonomy extends MigrationTaxonomyTermMachineName {
   }
 
   /**
-   *
+   * Release all item not imported.
    */
   protected function postImport() {
     // Release queue items.
@@ -134,9 +142,13 @@ class CommerceAkeneoMigrateTaxonomy extends MigrationTaxonomyTermMachineName {
   }
 
   /**
-   * @param stdClass $row
+   * Prepare row before import.
+   *
+   * @param stdclass $row
+   *   Row.
    *
    * @return bool
+   *   TRUE to import row.
    */
   public function prepareRow($row) {
     // Skip invalid terms.
@@ -156,16 +168,24 @@ class CommerceAkeneoMigrateTaxonomy extends MigrationTaxonomyTermMachineName {
   }
 
   /**
-   * @param stdClass $entity
-   * @param stdClass $row
+   * Prepare destination entity based on source row.
+   *
+   * @param stdclass $entity
+   *   Destination entity.
+   * @param stdclass $row
+   *   Source row.
    */
   public function prepare(&$entity, $row) {
     // Nothing special to do.
   }
 
   /**
-   * @param stdClass $entity
-   * @param stdClass $row
+   * Complete destination entity based on source row.
+   *
+   * @param stdclass $entity
+   *   Destination entity.
+   * @param stdclass $row
+   *   Source row.
    */
   public function complete($entity, $row) {
     // Build context for i18n_string translation.
@@ -182,14 +202,20 @@ class CommerceAkeneoMigrateTaxonomy extends MigrationTaxonomyTermMachineName {
   }
 
   /**
+   * Provide source casted.
+   *
    * @return \MigrateSourceQueue
+   *   Source.
    */
   public function getSource() {
     return $this->source;
   }
 
   /**
-   * @return \MigrateDestinationTaxonomyTermMachineName
+   * Provide destination casted.
+   *
+   * @return \MigrateDestinationTermMachineName
+   *   Destination.
    */
   public function getDestination() {
     return $this->destination;
