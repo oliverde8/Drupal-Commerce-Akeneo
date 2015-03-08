@@ -6,20 +6,6 @@
  */
 
 /**
- * Implements hook_commerce_akeneo_family_alter().
- */
-//function hook_commerce_akeneo_family_alter(&$product_type, $request) {
-//  // Allow overriding drupal commerce product type before saving into database.
-//}
-
-/**
- * Implements hook_commerce_akeneo_family().
- */
-//function hook_commerce_akeneo_family($family, $request) {
-//  // Allow to process custom code after commerce product type is saved.
-//}
-
-/**
  * Implements hook_commerce_akeneo_attribute_AKENEO_TYPE().
  */
 function hook_commerce_akeneo_attribute_AKENEO_TYPE($code, $labels = array(), $settings = array()) {

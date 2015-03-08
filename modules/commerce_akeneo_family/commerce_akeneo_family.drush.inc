@@ -41,11 +41,7 @@ function commerce_akeneo_family_drush_import() {
   // Remove any leases.
   if (!empty($options['remove-leases'])) {
     $num_updated = db_update('queue')
-      ->fields(
-        array(
-          'expire' => 0,
-        )
-      )
+      ->fields(array('expire' => 0))
       ->condition('name', $queue_name, '=')
       ->execute();
 

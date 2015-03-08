@@ -55,9 +55,6 @@ function commerce_akeneo_family_batch_process($queue, &$context) {
       // Handle fields, categories and associations.
       commerce_akeneo_family_services_family_attributes($family, $request);
 
-      // Todo: check if necessary.
-      module_invoke_all('commerce_akeneo_family', $request);
-
       // Remote item from queue due to correct handle.
       $queue->deleteItem($item);
 
