@@ -30,12 +30,6 @@ class CommerceAkeneoFieldProductAssociation extends CommerceAkeneoFieldAbstractE
     $sourceFields[$field_name . '_value'] = t('@field value', array('@field' => $this->field_instance['label']));
     $migrate->addFieldMapping($field_name, $field_name . '_value')->defaultValue(array());
 
-//    // Support for translations.
-//    if ($this->field['translatable']) {
-//      $sourceFields[$field_name . '_languages'] = t('@field languages', array('@field' => $this->field_instance['label']));
-//      $migrate->addFieldMapping($field_name . ':language', $field_name . '_languages')->defaultValue(array());
-//    }
-
     return TRUE;
   }
 

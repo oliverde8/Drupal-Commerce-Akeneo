@@ -25,13 +25,13 @@ class CommerceAkeneoFieldAbstractText extends CommerceAkeneoFieldAbstract {
     // Settings.
 
     // Support for translations.
-//    if ($this->field['translatable']) {
-    $sourceFields[$field_name . '_languages'] = t(
-      '@field languages',
-      array('@field' => $this->field_instance['label'])
-    );
-    $migrate->addFieldMapping($field_name . ':language', $field_name . '_languages')->defaultValue(array());
-//    }
+    if ($this->field['translatable']) {
+      $sourceFields[$field_name . '_languages'] = t(
+        '@field languages',
+        array('@field' => $this->field_instance['label'])
+      );
+      $migrate->addFieldMapping($field_name . ':language', $field_name . '_languages')->defaultValue(array());
+    }
 
     return TRUE;
   }

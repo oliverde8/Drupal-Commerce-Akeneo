@@ -2,13 +2,8 @@
 
 /**
  * @file
- * Commerce Akeneo Field Group module.
+ * Commerce Akeneo Field module.
  */
-
-//require_once 'commerce_akeneo_field.api.inc';
-
-// Classes and Interfaces.
-//require_once dirname(__FILE__) . '/includes/CommerceAkeneoFieldAbstract.inc';
 
 /**
  * Implements hook_ctools_plugin_directory().

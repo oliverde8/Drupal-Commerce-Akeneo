@@ -59,10 +59,6 @@ class CommerceAkeneoFieldAbstractTaxonomyTerm extends CommerceAkeneoFieldAbstrac
                 $properties[$field_name . '_value'][$language][] = $value['code'];
                 break;
 
-              case 'pim_text':
-                $properties[$field_name . '_value'][$language][] = $value['value'];
-                break;
-
               default:
                 // Not supported.
             }
