@@ -19,15 +19,15 @@ $plugin = array(
 class CommerceAkeneoFieldDatestamp extends CommerceAkeneoFieldAbstract {
   /**
    * @param Migration $migrate
-   * @param array     $sourceFields
+   * @param array     $source_fields
    *
    * @return bool
    */
-  public function addFieldMappingToMigrate($migrate, &$sourceFields) {
+  public function addFieldMappingToMigrate($migrate, &$source_fields) {
     $field_name = $this->field['field_name'];
 
     // Default value field.
-    $sourceFields[$field_name . '_value'] = t('@field value', array('@field' => $this->field_instance['label']));
+    $source_fields[$field_name . '_value'] = t('@field value', array('@field' => $this->field_instance['label']));
     $migrate->addFieldMapping($field_name, $field_name . '_value');
 
     // Settings.
@@ -37,7 +37,7 @@ class CommerceAkeneoFieldDatestamp extends CommerceAkeneoFieldAbstract {
 
     // Support for translations.
     if ($this->field['translatable']) {
-      $sourceFields[$field_name . '_languages'] = t(
+      $source_fields[$field_name . '_languages'] = t(
         '@field languages',
         array('@field' => $this->field_instance['label'])
       );

@@ -36,7 +36,7 @@ class CommerceAkeneoMigrateTaxonomy extends MigrationTaxonomyTermMachineName {
       array('entity_type' => 'taxonomy_term', 'bundle' => $arguments['bundle'], 'track_last_imported' => TRUE)
     );
 
-    $sourceFields = array(
+    $source_fields = array(
       'machine_name' => t('Machine name'),
       'label'        => t('Label'),
       'parent'       => t('Parent'),
@@ -82,7 +82,7 @@ class CommerceAkeneoMigrateTaxonomy extends MigrationTaxonomyTermMachineName {
       )
     );
 
-    $this->source      = new MigrateSourceQueue($arguments['type'] . ':' . $arguments['code'], $sourceFields);
+    $this->source      = new MigrateSourceQueue($arguments['type'] . ':' . $arguments['code'], $source_fields);
     $this->destination = new MigrateDestinationTermMachineName($arguments['bundle']);
   }
 

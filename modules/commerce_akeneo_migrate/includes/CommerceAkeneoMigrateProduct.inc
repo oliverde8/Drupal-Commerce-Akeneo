@@ -55,7 +55,7 @@ class CommerceAkeneoMigrateProduct extends Migration {
       )
     );
 
-    $sourceFields = array(
+    $source_fields = array(
       'sku'                  => t('SKU'),
       'label'                => t('Label'),
       'status'               => t('Status'),
@@ -88,12 +88,12 @@ class CommerceAkeneoMigrateProduct extends Migration {
     $this->pluginsByFields    = array();
 
     // First we only handle generic attributes.
-    $this->loadFieldsAndPlugins($sourceFields, $family);
+    $this->loadFieldsAndPlugins($source_fields, $family);
     // Association and categories are handle in second time.
-    $this->loadFieldsAndPlugins($sourceFields, $family, 'category', 'product_category');
-    $this->loadFieldsAndPlugins($sourceFields, $family, 'association', 'product_association');
+    $this->loadFieldsAndPlugins($source_fields, $family, 'category', 'product_category');
+    $this->loadFieldsAndPlugins($source_fields, $family, 'association', 'product_association');
 
-    $this->source      = new MigrateSourceQueue('product:' . $arguments['code'], $sourceFields);
+    $this->source      = new MigrateSourceQueue('product:' . $arguments['code'], $source_fields);
     $this->destination = new MigrateAkeneoDestinationCommerceProduct('commerce_product', $family['product_type']);
   }
 
@@ -112,12 +112,12 @@ class CommerceAkeneoMigrateProduct extends Migration {
   }
 
   /**
-   * @param array  $sourceFields
+   * @param array  $source_fields
    * @param array  $family
    * @param string $section
    * @param string $plugin_name
    */
-  protected function loadFieldsAndPlugins(&$sourceFields, $family, $section = '', $plugin_name = '') {
+  protected function loadFieldsAndPlugins(&$source_fields, $family, $section = '', $plugin_name = '') {
     $attributes         = commerce_akeneo_attribute_load_all($this->arguments['code'], $section);
     $attributesByFields = commerce_akeneo_attribute_dispatch_by_fields($attributes);
 
@@ -132,7 +132,7 @@ class CommerceAkeneoMigrateProduct extends Migration {
         )
       ) {
         /** @var CommerceAkeneoFieldInterface $plugin */
-        $plugin->addFieldMappingToMigrate($this, $sourceFields);
+        $plugin->addFieldMappingToMigrate($this, $source_fields);
 
         $this->attributesByFields[$field_name] = $field_info;
         $this->pluginsByFields[$field_name]    = $plugin;

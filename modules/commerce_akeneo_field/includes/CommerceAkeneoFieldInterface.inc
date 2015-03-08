@@ -10,11 +10,11 @@
 interface CommerceAkeneoFieldInterface {
   /**
    * @param Migration $migrate
-   * @param array     $sourceFields
+   * @param array     $source_fields
    *
    * @return bool
    */
-  public function addFieldMappingToMigrate($migrate, &$sourceFields);
+  public function addFieldMappingToMigrate($migrate, &$source_fields);
 
   /**
    * @param Migration $migrate

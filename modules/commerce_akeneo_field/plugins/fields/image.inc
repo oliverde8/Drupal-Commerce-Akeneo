@@ -19,15 +19,15 @@ $plugin = array(
 class CommerceAkeneoFieldImage extends CommerceAkeneoFieldAbstract {
   /**
    * @param Migration $migrate
-   * @param array     $sourceFields
+   * @param array     $source_fields
    *
    * @return bool
    */
-  public function addFieldMappingToMigrate($migrate, &$sourceFields) {
+  public function addFieldMappingToMigrate($migrate, &$source_fields) {
     $field_name = $this->field['field_name'];
 
     // Default value field.
-    $sourceFields[$field_name . '_value'] = t('@field value', array('@field' => $this->field_instance['label']));
+    $source_fields[$field_name . '_value'] = t('@field value', array('@field' => $this->field_instance['label']));
     $migrate->addFieldMapping($field_name, $field_name . '_value');
 
     // Settings.
@@ -42,20 +42,20 @@ class CommerceAkeneoFieldImage extends CommerceAkeneoFieldAbstract {
     $destination_dir = file_stream_wrapper_uri_normalize($uri_scheme . '://' . $file_directory);
     $migrate->addFieldMapping($field_name . ':destination_dir')->defaultValue($destination_dir);
 
-    $sourceFields[$field_name . '_destination_file'] = t(
+    $source_fields[$field_name . '_destination_file'] = t(
       '@field destination file',
       array('@field' => $this->field_instance['label'])
     );
     $migrate->addFieldMapping($field_name . ':destination_file', $field_name . '_destination_file')->defaultValue(NULL);
 
-    $sourceFields[$field_name . '_alt'] = t('@field alt', array('@field' => $this->field_instance['label']));
+    $source_fields[$field_name . '_alt'] = t('@field alt', array('@field' => $this->field_instance['label']));
     $migrate->addFieldMapping($field_name . ':alt', $field_name . '_alt')->defaultValue(NULL);
 
-    $sourceFields[$field_name . '_title'] = t('@field title', array('@field' => $this->field_instance['label']));
+    $source_fields[$field_name . '_title'] = t('@field title', array('@field' => $this->field_instance['label']));
     $migrate->addFieldMapping($field_name . ':title', $field_name . '_title')->defaultValue(NULL);
 
     // Support for translations.
-    $sourceFields[$field_name . '_languages'] = t(
+    $source_fields[$field_name . '_languages'] = t(
       '@field languages',
       array('@field' => $this->field_instance['label'])
     );

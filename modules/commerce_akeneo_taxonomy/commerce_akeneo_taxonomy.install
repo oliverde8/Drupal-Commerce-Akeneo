@@ -2,9 +2,12 @@
 
 /**
  * @file
- * Commerce Akeneo taxonomy install file.
+ * Commerce Akeneo Taxonomy install file.
  */
 
+/**
+ * Implements hook_schema().
+ */
 function commerce_akeneo_taxonomy_schema() {
   $schema = array();
 

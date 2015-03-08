@@ -2,7 +2,7 @@
 
 /**
  * @file
- * Commerce Akeneo Taxonomy module.
+ * Commerce Akeneo Taxonomy module file.
  */
 
 /**
@@ -15,10 +15,16 @@ function commerce_akeneo_taxonomy_ctools_plugin_directory($owner, $plugin_type) 
 }
 
 /**
+ * Handle taxonomy service exposed.
+ *
  * @param string $code
- * @param string $type (option|category)
+ *   Code.
+ * @param string $type
+ *   Type (option|category).
  * @param array  $labels
+ *   Labels.
  * @param array  $values
+ *   Values.
  *
  * @throws \CommerceAkeneoException
  * @throws \Exception
@@ -61,10 +67,15 @@ function commerce_akeneo_taxonomy_handle_service($code, $type, $labels, $values)
 }
 
 /**
+ * Load taxonomy record.
+ *
  * @param string $code
+ *   Code.
  * @param string $type
+ *   Type.
  *
  * @return mixed
+ *   Taxonomy.
  */
 function commerce_akeneo_taxonomy_load($code, $type = 'option') {
   static $taxonomy = array();
@@ -89,9 +100,13 @@ function commerce_akeneo_taxonomy_load($code, $type = 'option') {
 }
 
 /**
- * @param string $type (option|category)
+ * Load all taxonomy records.
+ *
+ * @param string $type
+ *   Type (option|category).
  *
  * @return array
+ *   Taxonomy records.
  */
 function commerce_akeneo_taxonomy_load_all($type = 'option') {
   $results = db_select('commerce_akeneo_taxonomy', 't')
@@ -110,9 +125,14 @@ function commerce_akeneo_taxonomy_load_all($type = 'option') {
 }
 
 /**
- * @param array $taxonomy
+ * Create or update taxonomy record.
  *
- * @return \DatabaseStatementInterface|int
+ * @param array $taxonomy
+ *   Taxonomy.
+ *
+ * @return bool
+ *   TRUE if correctly saved.
+ *
  * @throws \Exception
  */
 function commerce_akeneo_taxonomy_save(&$taxonomy) {
@@ -152,7 +172,10 @@ function commerce_akeneo_taxonomy_save(&$taxonomy) {
 }
 
 /**
+ * Delete taxonomy record.
+ *
  * @param string $code
+ *   Code.
  */
 function commerce_akeneo_taxonomy_delete($code) {
   db_delete('commerce_akeneo_taxonomy')->condition('code', $code)->execute();
