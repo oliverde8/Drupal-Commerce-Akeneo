@@ -2,6 +2,7 @@
 
 /**
  * @file
+ * Commerce Akeneo Attribute module file.
  */
 
 /**
@@ -34,9 +35,13 @@ function commerce_akeneo_attribute_cache_clear() {
 }
 
 /**
+ * List mapping fields vs attributes.
+ *
  * @param bool $refresh
+ *   Force refresh.
  *
  * @return array
+ *   Mappings.
  */
 function commerce_akeneo_attribute_mapping($refresh = FALSE) {
   $cid = 'commerce_akeneo:attribute:mapping';
@@ -68,9 +73,13 @@ function commerce_akeneo_attribute_mapping($refresh = FALSE) {
 }
 
 /**
+ * Dispatch source attributes by destination fields.
+ *
  * @param array $attributes
+ *   Attributes.
  *
  * @return array
+ *   Attributes by fields.
  * @throws \Exception
  */
 function commerce_akeneo_attribute_dispatch_by_fields($attributes) {
@@ -115,11 +124,17 @@ function commerce_akeneo_attribute_dispatch_by_fields($attributes) {
 }
 
 /**
- * @param string $family
- * @param string $section
- * @param string $code
+ * Load attribute.
  *
- * @return mixed
+ * @param string $family
+ *   Family.
+ * @param string $section
+ *   Section.
+ * @param string $code
+ *   Code.
+ *
+ * @return array|NULL
+ *   Attribute.
  */
 function commerce_akeneo_attribute_load($family, $section, $code) {
   $result = db_select('commerce_akeneo_attribute', 't')
@@ -143,11 +158,17 @@ function commerce_akeneo_attribute_load($family, $section, $code) {
 }
 
 /**
+ * Load all attributes.
+ *
  * @param string $family
+ *   Family.
  * @param string $section
+ *   Section.
  * @param string $code
+ *   Code.
  *
  * @return array
+ *   Attributes.
  */
 function commerce_akeneo_attribute_load_all($family = NULL, $section = NULL, $code = NULL) {
   $query = db_select('commerce_akeneo_attribute', 't')->fields('t');
@@ -180,9 +201,13 @@ function commerce_akeneo_attribute_load_all($family = NULL, $section = NULL, $co
 }
 
 /**
- * @param array $attribute
+ * Create of update attribute.
  *
- * @return \DatabaseStatementInterface|int
+ * @param array $attribute
+ *   Attribute to save.
+ *
+ * @return bool
+ *   TRUE.
  * @throws \Exception
  */
 function commerce_akeneo_attribute_save(&$attribute) {
@@ -234,11 +259,17 @@ function commerce_akeneo_attribute_save(&$attribute) {
 }
 
 /**
+ * Delete attribute from database.
+ *
  * @param string $family
+ *   Family.
  * @param string $section
+ *   Section.
  * @param string $code
+ *   Code.
  *
  * @return \DatabaseStatementInterface
+ *   Query result.
  */
 function commerce_akeneo_attribute_delete($family = NULL, $section = NULL, $code = NULL) {
   $query = db_delete('commerce_akeneo_attribute');

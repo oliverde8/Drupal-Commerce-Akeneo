@@ -46,7 +46,7 @@ class CommerceAkeneoAttributeProductAssociation extends CommerceAkeneoAttributeA
     );
 
     // Target entity.
-    $field_details['field']['cardinality'] = FIELD_CARDINALITY_UNLIMITED;
+    $field_details['field']['cardinality']             = FIELD_CARDINALITY_UNLIMITED;
     $field_details['field']['settings']['target_type'] = 'commerce_product';
 
     // Allow users to add existing products.

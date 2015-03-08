@@ -2,6 +2,7 @@
 
 /**
  * @file
+ * Commerce Akeneo Attribute API file.
  */
 
 /**
@@ -10,7 +11,10 @@
  */
 
 /**
+ * Declare attributes mapping to destination field.
+ *
  * @return mixed
+ *   Attributes.
  */
 function hook_commerce_akeneo_attribute_mapping_info() {
   $attributes['sku'] = array(
@@ -29,7 +33,10 @@ function hook_commerce_akeneo_attribute_mapping_info() {
 }
 
 /**
+ * Alter attributes mapping.
+ *
  * @param array $attributes
+ *   Attributes.
  */
 function hook_commerce_akeneo_attribute_mapping_info_alter(&$attributes) {
 
