@@ -105,8 +105,8 @@ class CommerceAkeneoFieldImage extends CommerceAkeneoFieldAbstract {
 
                 $properties[$field_name . '_value'][$language][]            = $url;
                 $properties[$field_name . '_destination_file'][$language][] = $destination_file;
-                $properties[$field_name . '_alt'][$language][]              = $value['filename_original'];
-                $properties[$field_name . '_title'][$language][]            = $value['filename_original'];
+                $properties[$field_name . '_alt'][$language][]              = $original_filename;
+                $properties[$field_name . '_title'][$language][]            = $original_filename;
                 break;
 
               default:
