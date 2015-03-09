@@ -60,13 +60,15 @@ class CommerceAkeneoMigrateProduct extends Migration {
     );
 
     $source_fields = array(
-      'sku'                  => t('SKU'),
-      'label'                => t('Label'),
-      'status'               => t('Status'),
-      'created'              => t('Created date'),
-      'updated'              => t('Updated date'),
-      'commerce_price_value' => t('Commerce price'),
-      'path'                 => t('Path'),
+      'sku'                          => t('SKU'),
+      'label'                        => t('Label'),
+      'status'                       => t('Status'),
+      'created'                      => t('Created date'),
+      'updated'                      => t('Updated date'),
+      'commerce_price_value'         => t('Commerce price'),
+      'commerce_price_currency_code' => t('Commerce price currency'),
+      'commerce_price_tax_rate'      => t('Commerce price tax rate'),
+      'path'                         => t('Path'),
     );
 
     // Common field or properties.
@@ -84,8 +86,9 @@ class CommerceAkeneoMigrateProduct extends Migration {
     $default_currency = commerce_default_currency();
     // Todo: Point commerce price data to fields.
     $this->addFieldMapping('commerce_price', 'commerce_price_value')->defaultValue(0);
-    $this->addFieldMapping('commerce_price:currency_code')->defaultValue($default_currency);
-    $this->addFieldMapping('commerce_price:tax_rate')->defaultValue(0);
+    $this->addFieldMapping('commerce_price:currency_code', 'commerce_price_currency_code')
+      ->defaultValue($default_currency);
+    $this->addFieldMapping('commerce_price:tax_rate', 'commerce_price_tax_rate')->defaultValue(0);
 
     $this->attributesByFields = array();
     $this->pluginsByFields    = array();
@@ -224,6 +227,12 @@ class CommerceAkeneoMigrateProduct extends Migration {
 
           return FALSE;
         }
+      }
+    }
+
+    foreach (module_implements('commerce_akeneo_migrate_product_prepare_row') as $module) {
+      if (module_invoke($module, 'commerce_akeneo_migrate_product_prepare_row', $row) === FALSE) {
+        return FALSE;
       }
     }
 

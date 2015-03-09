@@ -190,12 +190,12 @@ function commerce_akeneo_get_language($values, $language = NULL, $fallback = TRU
 
   foreach ($values as $locale => $value) {
     if (commerce_akeneo_locale_to_language($locale) == $language) {
-      return filter_xss($value);
+      return $value;
     }
   }
 
   if (isset($values[LANGUAGE_NONE])) {
-    return filter_xss($values[LANGUAGE_NONE]);
+    return $values[LANGUAGE_NONE];
   }
 
   if ($fallback && count($values)) {
