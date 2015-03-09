@@ -16,15 +16,12 @@ function commerce_akeneo_stream_wrapper_requirements($phase) {
 
   if ($phase == 'runtime') {
     $base_url = variable_get('commerce_akeneo_stream_wrapper_base_url', NULL);
-    $username = variable_get('commerce_akeneo_stream_wrapper_username', NULL);
-    $api_key  = variable_get('commerce_akeneo_stream_wrapper_apikey', NULL);
-    $salt     = variable_get('commerce_akeneo_stream_wrapper_salt', NULL);
 
-    if (empty($username) || empty($api_key) || empty($salt) || empty($base_url)) {
+    if (empty($base_url)) {
       $requirements['akeneo_wrapper'] = array(
         'title'    => $t('Akeneo wrapper'),
         'value'    => $t(
-          'You need to setup <a href="@url">security parameters</a> in order to use Akeneo wrapper.',
+          'You need to setup <a href="@url">Akeneo URL</a> in order to use Akeneo wrapper.',
           array('@url' => url('admin/config/services/akeneo'))
         ),
         'severity' => REQUIREMENT_ERROR,
@@ -41,7 +38,5 @@ function commerce_akeneo_stream_wrapper_requirements($phase) {
 function commerce_akeneo_stream_wrapper_uninstall() {
   variable_del('commerce_akeneo_stream_wrapper_base_url');
   variable_del('commerce_akeneo_stream_wrapper_timeout');
-  variable_del('commerce_akeneo_stream_wrapper_username');
-  variable_del('commerce_akeneo_stream_wrapper_apikey');
-  variable_del('commerce_akeneo_stream_wrapper_salt');
+  variable_del('commerce_akeneo_stream_wrapper_insecure');
 }

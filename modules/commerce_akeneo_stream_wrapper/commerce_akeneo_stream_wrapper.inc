@@ -533,80 +533,49 @@ class DrupalAkeneoStreamWrapper implements DrupalStreamWrapperInterface {
       $this->stream_response = NULL;
       $this->stream_content  = NULL;
 
-      if (!$headers = $this->getSecurityHeaders()) {
-        watchdog(
-          'akeneo',
-          t('Missing security parameters for Akeneo Stream Wrapper.'),
-          array(),
-          WATCHDOG_ERROR,
-          url('admin/config/services/akeneo')
-        );
-
-        return NULL;
-      }
-
-      $options            = array();
-      $options['headers'] = $headers;
-      $options['timeout'] = variable_get(
-        'commerce_akeneo_stream_wrapper_timeout',
-        COMMERCE_AKENEO_STREAM_WRAPPER_DEFAULT_TIMEOUT
-      );
-
-      // Restore correct webservice url.
       $base_url = variable_get('commerce_akeneo_stream_wrapper_base_url', '');
-      $uri      = preg_replace('/^akeneos?:\/\//i', rtrim($base_url, '/') . '/', $this->uri) . '.json';
-      $request  = drupal_http_request($uri, $options);
 
-      if (empty($request->error) && !empty($request->data)) {
-        $this->stream_response = json_decode($request->data);
-        $this->stream_content  = base64_decode($this->stream_response->content);
-        unset($this->stream_response->content);
-      }
-      else {
-        watchdog(
-          'akeneo',
-          t(
-            'An error occurs: "@error" (code: @code) while using Akeneo Stream Wrapper for @uri.',
-            array('@error' => $request->error, '@code' => $request->code, '@uri' => $uri)
-          ),
-          array(),
-          WATCHDOG_ERROR
+      if (!empty($base_url)) {
+        $options            = array();
+        $options['timeout'] = variable_get(
+          'commerce_akeneo_stream_wrapper_timeout',
+          COMMERCE_AKENEO_STREAM_WRAPPER_DEFAULT_TIMEOUT
         );
+
+        if (variable_get('commerce_akeneo_stream_wrapper_insecure', FALSE)) {
+          $context = stream_context_create();
+          stream_context_set_option($context, 'ssl', 'verify_host', FALSE);
+          stream_context_set_option($context, 'ssl', 'verify_peer', FALSE);
+          stream_context_set_option($context, 'ssl', 'allow_self_signed', TRUE);
+
+          $options['context'] = $context;
+        }
+
+        // Restore correct webservice url.
+        $uri     = preg_replace('/^akeneo:\/\//i', rtrim($base_url, '/') . '/media/', ltrim($this->uri, '/'));
+        $request = drupal_http_request($uri, $options);
+
+        if (empty($request->error) && !empty($request->data)) {
+          $this->stream_content  = $request->data;
+          $this->stream_response = (object) array(
+            'mimeType' => 'application/octet-stream',
+            'size'     => strlen($this->stream_content),
+          );
+        }
+        else {
+          watchdog(
+            'akeneo',
+            t(
+              'An error occurs: "@error" (code: @code) while using Akeneo Stream Wrapper for @uri.',
+              array('@error' => $request->error, '@code' => $request->code, '@uri' => $uri)
+            ),
+            array(),
+            WATCHDOG_ERROR
+          );
+        }
       }
     }
 
     return $this->stream_content;
-  }
-
-  /**
-   * @return array|bool
-   */
-  protected function getSecurityHeaders() {
-    $username = variable_get('commerce_akeneo_stream_wrapper_username');
-    $apiKey   = variable_get('commerce_akeneo_stream_wrapper_apikey');
-    $salt     = variable_get('commerce_akeneo_stream_wrapper_salt');
-
-    if (empty($username) || empty($apiKey) || empty($salt)) {
-      return FALSE;
-    }
-
-    $nonce   = uniqid();
-    $created = date('c');
-    $digest  = base64_encode(sha1(base64_decode($nonce) . $created . $apiKey . '{' . $salt . '}', TRUE));
-    $token   = sprintf(
-      'X-WSSE: UsernameToken Username="%s", PasswordDigest="%s", Nonce="%s", Created="%s"',
-      $username,
-      $digest,
-      $nonce,
-      $created
-    );
-
-    $headers = array(
-      'Content-Type'  => 'application/json',
-      'Authorization' => 'WSSE profile="UsernameToken"',
-      'X-WSSE'        => $token,
-    );
-
-    return $headers;
   }
 }

@@ -93,10 +93,18 @@ class CommerceAkeneoFieldImage extends CommerceAkeneoFieldAbstract {
               case 'pim_catalog_file':
               case 'pim_catalog_image':
                 // Change url protocol to enable Akeneo stream wrapper.
-                $url = preg_replace('/^http/i', 'akeneo', $value['rest_url']);
+                $url = 'akeneo://' . ltrim($value['filename'], '/');
+
+                $original_filename = drupal_strtolower($value['filename_original']);
+                $filename = pathinfo($original_filename, PATHINFO_FILENAME);
+
+                $destination_file = 'akeneo/';
+                $destination_file .= $value['attribute_id'] . '/';
+                $destination_file .= implode('/', str_split(substr($filename, 0, 3)));
+                $destination_file .= '/' . $original_filename;
 
                 $properties[$field_name . '_value'][$language][]            = $url;
-                $properties[$field_name . '_destination_file'][$language][] = $value['filename_original'];
+                $properties[$field_name . '_destination_file'][$language][] = $destination_file;
                 $properties[$field_name . '_alt'][$language][]              = $value['filename_original'];
                 $properties[$field_name . '_title'][$language][]            = $value['filename_original'];
                 break;
