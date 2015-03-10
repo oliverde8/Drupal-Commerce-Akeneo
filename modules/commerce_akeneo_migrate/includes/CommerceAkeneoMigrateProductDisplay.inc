@@ -276,7 +276,7 @@ class CommerceAkeneoMigrateProductDisplay extends Migration {
     $wrapper->save();
 
     foreach (module_implements('commerce_akeneo_migrate_product_display_complete') as $module) {
-      module_invoke($module, 'commerce_akeneo_migrate_product_display_complete', $row);
+      module_invoke($module, 'commerce_akeneo_migrate_product_display_complete', $entity, $row);
     }
 
     // Remove processed items from queue.
