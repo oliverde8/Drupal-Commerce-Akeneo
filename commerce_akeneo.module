@@ -5,9 +5,6 @@
  * Module file for Commerce Akeneo module.
  */
 
-require_once dirname(__FILE__) . '/includes/CommerceAkeneoFieldInterface.inc';
-require_once dirname(__FILE__) . '/includes/CommerceAkeneoException.inc';
-
 require_once 'commerce_akeneo.ctools.inc';
 require_once 'commerce_akeneo.api.inc';
 require_once 'commerce_akeneo.services.inc';
@@ -53,11 +50,7 @@ function commerce_akeneo_permission() {
       'title'       => t('Service: %service', array('%service' => 'product')),
       'description' => t("Save a product based on it's SKU (create/update)."),
     ),
-    'resource association commerce akeneo'          => array(
-      'title'       => t('Service: %service', array('%service' => 'association')),
-      'description' => t("Store product association."),
-    ),
-    'resource group commerce akeneo'          => array(
+    'resource group commerce akeneo'            => array(
       'title'       => t('Service: %service', array('%service' => 'group')),
       'description' => t("Store product group."),
     ),
@@ -134,7 +127,10 @@ function commerce_akeneo_get_machine_name($code, $type = NULL) {
     );
 
     watchdog('akeneo', $message, $arguments, WATCHDOG_ALERT);
-    drupal_set_message(t('Machine name %machine_name has been truncated to 32 chars.', array('%machine_name' => $machine_name)), 'warning');
+    drupal_set_message(
+      t('Machine name %machine_name has been truncated to 32 chars.', array('%machine_name' => $machine_name)),
+      'warning'
+    );
 
     $machine_name = $machine_name_short;
   }
@@ -171,11 +167,17 @@ function commerce_akeneo_locale_to_language($locale) {
 }
 
 /**
+ * Obtain a value based on localized key.
+ *
  * @param array  $values
+ *   Values.
  * @param string $language
+ *   Language.
  * @param bool   $fallback
+ *   Fallback use.
  *
  * @return mixed
+ *   The value localized.
  */
 function commerce_akeneo_get_language($values, $language = NULL, $fallback = TRUE) {
   if (empty($values)) {
@@ -188,12 +190,12 @@ function commerce_akeneo_get_language($values, $language = NULL, $fallback = TRU
 
   foreach ($values as $locale => $value) {
     if (commerce_akeneo_locale_to_language($locale) == $language) {
-      return filter_xss($value);
+      return $value;
     }
   }
 
   if (isset($values[LANGUAGE_NONE])) {
-    return filter_xss($values[LANGUAGE_NONE]);
+    return $values[LANGUAGE_NONE];
   }
 
   if ($fallback && count($values)) {
@@ -212,6 +214,7 @@ function commerce_akeneo_get_language($values, $language = NULL, $fallback = TRU
  *   Create the queue.
  *
  * @return \DrupalReliableQueueInterface
+ *   Queue.
  */
 function commerce_akeneo_queue_load($name, $create = FALSE) {
   $cid = array(
@@ -219,7 +222,7 @@ function commerce_akeneo_queue_load($name, $create = FALSE) {
     drupal_strtolower($name),
   );
 
-  /** @var DrupalReliableQueueInterface $queue */
+  /* @var DrupalReliableQueueInterface $queue */
   $queue = DrupalQueue::get(implode(':', $cid));
 
   if ($create) {

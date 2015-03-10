@@ -18,34 +18,36 @@ $plugin = array(
  */
 class CommerceAkeneoFieldNumberInteger extends CommerceAkeneoFieldAbstract {
   /**
-   * @param Migration $migrate
-   * @param array     $sourceFields
+   * Map source and destination fields.
+   *
+   * @inheritdoc
    */
-  public function addFieldMappingToMigrate($migrate, &$sourceFields) {
+  public function addFieldMappingToMigrate($migrate, &$source_fields) {
     $field_name = $this->field['field_name'];
 
     // Default value field.
-    $sourceFields[$field_name . '_value'] = t('@field value', array('@field' => $this->field_instance['label']));
+    $source_fields[$field_name . '_value'] = t('@field value', array('@field' => $this->fieldInstance['label']));
     $migrate->addFieldMapping($field_name, $field_name . '_value');
-
-    // Settings.
 
     // Support for translations.
     if ($this->field['translatable']) {
-      $sourceFields[$field_name . '_languages'] = t(
+      $source_fields[$field_name . '_languages'] = t(
         '@field languages',
-        array('@field' => $this->field_instance['label'])
+        array('@field' => $this->fieldInstance['label'])
       );
       $migrate->addFieldMapping($field_name . ':language', $field_name . '_languages')->defaultValue(array());
     }
+
+    return TRUE;
   }
 
+  /**
+   * Prepare source row to match mapping.
+   *
+   * @inheritdoc
+   */
   public function prepareRow($migrate, $row, $attributes) {
     $field_name = $this->field['field_name'];
-
-    $default_properties = array(
-      $field_name . '_value' => '',
-    );
 
     $properties = array(
       $field_name . '_value'     => array(),
@@ -63,11 +65,11 @@ class CommerceAkeneoFieldNumberInteger extends CommerceAkeneoFieldAbstract {
           foreach ($values as $value) {
             switch ($attribute['type']) {
               case 'pim_catalog_price_collection':
-                $properties[$field_name . '_value'][$language][] = doubleval($value['amount']);
+                $properties[$field_name . '_value'][$language][] = floatval($value['amount']);
                 break;
 
               default:
-                $properties[$field_name . '_value'][$language][] = doubleval($value['value']);
+                $properties[$field_name . '_value'][$language][] = floatval($value['value']);
                 break;
             }
           }
@@ -77,7 +79,7 @@ class CommerceAkeneoFieldNumberInteger extends CommerceAkeneoFieldAbstract {
       }
     }
 
-    $this->formatPrepareRowProperties($field_name, $row, $properties, $default_properties);
+    $this->formatPrepareRowProperties($field_name, $row, $properties);
 
     return TRUE;
   }

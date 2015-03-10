@@ -2,11 +2,8 @@
 
 /**
  * @file
+ * Commerce Akeneo Attribute module file.
  */
-
-// Classes and Interfaces.
-require_once dirname(__FILE__) . '/includes/CommerceAkeneoAttributeInterface.inc';
-require_once dirname(__FILE__) . '/includes/CommerceAkeneoAttributeAbstract.inc';
 
 /**
  * Implements hook_ctools_plugin_directory().
@@ -21,28 +18,33 @@ function commerce_akeneo_attribute_ctools_plugin_directory($owner, $plugin_type)
  * Implements hook_commerce_akeneo_attribute_mapping_info().
  */
 function commerce_akeneo_attribute_commerce_akeneo_attribute_mapping_info() {
+  // Skip field creation for SKU Akeneo attribute.
   $attributes['sku'] = array(
     'names' => array('sku'),
     'skip'  => TRUE,
-  );
-
-  $attributes['pictures'] = array(
-    'match'        => '/^pictures_[0-9]+$/',
-    'type'         => 'pim_akeneo_image',
-    'field_name'   => 'pictures',
-    'field_locked' => TRUE,
   );
 
   return $attributes;
 }
 
 /**
+ * Expires data from the cache for attribute mapping.
+ */
+function commerce_akeneo_attribute_cache_clear() {
+  cache_clear_all('commerce_akeneo:attribute:mapping');
+}
+
+/**
+ * List mapping fields vs attributes.
+ *
  * @param bool $refresh
+ *   Force refresh.
  *
  * @return array
+ *   Mappings.
  */
 function commerce_akeneo_attribute_mapping($refresh = FALSE) {
-  $cid = 'commerce_akeneo:attribute_mapping';
+  $cid = 'commerce_akeneo:attribute:mapping';
 
   if (($cache = cache_get($cid)) && !$refresh) {
     return $cache->data;
@@ -70,6 +72,16 @@ function commerce_akeneo_attribute_mapping($refresh = FALSE) {
   return $attributes;
 }
 
+/**
+ * Dispatch source attributes by destination fields.
+ *
+ * @param array $attributes
+ *   Attributes.
+ *
+ * @return array
+ *   Attributes by fields.
+ * @throws \Exception
+ */
 function commerce_akeneo_attribute_dispatch_by_fields($attributes) {
   $fields   = array();
   $mappings = commerce_akeneo_attribute_mapping();
@@ -100,10 +112,8 @@ function commerce_akeneo_attribute_dispatch_by_fields($attributes) {
     }
 
     if (!$found) {
-      $field_name = commerce_akeneo_get_machine_name($attribute['code'], 'field');
-
-      $fields[$field_name] = array(
-        'field_name'   => $field_name,
+      $fields[$attribute['field_name']] = array(
+        'field_name'   => $attribute['field_name'],
         'field_locked' => FALSE,
         'attributes'   => array($attribute['code'] => $attribute),
       );
@@ -114,11 +124,17 @@ function commerce_akeneo_attribute_dispatch_by_fields($attributes) {
 }
 
 /**
- * @param string $family
- * @param string $section
- * @param string $code
+ * Load attribute.
  *
- * @return mixed
+ * @param string $family
+ *   Family.
+ * @param string $section
+ *   Section.
+ * @param string $code
+ *   Code.
+ *
+ * @return array|NULL
+ *   Attribute.
  */
 function commerce_akeneo_attribute_load($family, $section, $code) {
   $result = db_select('commerce_akeneo_attribute', 't')
@@ -142,11 +158,17 @@ function commerce_akeneo_attribute_load($family, $section, $code) {
 }
 
 /**
+ * Load all attributes.
+ *
  * @param string $family
+ *   Family.
  * @param string $section
+ *   Section.
  * @param string $code
+ *   Code.
  *
  * @return array
+ *   Attributes.
  */
 function commerce_akeneo_attribute_load_all($family = NULL, $section = NULL, $code = NULL) {
   $query = db_select('commerce_akeneo_attribute', 't')->fields('t');
@@ -179,9 +201,13 @@ function commerce_akeneo_attribute_load_all($family = NULL, $section = NULL, $co
 }
 
 /**
- * @param array $attribute
+ * Create of update attribute.
  *
- * @return \DatabaseStatementInterface|int
+ * @param array $attribute
+ *   Attribute to save.
+ *
+ * @return bool
+ *   TRUE.
  * @throws \Exception
  */
 function commerce_akeneo_attribute_save(&$attribute) {
@@ -192,21 +218,19 @@ function commerce_akeneo_attribute_save(&$attribute) {
 
   // Set default values.
   $attribute += array(
-    'aid'        => NULL,
-    'section'    => '',
-    'label'      => $attribute['code'],
-    'settings'   => array(),
-    'checksum'   => '',
-    'field_name' => '',
-    'required'   => 0,
-    'created'    => REQUEST_TIME,
-    'changed'    => REQUEST_TIME,
+    'aid'      => NULL,
+    'section'  => '',
+    'label'    => $attribute['code'],
+    'settings' => array(),
+    'checksum' => '',
+    'required' => 0,
+    'created'  => REQUEST_TIME,
+    'changed'  => REQUEST_TIME,
   );
 
   // Serialize for database storing.
   $settings              = $attribute['settings'];
   $attribute['settings'] = serialize($attribute['settings']);
-
   $attribute['required'] = $attribute['required'] ? 1 : 0;
 
   if (empty($attribute['aid'])) {
@@ -235,11 +259,17 @@ function commerce_akeneo_attribute_save(&$attribute) {
 }
 
 /**
+ * Delete attribute from database.
+ *
  * @param string $family
+ *   Family.
  * @param string $section
+ *   Section.
  * @param string $code
+ *   Code.
  *
  * @return \DatabaseStatementInterface
+ *   Query result.
  */
 function commerce_akeneo_attribute_delete($family = NULL, $section = NULL, $code = NULL) {
   $query = db_delete('commerce_akeneo_attribute');

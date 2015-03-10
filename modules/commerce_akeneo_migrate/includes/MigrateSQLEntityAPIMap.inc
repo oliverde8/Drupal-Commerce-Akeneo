@@ -2,6 +2,7 @@
 
 /**
  * @file
+ * MigrateSQLEntityAPIMap class file.
  */
 
 /**
@@ -61,16 +62,15 @@ class MigrateSQLEntityAPIMap extends MigrateSQLMap {
     }
   }
 
-
   /**
    * Remove any map entry with missing destination entity.
    */
   public function purgeMissingEntities() {
     reset($this->destinationKey);
-    $field_name      = key($this->destinationKey);
-    $entity_info     = entity_get_info($this->destinationEntityType);
-    $sourceKeys      = drupal_map_assoc(array_values($this->sourceKeyMap));
-    $destinationKeys = drupal_map_assoc(array_values($this->destinationKeyMap));
+    $field_name       = key($this->destinationKey);
+    $entity_info      = entity_get_info($this->destinationEntityType);
+    $source_keys      = drupal_map_assoc(array_values($this->sourceKeyMap));
+    $destination_keys = drupal_map_assoc(array_values($this->destinationKeyMap));
 
     // Select map entries which point at missing entities.
     $query = "SELECT m.*
@@ -82,21 +82,19 @@ class MigrateSQLEntityAPIMap extends MigrateSQLMap {
 
     // Loop over map entries.
     while ($result = $results->fetchAssoc()) {
-      $sourceIds      = array_intersect_key($result, $sourceKeys);
-      $destinationIds = array_intersect_key($result, $destinationKeys);
+      $source_ids      = array_intersect_key($result, $source_keys);
+      $destination_ids = array_intersect_key($result, $destination_keys);
 
       // Remove map entry.
-      $this->delete($sourceIds);
+      $this->delete($source_ids);
 
       watchdog(
         'migrate',
-        t(
-          "The destination @entity_type entity @destid1 (source: @source) doesn't exist anymore. The corresponding map entry has been removed."
-        ),
+        "The destination @entity_type entity @destid1 (source: @source) doesn't exist anymore. The corresponding map entry has been removed.",
         array(
           '@entity_type' => $this->destinationEntityType,
-          '@destid1'     => reset($destinationIds),
-          '@source'      => implode(', ', $sourceIds),
+          '@destid1'     => reset($destination_ids),
+          '@source'      => implode(', ', $source_ids),
         ),
         WATCHDOG_NOTICE
       );
@@ -104,8 +102,7 @@ class MigrateSQLEntityAPIMap extends MigrateSQLMap {
   }
 
   /**
-   * Overrides default mechanism to support existing entities
-   * not referenced in map table.
+   * Support existing entities not referenced in map table.
    *
    * @param array $source_id
    *   Source id map.

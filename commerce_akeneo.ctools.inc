@@ -20,36 +20,45 @@ function commerce_akeneo_ctools_plugin_type() {
 }
 
 /**
- * @return array
- */
-function commerce_akeneo_get_attributes() {
-  ctools_include('context');
-  ctools_include('plugins');
-
-  return ctools_get_plugins('commerce_akeneo', 'attributes');
-}
-
-/**
- * @param string $name
+ * Load attribute plugin instance.
  *
- * @return mixed
+ * @param string $type
+ *   Type.
+ *
+ * @return CommerceAkeneoAttributeInterface
+ *   Plugin instance.
  */
-function commerce_akeneo_get_attribute($name) {
-  ctools_include('context');
-  ctools_include('plugins');
+function commerce_akeneo_get_attribute_plugin($type) {
+  $attribute_plugins = &drupal_static(__METHOD__, array());
 
-  return ctools_get_plugins('commerce_akeneo', 'attributes', $name);
+  if (!isset($attribute_plugins[$type])) {
+    ctools_include('context');
+    ctools_include('plugins');
+
+    if ($class_name = ctools_plugin_load_class('commerce_akeneo', 'attributes', $type, 'class_name')) {
+      $attribute_plugins[$type] = new $class_name($type);
+    }
+  }
+
+  return $attribute_plugins[$type];
 }
 
 /**
+ * Load field plugin instance.
+ *
  * @param string $type
+ *   Type.
  * @param string $entity_type
+ *   Entity type.
  * @param string $bundle
+ *   Bundle.
  * @param string $field_name
+ *   Field name.
  *
  * @return CommerceAkeneoFieldInterface|bool
+ *   Plugin instance.
  */
-function commerce_akeneo_field_get_plugin($type, $entity_type, $bundle, $field_name) {
+function commerce_akeneo_get_field_plugin($type, $entity_type, $bundle, $field_name) {
   ctools_include('context');
   ctools_include('plugins');
 

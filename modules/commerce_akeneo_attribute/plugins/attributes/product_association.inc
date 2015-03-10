@@ -39,14 +39,14 @@ class CommerceAkeneoAttributeProductAssociation extends CommerceAkeneoAttributeA
     $field_details = $this->prepareFieldSettings(
       $field_name,
       $bundle,
-      'entityreference',
+      'commerce_product_reference',
       'inline_entity_form',
       $field_label,
       $localizable
     );
 
     // Target entity.
-    $field_details['field']['cardinality'] = FIELD_CARDINALITY_UNLIMITED;
+    $field_details['field']['cardinality']             = FIELD_CARDINALITY_UNLIMITED;
     $field_details['field']['settings']['target_type'] = 'commerce_product';
 
     // Allow users to add existing products.

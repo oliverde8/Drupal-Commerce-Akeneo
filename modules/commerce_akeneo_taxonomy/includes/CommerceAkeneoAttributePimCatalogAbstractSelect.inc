@@ -2,7 +2,7 @@
 
 /**
  * @file
- *
+ * CommerceAkeneoAttributePimCatalogAbstractSelect class file.
  */
 
 /**
@@ -48,9 +48,8 @@ class CommerceAkeneoAttributePimCatalogAbstractSelect extends CommerceAkeneoAttr
 
       return $field_details;
     }
-    else {
-      return NULL;
-    }
+
+    return NULL;
   }
 
   /**
@@ -61,14 +60,14 @@ class CommerceAkeneoAttributePimCatalogAbstractSelect extends CommerceAkeneoAttr
    * @param string $type
    *   Type.
    *
-   * @return string|NULL
+   * @return string
+   *   Vocabulary machine name.
    */
   protected function loadVocabulary($code, $type = 'option') {
     if ($taxonomy = commerce_akeneo_taxonomy_load($code, $type)) {
       return $taxonomy['vocabulary'];
     }
-    else {
-      return NULL;
-    }
+
+    return NULL;
   }
 }

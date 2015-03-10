@@ -2,6 +2,7 @@
 
 /**
  * @file
+ * CommerceAkeneoAttributeAbstract class file.
  */
 
 /**

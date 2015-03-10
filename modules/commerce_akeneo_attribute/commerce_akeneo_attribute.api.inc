@@ -2,10 +2,19 @@
 
 /**
  * @file
+ * Commerce Akeneo Attribute API file.
  */
 
 /**
+ * @addtogroup hooks
+ * @{
+ */
+
+/**
+ * Declare attributes mapping to destination field.
+ *
  * @return mixed
+ *   Attributes.
  */
 function hook_commerce_akeneo_attribute_mapping_info() {
   $attributes['sku'] = array(
@@ -24,8 +33,15 @@ function hook_commerce_akeneo_attribute_mapping_info() {
 }
 
 /**
- * @param $attributes
+ * Alter attributes mapping.
+ *
+ * @param array $attributes
+ *   Attributes.
  */
 function hook_commerce_akeneo_attribute_mapping_info_alter(&$attributes) {
 
 }
+
+/**
+ * @} End of "addtogroup hooks".
+ */

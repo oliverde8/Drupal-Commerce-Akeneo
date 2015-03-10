@@ -16,26 +16,42 @@ $plugin = array(
 /**
  * Class CommerceAkeneoFieldProductCategory
  */
-class CommerceAkeneoFieldProductCategory extends CommerceAkeneoFieldTaxonomyTerm {
+class CommerceAkeneoFieldProductCategory extends CommerceAkeneoFieldAbstractTaxonomyTerm {
   /**
+   * Add destination fields.
+   *
    * @param Migration $migrate
-   * @param array     $sourceFields
+   *   Migrate script.
+   * @param array     $source_fields
+   *   Source fields.
    *
    * @return bool
+   *   Valid.
    */
-  public function addFieldMappingToMigrate($migrate, &$sourceFields) {
-    parent::addFieldMappingToMigrate($migrate, $sourceFields);
+  public function addFieldMappingToMigrate($migrate, &$source_fields) {
+    parent::addFieldMappingToMigrate($migrate, $source_fields);
 
     $field_name = $this->field['field_name'];
     $migrate->addFieldMapping($field_name . ':create_term', NULL, FALSE)->defaultValue(FALSE);
+
+    return TRUE;
   }
 
+  /**
+   * Prepare row before importing.
+   *
+   * @param \Migration $migrate
+   *   Migrate script.
+   * @param string     $row
+   *   Source row.
+   * @param array      $attributes
+   *   Attributes.
+   *
+   * @return bool
+   *   TRUE if allowed to be imported.
+   */
   public function prepareRow($migrate, $row, $attributes) {
     $field_name = $this->field['field_name'];
-
-    $default_properties = array(
-      $field_name . '_value' => '',
-    );
 
     $properties = array(
       $field_name . '_value'     => array(),
@@ -52,7 +68,7 @@ class CommerceAkeneoFieldProductCategory extends CommerceAkeneoFieldTaxonomyTerm
       }
     }
 
-    $this->formatPrepareRowProperties($field_name, $row, $properties, $default_properties);
+    $this->formatPrepareRowProperties($field_name, $row, $properties);
 
     return TRUE;
   }

@@ -24,11 +24,21 @@ function commerce_akeneo_stream_wrapper_form_commerce_akeneo_settings_form_alter
   $form['commerce_akeneo_stream_wrapper']['commerce_akeneo_stream_wrapper_base_url'] = array(
     '#type'          => 'textfield',
     '#title'         => t('Akeneo base URL'),
-    '#description'   => t('Indicate the Akeneo base URL which allows Drupal to retrieve media, etc... Must start by "http" or "https".'),
+    '#description'   => t(
+      'Indicate the Akeneo base URL which allows Drupal to retrieve media, etc... Must start by "http" or "https".'
+    ),
     '#default_value' => variable_get(
       'commerce_akeneo_stream_wrapper_base_url',
       NULL
     ),
+  );
+
+  $form['commerce_akeneo_stream_wrapper']['commerce_akeneo_stream_wrapper_insecure'] = array(
+    '#type'          => 'checkbox',
+    '#title'         => t('Allow insecure connection'),
+    '#description'   => t('HTTPS only.'),
+    '#size'          => 5,
+    '#default_value' => variable_get('commerce_akeneo_stream_wrapper_insecure', FALSE),
   );
 
   $form['commerce_akeneo_stream_wrapper']['commerce_akeneo_stream_wrapper_timeout'] = array(
@@ -39,45 +49,6 @@ function commerce_akeneo_stream_wrapper_form_commerce_akeneo_settings_form_alter
     '#default_value' => variable_get(
       'commerce_akeneo_stream_wrapper_timeout',
       COMMERCE_AKENEO_STREAM_WRAPPER_DEFAULT_TIMEOUT
-    ),
-  );
-
-  $form['commerce_akeneo_stream_wrapper']['security'] = array(
-    '#type'        => 'fieldset',
-    '#title'       => t('Credentials'),
-    '#description' => t(
-      'Refers to <a href="@url" target="_blank">Akeneo Cookbook</a> to obtain security parameters.',
-      array('@url' => 'http://docs.akeneo.com/master/cookbook/rest_api/get-product.html')
-    ),
-    '#collapsible' => TRUE,
-    '#collapsed'   => TRUE,
-  );
-
-  $form['commerce_akeneo_stream_wrapper']['security']['commerce_akeneo_stream_wrapper_username'] = array(
-    '#type'          => 'textfield',
-    '#title'         => t('Username'),
-    '#size'          => 20,
-    '#default_value' => variable_get(
-      'commerce_akeneo_stream_wrapper_username',
-      NULL
-    ),
-  );
-
-  $form['commerce_akeneo_stream_wrapper']['security']['commerce_akeneo_stream_wrapper_apikey'] = array(
-    '#type'          => 'textfield',
-    '#title'         => t('Api key'),
-    '#default_value' => variable_get(
-      'commerce_akeneo_stream_wrapper_apikey',
-      NULL
-    ),
-  );
-
-  $form['commerce_akeneo_stream_wrapper']['security']['commerce_akeneo_stream_wrapper_salt'] = array(
-    '#type'          => 'textfield',
-    '#title'         => t('Salt'),
-    '#default_value' => variable_get(
-      'commerce_akeneo_stream_wrapper_salt',
-      NULL
     ),
   );
 

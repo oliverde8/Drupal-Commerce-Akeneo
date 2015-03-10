@@ -5,18 +5,10 @@
  * Plugin file to handle field.
  */
 
-$plugin = array(
-  'name'       => 'list_boolean',
-  'title'      => t('Boolean'),
-  'weight'     => 10,
-  'class_name' => 'CommerceAkeneoFieldListBoolean',
-  'settings'   => array(),
-);
-
 /**
- * Class CommerceAkeneoFieldListBoolean
+ * Class CommerceAkeneoFieldAbstractTaxonomyTerm
  */
-class CommerceAkeneoFieldListBoolean extends CommerceAkeneoFieldAbstract {
+class CommerceAkeneoFieldAbstractTaxonomyTerm extends CommerceAkeneoFieldAbstract {
   /**
    * Map source and destination fields.
    *
@@ -29,16 +21,11 @@ class CommerceAkeneoFieldListBoolean extends CommerceAkeneoFieldAbstract {
     $source_fields[$field_name . '_value'] = t('@field value', array('@field' => $this->fieldInstance['label']));
     $migrate->addFieldMapping($field_name, $field_name . '_value');
 
-    // Support for translations.
-    if ($this->field['translatable']) {
-      $source_fields[$field_name . '_languages'] = t(
-        '@field languages',
-        array('@field' => $this->fieldInstance['label'])
-      );
-      $migrate->addFieldMapping($field_name . ':language', $field_name . '_languages')->defaultValue(array());
-    }
-
-    return TRUE;
+    // Default settings.
+    $migrate->addFieldMapping($field_name . ':source_type')->defaultValue('');
+    $migrate->addFieldMapping($field_name . ':create_term')->defaultValue(TRUE);
+    $migrate->addFieldMapping($field_name . ':ignore_case')->defaultValue(FALSE);
+    $migrate->addFieldMapping($field_name . ':machine_name')->defaultValue(TRUE);
   }
 
   /**
@@ -64,13 +51,13 @@ class CommerceAkeneoFieldListBoolean extends CommerceAkeneoFieldAbstract {
 
           foreach ($values as $value) {
             switch ($attribute['type']) {
-              case 'pim_catalog_boolean':
-                $properties[$field_name . '_value'][$language][] = (bool) $value['value'];
+              case 'pim_catalog_simpleselect':
+              case 'pim_catalog_multiselect':
+                $properties[$field_name . '_value'][$language][] = $value['code'];
                 break;
 
               default:
-                $properties[$field_name . '_value'][$language][] = (bool) $value['value'];
-                break;
+                // Not supported.
             }
           }
 

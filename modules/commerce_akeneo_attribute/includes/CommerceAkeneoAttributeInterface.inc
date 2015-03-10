@@ -2,6 +2,7 @@
 
 /**
  * @file
+ * CommerceAkeneoAttributeInterface interface file.
  */
 
 /**

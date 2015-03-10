@@ -4,7 +4,10 @@ package = Commerce (product)
 core = 7.x
 
 files[] = includes/CommerceAkeneoFieldAbstract.inc
+files[] = includes/CommerceAkeneoFieldAbstractEntityReference.inc
+files[] = includes/CommerceAkeneoFieldAbstractTaxonomyTerm.inc
 files[] = includes/CommerceAkeneoFieldAbstractText.inc
+files[] = includes/CommerceAkeneoFieldInterface.inc
 
 ; Drupal Core
 dependencies[] = file
@@ -25,11 +28,3 @@ dependencies[] = entityreference
 
 ;dependencies[] = link
 ;dependencies[] = mail
-
-
-; Information added by drush on 2015-02-17
-version = "7.x-1.x-dev"
-core = "7.x"
-project = "commerce_akeneo"
-datestamp = "1424178056"
-

@@ -5,14 +5,12 @@ core = 7.x
 configure = admin/commerce/config/akeneo
 
 dependencies[] = commerce_product
+dependencies[] = entity_translation
+dependencies[] = i18n
+dependencies[] = i18n_string
+dependencies[] = i18n_taxonomy
 dependencies[] = libraries
-dependencies[] = services
 dependencies[] = rest_server
+dependencies[] = services
 
-
-; Information added by drush on 2015-02-17
-version = "7.x-1.x-dev"
-core = "7.x"
-project = "commerce_akeneo"
-datestamp = "1424178056"
-
+files[] = includes/CommerceAkeneoException.inc

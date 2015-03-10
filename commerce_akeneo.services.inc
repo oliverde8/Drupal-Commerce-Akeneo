@@ -95,22 +95,19 @@ function commerce_akeneo_default_services_endpoint() {
   $endpoint->resources = array(
     'akeneo' => array(
       'actions' => array(
-        'product'     => array(
+        'product'  => array(
           'enabled' => '1',
         ),
-        'association' => array(
+        'group'    => array(
           'enabled' => '1',
         ),
-        'group'       => array(
+        'family'   => array(
           'enabled' => '1',
         ),
-        'family'      => array(
+        'category' => array(
           'enabled' => '1',
         ),
-        'category'    => array(
-          'enabled' => '1',
-        ),
-        'option'      => array(
+        'option'   => array(
           'enabled' => '1',
         ),
       ),
@@ -149,34 +146,22 @@ function commerce_akeneo_default_services_endpoint() {
  *   Whether access is given or not.
  */
 function commerce_akeneo_resource_access($op, $args) {
-  $access = FALSE;
-
   switch ($op) {
     case 'family':
-      $access = user_access('resource family commerce akeneo');
-      break;
+      return user_access('resource family commerce akeneo');
 
     case 'category':
-      $access = user_access('resource category commerce akeneo');
-      break;
+      return user_access('resource category commerce akeneo');
 
     case 'option':
-      $access = user_access('resource option commerce akeneo');
-      break;
+      return user_access('resource option commerce akeneo');
 
     case 'product':
-      $access = user_access('resource product commerce akeneo');
-      break;
-
-    case 'association':
-      $access = user_access('resource association commerce akeneo');
-      break;
+      return user_access('resource product commerce akeneo');
 
     case 'group':
-      $access = user_access('resource group commerce akeneo');
-      break;
+      return user_access('resource group commerce akeneo');
   }
 
-  // Todo: use $access
-  return TRUE;
+  return FALSE;
 }

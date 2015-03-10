@@ -2,6 +2,7 @@
 
 /**
  * @file
+ * CommerceAkeneoMigrateTaxonomy class file.
  */
 
 /**
@@ -14,7 +15,10 @@ class CommerceAkeneoMigrateTaxonomy extends MigrationTaxonomyTermMachineName {
   protected $attributesByFields;
 
   /**
+   * Constructor.
+   *
    * @param array $arguments
+   *   Arguments.
    */
   public function __construct($arguments) {
     parent::__construct($arguments);
@@ -33,10 +37,14 @@ class CommerceAkeneoMigrateTaxonomy extends MigrationTaxonomyTermMachineName {
       ),
       MigrateDestinationEntityAPI::getKeySchema('taxonomy_term', $arguments['bundle']),
       'default',
-      array('entity_type' => 'taxonomy_term', 'bundle' => $arguments['bundle'], 'track_last_imported' => TRUE)
+      array(
+        'entity_type'         => 'taxonomy_term',
+        'bundle'              => $arguments['bundle'],
+        'track_last_imported' => TRUE,
+      )
     );
 
-    $sourceFields = array(
+    $source_fields = array(
       'machine_name' => t('Machine name'),
       'label'        => t('Label'),
       'parent'       => t('Parent'),
@@ -82,20 +90,50 @@ class CommerceAkeneoMigrateTaxonomy extends MigrationTaxonomyTermMachineName {
       )
     );
 
-    $this->source      = new MigrateSourceQueue($arguments['type'] . ':' . $arguments['code'], $sourceFields);
-    $this->destination = new MigrateDestinationTaxonomyTermMachineName($arguments['bundle']);
+    $this->source      = new MigrateSourceQueue($arguments['type'] . ':' . $arguments['code'], $source_fields);
+    $this->destination = new MigrateDestinationTermMachineName($arguments['bundle']);
   }
 
   /**
-   *
+   * Purge map table from missing destination entities.
    */
   protected function preImport() {
-    // Removes map entries pointing at removed entities.
+    // Create taxonomy vocabulary destination if not already exists.
+    if (!$taxonomy = commerce_akeneo_taxonomy_load($this->arguments['code'], $this->arguments['type'])) {
+      throw new CommerceAkeneoException('Missing taxonomy origin.');
+    }
+
+    if (!$vocabulary = taxonomy_vocabulary_machine_name_load($taxonomy['vocabulary'])) {
+      if (!user_access('administer taxonomy')) {
+        throw new CommerceAkeneoException('Not authorized to create vocabulary.');
+      }
+
+      $vocabulary = (object) array(
+        'machine_name' => $taxonomy['vocabulary'],
+        'description'  => t('Vocabulary created via Akeneo PIM.'),
+        'i18n_mode'    => I18N_MODE_LOCALIZE,
+      );
+    }
+
+    if (user_access('administer taxonomy')) {
+      // Refresh vocabulary name if changed on Akeneo side.
+      $vocabulary->name = $taxonomy['label'];
+
+      // Write the vocabulary to the database.
+      taxonomy_vocabulary_save($vocabulary);
+    }
+
+    // Break if not allowed to create terms for this vocabulary.
+    if (!user_access('edit terms in' . $vocabulary->vid)) {
+      throw new CommerceAkeneoException('Not allowed to create terms.');
+    }
+
+    // Removes map entries pointing at removed terms.
     $this->map->purgeMissingEntities('taxonomy_term', $this->arguments['bundle']);
   }
 
   /**
-   *
+   * Release all item not imported.
    */
   protected function postImport() {
     // Release queue items.
@@ -106,9 +144,13 @@ class CommerceAkeneoMigrateTaxonomy extends MigrationTaxonomyTermMachineName {
   }
 
   /**
-   * @param stdClass $row
+   * Prepare row before import.
+   *
+   * @param stdclass $row
+   *   Row.
    *
    * @return bool
+   *   TRUE to import row.
    */
   public function prepareRow($row) {
     // Skip invalid terms.
@@ -117,7 +159,7 @@ class CommerceAkeneoMigrateTaxonomy extends MigrationTaxonomyTermMachineName {
     }
 
     // Common values.
-    $row->label = commerce_akeneo_get_language($row->labels);
+    $row->label = filter_xss(commerce_akeneo_get_language($row->labels));
 
     // Default.
     if (empty($row->parent)) {
@@ -128,16 +170,24 @@ class CommerceAkeneoMigrateTaxonomy extends MigrationTaxonomyTermMachineName {
   }
 
   /**
-   * @param stdClass $entity
-   * @param stdClass $row
+   * Prepare destination entity based on source row.
+   *
+   * @param stdclass $entity
+   *   Destination entity.
+   * @param stdclass $row
+   *   Source row.
    */
   public function prepare(&$entity, $row) {
     // Nothing special to do.
   }
 
   /**
-   * @param stdClass $entity
-   * @param stdClass $row
+   * Complete destination entity based on source row.
+   *
+   * @param stdclass $entity
+   *   Destination entity.
+   * @param stdclass $row
+   *   Source row.
    */
   public function complete($entity, $row) {
     // Build context for i18n_string translation.
@@ -154,14 +204,20 @@ class CommerceAkeneoMigrateTaxonomy extends MigrationTaxonomyTermMachineName {
   }
 
   /**
+   * Provide source casted.
+   *
    * @return \MigrateSourceQueue
+   *   Source.
    */
   public function getSource() {
     return $this->source;
   }
 
   /**
-   * @return \MigrateDestinationTaxonomyTermMachineName
+   * Provide destination casted.
+   *
+   * @return \MigrateDestinationTermMachineName
+   *   Destination.
    */
   public function getDestination() {
     return $this->destination;

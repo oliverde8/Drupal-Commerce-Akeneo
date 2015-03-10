@@ -5,6 +5,9 @@
  * Commmerce Akeneo Attribute install file.
  */
 
+/**
+ * Implements hook_schema().
+ */
 function commerce_akeneo_attribute_schema() {
   $schema = array();
 
@@ -22,7 +25,7 @@ function commerce_akeneo_attribute_schema() {
         'not null'    => TRUE,
         'description' => '{commerce_akeneo_family}.code that this attribute refers.',
       ),
-      'section'         => array(
+      'section'    => array(
         'type'        => 'varchar',
         'length'      => 64,
         'not null'    => TRUE,
@@ -65,7 +68,7 @@ function commerce_akeneo_attribute_schema() {
         'not null'    => TRUE,
         'description' => 'Checksum of the last field settings sync.',
       ),
-      'required'     => array(
+      'required'   => array(
         'type'        => 'int',
         'description' => 'Indicates if field is required in Drupal.',
       ),

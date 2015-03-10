@@ -2,6 +2,7 @@
 
 /**
  * @file
+ * CommerceAkeneoException class file.
  */
 
 /**

@@ -20,8 +20,8 @@ function commerce_akeneo_settings_form($form, &$form_state) {
 
   $form['commerce_akeneo_machine_name'] = array(
     '#type'        => 'fieldset',
-    '#title'       => t('Machine names'),
-    '#description' => t("Prefix added to code can't exceed 32 chars."),
+    '#title'       => t('Machine names prefix'),
+    '#description' => t("Generally prefix added to code can't exceed 32 chars length."),
     '#collapsible' => TRUE,
     '#collapsed'   => FALSE,
   );
@@ -31,6 +31,7 @@ function commerce_akeneo_settings_form($form, &$form_state) {
     '#title'         => t('Product type prefix'),
     '#size'          => 20,
     '#default_value' => variable_get('commerce_akeneo_prefix_product', ''),
+    '#description'   => t('Corresponds to the product type.'),
   );
 
   $form['commerce_akeneo_machine_name']['commerce_akeneo_prefix_field'] = array(
@@ -38,6 +39,7 @@ function commerce_akeneo_settings_form($form, &$form_state) {
     '#title'         => t('Field prefix'),
     '#size'          => 20,
     '#default_value' => variable_get('commerce_akeneo_prefix_field', ''),
+    '#description'   => t('Corresponds to the default field.'),
   );
 
   $form['commerce_akeneo_machine_name']['commerce_akeneo_prefix_field_category'] = array(
@@ -45,6 +47,7 @@ function commerce_akeneo_settings_form($form, &$form_state) {
     '#title'         => t('Field association prefix'),
     '#size'          => 20,
     '#default_value' => variable_get('commerce_akeneo_prefix_field_category', ''),
+    '#description'   => t("Corresponds to the category's catalog field."),
   );
 
   $form['commerce_akeneo_machine_name']['commerce_akeneo_prefix_field_association'] = array(
@@ -52,6 +55,7 @@ function commerce_akeneo_settings_form($form, &$form_state) {
     '#title'         => t('Field association prefix'),
     '#size'          => 20,
     '#default_value' => variable_get('commerce_akeneo_prefix_field_association', ''),
+    '#description'   => t('Corresponds to the product association field.'),
   );
 
   $form['commerce_akeneo_machine_name']['commerce_akeneo_prefix_group'] = array(
@@ -59,6 +63,7 @@ function commerce_akeneo_settings_form($form, &$form_state) {
     '#title'         => t('Group prefix'),
     '#size'          => 20,
     '#default_value' => variable_get('commerce_akeneo_prefix_group', ''),
+    '#description'   => t('Corresponds to the field group used to create vertical tabs.'),
   );
 
   $form['commerce_akeneo_machine_name']['commerce_akeneo_prefix_category'] = array(
@@ -66,6 +71,7 @@ function commerce_akeneo_settings_form($form, &$form_state) {
     '#title'         => t('Category prefix'),
     '#size'          => 20,
     '#default_value' => variable_get('commerce_akeneo_prefix_category', ''),
+    '#description'   => t('Corresponds to the category taxonomy vocabulary.'),
   );
 
   $form['commerce_akeneo_machine_name']['commerce_akeneo_prefix_option'] = array(
@@ -73,6 +79,7 @@ function commerce_akeneo_settings_form($form, &$form_state) {
     '#title'         => t('Option prefix'),
     '#size'          => 20,
     '#default_value' => variable_get('commerce_akeneo_prefix_option', ''),
+    '#description'   => t('Corresponds to the default taxonomy vocabulary.'),
   );
 
   $form['#validate'][] = 'commerce_akeneo_settings_form_validate';

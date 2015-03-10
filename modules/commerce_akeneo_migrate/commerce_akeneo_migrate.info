@@ -7,23 +7,15 @@ dependencies[] = migrate
 dependencies[] = migrate_extras
 dependencies[] = commerce_migrate
 dependencies[] = commerce_akeneo
-dependencies[] = commerce_akeneo_product
 dependencies[] = commerce_akeneo_field
 dependencies[] = commerce_akeneo_attribute
 dependencies[] = commerce_akeneo_stream_wrapper
 
+files[] = includes/CommerceAkeneoMigrateProduct.inc
+files[] = includes/CommerceAkeneoMigrateTaxonomy.inc
+files[] = includes/MigrateAkeneoDestinationCommerceProduct.inc
 files[] = includes/MigrateSourceQueue.inc
 files[] = includes/MigrateSQLEntityAPIMap.inc
 files[] = includes/MigrateSQLEntityAPIQueueMap.inc
-files[] = includes/MigrateAkeneoDestinationCommerceProduct.inc
-files[] = includes/CommerceAkeneoMigrateProduct.inc
-files[] = includes/MigrateAkeneoDestinationCommerceProduct.inc
-files[] = includes/CommerceAkeneoMigrateTaxonomy.inc
 files[] = commerce_akeneo_migrate.admin.inc
 files[] = commerce_akeneo_migrate.migrate.inc
-
-; Information added by drush on 2015-02-17
-version = "7.x-1.x-dev"
-core = "7.x"
-project = "commerce_akeneo"
-datestamp = "1424172628"

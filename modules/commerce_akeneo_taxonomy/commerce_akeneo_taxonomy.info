@@ -3,16 +3,8 @@ description = Add support for Taxonomy (attribute options and catalog).
 package = Commerce (product)
 core = 7.x
 
-dependencies[] = commerce_akeneo_product
 dependencies[] = taxonomy_machine_name
 dependencies[] = services
 
 files[] = includes/CommerceAkeneoAttributePimCatalogAbstractSelect.inc
 files[] = includes/CommerceAkeneoAttributePimCatalogMultiSelectAbstract.inc
-
-; Information added by drush on 2015-02-17
-version = "7.x-1.x-dev"
-core = "7.x"
-project = "commerce_akeneo"
-datestamp = "1424178056"
-

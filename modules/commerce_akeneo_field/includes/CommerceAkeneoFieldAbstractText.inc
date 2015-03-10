@@ -10,38 +10,38 @@
  */
 class CommerceAkeneoFieldAbstractText extends CommerceAkeneoFieldAbstract {
   /**
-   * @param Migration $migrate
-   * @param array     $sourceFields
+   * Map source and destination fields.
    *
-   * @return bool
+   * @inheritdoc
    */
-  public function addFieldMappingToMigrate($migrate, &$sourceFields) {
+  public function addFieldMappingToMigrate($migrate, &$source_fields) {
     $field_name = $this->field['field_name'];
 
     // Default value field.
-    $sourceFields[$field_name . '_value'] = t('@field value', array('@field' => $this->field_instance['label']));
+    $source_fields[$field_name . '_value'] = t('@field value', array('@field' => $this->fieldInstance['label']));
     $migrate->addFieldMapping($field_name, $field_name . '_value');
 
     // Settings.
 
     // Support for translations.
-//    if ($this->field['translatable']) {
-    $sourceFields[$field_name . '_languages'] = t(
-      '@field languages',
-      array('@field' => $this->field_instance['label'])
-    );
-    $migrate->addFieldMapping($field_name . ':language', $field_name . '_languages')->defaultValue(array());
-//    }
+    if ($this->field['translatable']) {
+      $source_fields[$field_name . '_languages'] = t(
+        '@field languages',
+        array('@field' => $this->fieldInstance['label'])
+      );
+      $migrate->addFieldMapping($field_name . ':language', $field_name . '_languages')->defaultValue(array());
+    }
 
     return TRUE;
   }
 
+  /**
+   * Prepare source row to match mapping.
+   *
+   * @inheritdoc
+   */
   public function prepareRow($migrate, $row, $attributes) {
     $field_name = $this->field['field_name'];
-
-    $default_properties = array(
-      $field_name . '_value' => '',
-    );
 
     $properties = array(
       $field_name . '_value'     => array(),
@@ -57,11 +57,7 @@ class CommerceAkeneoFieldAbstractText extends CommerceAkeneoFieldAbstract {
           );
 
           foreach ($values as $value) {
-            switch ($attribute['type']) {
-              default:
-                $properties[$field_name . '_value'][$language][] = $value['value'];
-                break;
-            }
+            $properties[$field_name . '_value'][$language][] = $value['value'];
           }
 
           $properties[$field_name . '_languages'][$language] = $language;
@@ -69,7 +65,7 @@ class CommerceAkeneoFieldAbstractText extends CommerceAkeneoFieldAbstract {
       }
     }
 
-    $this->formatPrepareRowProperties($field_name, $row, $properties, $default_properties);
+    $this->formatPrepareRowProperties($field_name, $row, $properties);
 
     return TRUE;
   }

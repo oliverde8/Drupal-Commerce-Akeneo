@@ -2,7 +2,7 @@
 
 /**
  * @file
- * Commerce Akeneo Field Group batch import.
+ * Commerce Akeneo Family batch import.
  */
 
 /**
@@ -21,31 +21,18 @@ function commerce_akeneo_family_queue_info() {
       'title'            => t('Processing'),
       'progress_message' => t('Completed @current of @total, Estimate: @estimate, Elapsed: @elapsed'),
     ),
-//    'cron'         => '',
-//    'delete'       => '',
   );
 
   return $queues;
 }
 
 /**
- * Implements hook_cron_queue_info().
- */
-function commerce_akeneo_family_cron_queue_info() {
-  $queues = array();
-
-//  $queues['commerce_akeneo:family'] = array(
-//    'worker callback' => '',
-//    'time'            => 120,
-//    'skip on cron'    => TRUE,
-//  );
-
-  return $queues;
-}
-
-/**
+ * Batch process for family synchronization.
+ *
  * @param DrupalQueueInterface|string $queue
+ *   Queue to process.
  * @param array                       $context
+ *   Running context.
  */
 function commerce_akeneo_family_batch_process($queue, &$context) {
   if (is_string($queue)) {
@@ -67,13 +54,10 @@ function commerce_akeneo_family_batch_process($queue, &$context) {
       $family = commerce_akeneo_family_load_from_request($request);
 
       // Create or update destination commerce product type.
-      commerce_akeneo_family_product_type_update($family, $request);
+      commerce_akeneo_family_product_type_save($family, $request);
 
       // Handle fields, categories and associations.
       commerce_akeneo_family_services_family_attributes($family, $request);
-
-      // Todo: check if necessary.
-      module_invoke_all('commerce_akeneo_family', $request);
 
       // Remote item from queue due to correct handle.
       $queue->deleteItem($item);
@@ -128,7 +112,6 @@ function commerce_akeneo_family_batch_process($queue, &$context) {
     // Reset cache for commerce product types.
     commerce_product_types_reset();
     variable_set('menu_rebuild_needed', TRUE);
-//    menu_cache_clear_all();
 
     // All statically defined migrations have been (re)registered.
     if (module_exists('migrate')) {
@@ -152,14 +135,17 @@ function commerce_akeneo_family_batch_process($queue, &$context) {
  *   Family.
  */
 function commerce_akeneo_family_load_from_request($request) {
+  $code = check_plain($request['code']);
+
   // Create or update family from request.
-  if (!$family = commerce_akeneo_family_load($request['code'])) {
+  if (!$family = commerce_akeneo_family_load($code)) {
     $family = array(
-      'code' => $request['code'],
+      'code'         => $code,
+      'product_type' => commerce_akeneo_get_machine_name($code, 'product'),
     );
   }
 
-  $family['label']    = commerce_akeneo_get_language($request['labels']);
+  $family['label']    = filter_xss(commerce_akeneo_get_language($request['labels']));
   $family['settings'] = $request;
 
   // Store family in database for future purpose.
@@ -169,15 +155,19 @@ function commerce_akeneo_family_load_from_request($request) {
 }
 
 /**
+ * Save product type based on family.
+ *
  * @param array $family
+ *   Family.
  * @param array $request
+ *   Request.
  *
  * @throws \CommerceAkeneoException
  */
-function commerce_akeneo_family_product_type_update($family, $request) {
+function commerce_akeneo_family_product_type_save($family, $request) {
   // Load destination commerce product type.
   if ($settings = commerce_product_type_load($family['product_type'])) {
-    $settings['name']   = commerce_akeneo_get_language($request['labels']);
+    $settings['name']   = filter_xss(commerce_akeneo_get_language($request['labels']));
     $settings['is_new'] = FALSE;
   }
   else {
@@ -207,8 +197,12 @@ function commerce_akeneo_family_product_type_update($family, $request) {
 }
 
 /**
+ * Prepare attribute to create/update destination field.
+ *
  * @param array $family
+ *   Family.
  * @param array $request
+ *   Request.
  *
  * @throws \CommerceAkeneoException
  */
@@ -221,7 +215,7 @@ function commerce_akeneo_family_services_family_attributes($family, $request) {
     if (!empty($group_details['attributes'])) {
       foreach ($group_details['attributes'] as $attribute_code => $attribute_details) {
         // Create label from code if not available.
-        $label = commerce_akeneo_get_language($attribute_details['labels']);
+        $label = filter_xss(commerce_akeneo_get_language($attribute_details['labels']));
         if (empty($label) || preg_match('/^\[[a-z0-9_]+\]$/i', $label)) {
           $label = drupal_ucfirst(str_replace('_', ' ', $attribute_code));
         }
@@ -237,7 +231,7 @@ function commerce_akeneo_family_services_family_attributes($family, $request) {
           'settings'   => array(
             'labels'     => $attribute_details['labels'],
             'parameters' => $attribute_details['parameters'],
-          )
+          ),
         );
 
         $attributes[$attribute_code] = $attribute;
@@ -250,7 +244,7 @@ function commerce_akeneo_family_services_family_attributes($family, $request) {
     $groups['categories'] = array(
       'labels' => array(
         LANGUAGE_NONE => t('Categories'),
-      )
+      ),
     );
 
     foreach ($categories as $category) {
@@ -279,12 +273,12 @@ function commerce_akeneo_family_services_family_attributes($family, $request) {
     $groups['associations'] = array(
       'labels' => array(
         LANGUAGE_NONE => t('Associations'),
-      )
+      ),
     );
 
     foreach ($request['associations'] as $code => $association) {
       $attribute_code = strtolower($code);
-      $label          = commerce_akeneo_get_language($association['labels']);
+      $label          = filter_xss(commerce_akeneo_get_language($association['labels']));
 
       $attribute = array(
         'family'     => $family['code'],
@@ -331,7 +325,7 @@ function commerce_akeneo_family_services_family_attributes($family, $request) {
     // Use first attribute as reference for destination field.
     $attribute = reset($field_settings['attributes']);
 
-    commerce_akeneo_family_services_family_attribute($family, $attribute, $field_name, $field_settings);
+    commerce_akeneo_family_services_family_attribute($family, $attribute, $field_name);
 
     $fields_by_group[$attribute['group_code']][$field_name] = $field_settings;
   }
@@ -343,15 +337,21 @@ function commerce_akeneo_family_services_family_attributes($family, $request) {
 }
 
 /**
+ * Get field settings.
+ *
  * @param string $bundle
+ *   Bundle.
  * @param string $field_name
+ *   Field name.
  * @param array  $attribute
+ *   Attribute.
  *
  * @return array|bool
+ *   Settings.
  */
 function commerce_akeneo_attribute_get_settings($bundle, $field_name, $attribute) {
-  /** @var CommerceAkeneoAttributeInterface $plugin */
-  if ($plugin = commerce_akeneo_attribute_get_plugin($attribute['type'])) {
+  /* @var CommerceAkeneoAttributeInterface $plugin */
+  if ($plugin = commerce_akeneo_get_attribute_plugin($attribute['type'])) {
     $settings = $plugin->getFieldSettings($attribute, $bundle, $field_name, $attribute['label']);
 
     return $settings;
@@ -361,37 +361,23 @@ function commerce_akeneo_attribute_get_settings($bundle, $field_name, $attribute
 }
 
 /**
- * @param string $type
+ * Handle field and instance field update and return settings.
  *
- * @return CommerceAkeneoAttributeInterface
- */
-function commerce_akeneo_attribute_get_plugin($type) {
-  $attributePlugins = &drupal_static(__METHOD__, array());
-
-  if (!isset($attributePlugins[$type])) {
-    ctools_include('context');
-    ctools_include('plugins');
-
-    if ($class_name = ctools_plugin_load_class('commerce_akeneo', 'attributes', $type, 'class_name')) {
-      $attributePlugins[$type] = new $class_name($type);
-    }
-  }
-
-  return $attributePlugins[$type];
-}
-
-/**
- * @param string $bundle
- * @param string $field_name
+ * @param array  $family
+ *   Family.
  * @param array  $attribute
+ *   Attribute.
+ * @param string $field_name
+ *   Field name.
  *
  * @return array|bool
+ *   FALSE if error or array for settings.
  *
  * @throws \CommerceAkeneoException
  * @throws \Exception
  * @throws \FieldException
  */
-function commerce_akeneo_family_services_family_attribute($family, $attribute, $field_name, $field_settings) {
+function commerce_akeneo_family_services_family_attribute($family, $attribute, $field_name) {
   // Handle special case like identifier: SKU.
   if (!$field_settings = commerce_akeneo_attribute_get_settings($family['product_type'], $field_name, $attribute)) {
     return FALSE;
@@ -456,15 +442,20 @@ function commerce_akeneo_family_services_family_attribute($family, $attribute, $
 }
 
 /**
+ * Manage and save field groups.
+ *
  * @param array $family
+ *   Family.
  * @param array $groups
+ *   Attribute groups.
  * @param array $fields_by_group
+ *   Fields by group.
  */
 function commerce_akeneo_family_services_family_attribute_groups($family, $groups, $fields_by_group) {
   $group_all_code = commerce_akeneo_get_machine_name('all', 'group');
 
   // Create or update the group tab.
-  _commerce_akeneo_family_services_family_group_save(
+  commerce_akeneo_family_services_family_group_save(
     $family['product_type'],
     $group_all_code,
     t('Tabs'),
@@ -478,9 +469,9 @@ function commerce_akeneo_family_services_family_attribute_groups($family, $group
 
   foreach ($fields_by_group as $code => $fields) {
     $group_code            = commerce_akeneo_get_machine_name($code, 'group');
-    $attribute_group_label = commerce_akeneo_get_language($groups[$code]['labels']);
+    $attribute_group_label = filter_xss(commerce_akeneo_get_language($groups[$code]['labels']));
 
-    $group = _commerce_akeneo_family_services_family_group_save(
+    $group = commerce_akeneo_family_services_family_group_save(
       $family['product_type'],
       $group_code,
       $attribute_group_label,
@@ -494,7 +485,7 @@ function commerce_akeneo_family_services_family_attribute_groups($family, $group
   }
 
   // Set children for tab group.
-  _commerce_akeneo_family_services_family_group_save(
+  commerce_akeneo_family_services_family_group_save(
     $family['product_type'],
     $group_all_code,
     t('Tabs'),
@@ -525,7 +516,7 @@ function commerce_akeneo_family_services_family_attribute_groups($family, $group
  * @return object
  *   The group saved.
  */
-function _commerce_akeneo_family_services_family_group_save(
+function commerce_akeneo_family_services_family_group_save(
   $bundle,
   $name,
   $label,
@@ -576,7 +567,9 @@ function _commerce_akeneo_family_services_family_group_save(
       'disabled'    => FALSE,
     );
 
-    $new_group->format_settings = array('formatter' => isset($formatter['default_formatter']) ? $formatter['default_formatter'] : '');
+    $new_group->format_settings = array(
+      'formatter' => isset($formatter['default_formatter']) ? $formatter['default_formatter'] : '',
+    );
 
     if (isset($formatter['instance_settings'])) {
       $new_group->format_settings['instance_settings'] = $formatter['instance_settings'];
@@ -589,8 +582,6 @@ function _commerce_akeneo_family_services_family_group_save(
     // Save and enable it in ctools.
     ctools_export_crud_save('field_group', $new_group);
     ctools_export_crud_enable('field_group', $new_group->identifier);
-
-//    drupal_set_message(t('New group %label successfully created.', array('%label' => $new_group->label)));
 
     return $new_group;
   }

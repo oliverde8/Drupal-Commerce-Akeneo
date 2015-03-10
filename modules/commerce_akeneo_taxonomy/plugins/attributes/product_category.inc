@@ -24,7 +24,8 @@ class CommerceAkeneoAttributePimCatalogProductCategory extends CommerceAkeneoAtt
    * @param string $type
    *   Type.
    *
-   * @return string|NULL
+   * @return string
+   *   Vocabulary machine name.
    */
   protected function loadVocabulary($code, $type = 'option') {
     return parent::loadVocabulary($code, 'category');
