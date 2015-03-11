@@ -125,7 +125,6 @@ abstract class CommerceAkeneoFieldAbstract implements CommerceAkeneoFieldInterfa
 
     // Handle translation support.
     if (!$this->field['translatable']) {
-//      unset($properties[$field_name . '_languages']);
       $properties[$field_name . '_languages'] = array(LANGUAGE_NONE);
 
       // Removes language level.

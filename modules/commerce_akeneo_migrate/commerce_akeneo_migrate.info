@@ -12,8 +12,10 @@ dependencies[] = commerce_akeneo_attribute
 dependencies[] = commerce_akeneo_stream_wrapper
 
 files[] = includes/CommerceAkeneoMigrateProduct.inc
+files[] = includes/CommerceAkeneoMigrateProductDisplay.inc
 files[] = includes/CommerceAkeneoMigrateTaxonomy.inc
 files[] = includes/MigrateAkeneoDestinationCommerceProduct.inc
+files[] = includes/MigrateAkeneoDestinationEntityAPI.inc
 files[] = includes/MigrateSourceQueue.inc
 files[] = includes/MigrateSQLEntityAPIMap.inc
 files[] = includes/MigrateSQLEntityAPIQueueMap.inc

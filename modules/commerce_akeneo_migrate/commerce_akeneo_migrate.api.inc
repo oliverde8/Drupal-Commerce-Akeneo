@@ -11,7 +11,7 @@
  */
 
 /**
- * Use this hook to implement your own logic before creating entity.
+ * Use this hook to implement your own logic before creating product ref.
  *
  * @param object $row
  *   Source row.
@@ -44,6 +44,31 @@ function hook_commerce_akeneo_migrate_product_prepare_row($row) {
   }
 
   return TRUE;
+}
+
+/**
+ * Use this hook to implement your own logic before creating product display.
+ *
+ * @param object $row
+ *   Source row.
+ *
+ * @return bool
+ *   TRUE if the product can be processed, FALSE otherwise.
+ */
+function hook_commerce_akeneo_migrate_product_display_prepare_row($row) {
+  return TRUE;
+}
+
+/**
+ * Use this hook to implement your own logic after creating product display.
+ *
+ * @param object $entity
+ *   Destination product display.
+ * @param object $row
+ *   Source row.
+ */
+function hook_commerce_akeneo_migrate_product_display_complete($entity, $row) {
+
 }
 
 /**

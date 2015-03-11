@@ -310,8 +310,12 @@ class CommerceAkeneoMigrateProduct extends Migration {
     }
 
     // Register product to be processed as product display.
-    $row->product_id = $entity->product_id;
-    $this->productDisplayQueue->createItem($row);
+    $new_row = array(
+      'sku'         => $row->sku,
+      'product_id'  => $entity->product_id,
+      'product_row' => $row,
+    );
+    $this->productDisplayQueue->createItem($new_row);
 
     // Remove processed items from queue.
     $this->getSource()->deleteItem($row->migrate_source_item_id);

@@ -20,6 +20,11 @@ class MigrateSQLEntityAPIMap extends MigrateSQLMap {
   protected $destinationBundle;
 
   /**
+   * @var bool
+   */
+  protected $findExisting;
+
+  /**
    * Constructor.
    *
    * @param string $machine_name
@@ -60,6 +65,8 @@ class MigrateSQLEntityAPIMap extends MigrateSQLMap {
     else {
       throw new Exception('Missing bundle.');
     }
+
+    $this->findExisting = !empty($options['find_existing']);
   }
 
   /**
@@ -113,7 +120,11 @@ class MigrateSQLEntityAPIMap extends MigrateSQLMap {
   public function getRowBySource(array $source_id) {
     $row = parent::getRowBySource($source_id);
 
-    if ($row === FALSE && ($entities = entity_load($this->destinationEntityType, FALSE, $source_id))) {
+    if ($row !== FALSE || !$this->findExisting) {
+      return $row;
+    }
+
+    if ($entities = entity_load($this->destinationEntityType, FALSE, $source_id)) {
       $entity = reset($entities);
       $row    = array();
 
