@@ -54,23 +54,36 @@ function commerce_akeneo_family_batch_process($queue, &$context) {
       $family = commerce_akeneo_family_load_from_request($request);
 
       // Create or update destination commerce product type.
-      commerce_akeneo_family_product_type_save($family, $request);
+      if (commerce_akeneo_family_product_type_save($family, $request)) {
 
-      // Handle fields, categories and associations.
-      commerce_akeneo_family_services_family_attributes($family, $request);
 
-      // Remote item from queue due to correct handle.
-      $queue->deleteItem($item);
+        // Handle fields, categories and associations.
+        commerce_akeneo_family_services_family_attributes($family, $request);
 
-      $context['message'] = t(
-        'Processed family "@family" as [@product_type] product type (!count/!total).',
-        array(
-          '@family'       => $family['label'],
-          '@product_type' => $family['product_type'],
-          '!count'        => $context['sandbox']['progress'] + 1,
-          '!total'        => $context['sandbox']['max'],
-        )
-      );
+        // Remote item from queue due to correct handle.
+        $queue->deleteItem($item);
+
+        $context['message'] = t(
+          'Processed family "@family" as [@product_type] product type (!count/!total).',
+          array(
+            '@family' => $family['label'],
+            '@product_type' => $family['product_type'],
+            '!count' => $context['sandbox']['progress'] + 1,
+            '!total' => $context['sandbox']['max'],
+          )
+        );
+      }
+      else {
+        $context['message'] = t(
+          'Skipped family "@family" as [@product_type] product type (!count/!total). No modifications detected!',
+          array(
+            '@family' => $family['label'],
+            '@product_type' => $family['product_type'],
+            '!count' => $context['sandbox']['progress'] + 1,
+            '!total' => $context['sandbox']['max'],
+          )
+        );
+      }
     }
   }
   catch (Exception $e) {
@@ -162,20 +175,33 @@ function commerce_akeneo_family_load_from_request($request) {
  * @param array $request
  *   Request.
  *
+ * @return bool
+ *   If the familly was modified or not
+ *
  * @throws \CommerceAkeneoException
  */
 function commerce_akeneo_family_product_type_save($family, $request) {
+  if (!isset($request['update_time'])) {
+    $request['update_time'] = 0;
+  }
+
   // Load destination commerce product type.
   if ($settings = commerce_product_type_load($family['product_type'])) {
     $settings['name']   = filter_xss(commerce_akeneo_get_language($request['labels']));
     $settings['is_new'] = FALSE;
+
+    if ($settings['description'] == $request['update_time']) {
+      // No modifications no need to make changes.
+      return FALSE;
+    }
+    $settings['description'] = $request['update_time'];
   }
   else {
     // Create settings for new commerce product type.
     $settings = array(
       'type'         => $family['product_type'],
       'name'         => $family['label'],
-      'description'  => t('Product type created via Akeneo PIM.'),
+      'description'  => time(),
       'help'         => '',
       'revision'     => 1,
       'multilingual' => 4,
@@ -194,6 +220,8 @@ function commerce_akeneo_family_product_type_save($family, $request) {
   if (!commerce_product_ui_product_type_save($settings, TRUE, TRUE)) {
     throw new CommerceAkeneoException(t('Unable to create or update product type.'));
   }
+
+  return TRUE;
 }
 
 /**
@@ -389,7 +417,7 @@ function commerce_akeneo_family_services_family_attribute($family, $attribute, $
     $field = field_create_field($field_settings['field']);
   }
   elseif ($field['type'] != $field_settings['field']['type']) {
-    throw new CommerceAkeneoException(
+    drupal_set_message(
       t(
         'Field type for field "@field" has been changed: "@old" => "@new", which is not supported.',
         array(
@@ -398,7 +426,7 @@ function commerce_akeneo_family_services_family_attribute($family, $attribute, $
           '@new'   => $field_settings['field']['type'],
         )
       ),
-      406
+      'warning'
     );
   }
   elseif ($field['translatable'] != $field_settings['field']['translatable']) {
