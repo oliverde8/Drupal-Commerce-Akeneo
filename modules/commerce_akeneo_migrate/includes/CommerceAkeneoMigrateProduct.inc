@@ -82,6 +82,7 @@ class CommerceAkeneoMigrateProduct extends Migration {
 
     // Drupal commerce fields.
     $this->addFieldMapping('sku', 'sku');
+    $this->addFieldMapping('akeneo_product_id', 'akeneo_product_id');
     // Commerce Price.
     $default_currency = commerce_default_currency();
     // Todo: Point commerce price data to fields.
@@ -98,6 +99,9 @@ class CommerceAkeneoMigrateProduct extends Migration {
     // Association and categories are handle in second time.
     $this->loadFieldsAndPlugins($source_fields, $family, 'category', 'product_category');
     $this->loadFieldsAndPlugins($source_fields, $family, 'association', 'product_association');
+
+//    $queue  = commerce_akeneo_queue_load('product:' . $arguments['code'], FALSE);
+//    $queue->deleteQueue();
 
     $this->source      = new MigrateSourceQueue('product:' . $arguments['code'], $source_fields);
     $this->destination = new MigrateAkeneoDestinationCommerceProduct('commerce_product', $family['product_type']);
@@ -203,6 +207,9 @@ class CommerceAkeneoMigrateProduct extends Migration {
   public function prepareRow($row) {
     global $user;
 
+    /*dpm($row);
+    return false;*/
+
     // Skip invalid products.
     if (empty($row->sku) || !($valid = parent::prepareRow($row))) {
       return FALSE;
@@ -267,6 +274,8 @@ class CommerceAkeneoMigrateProduct extends Migration {
         }
       }
     }
+
+    $entity->akeneo_product_id[LANGUAGE_NONE] = array(array('value' => $row->akeneo_product_id));
 
     if (count($languages)) {
       $language_default = language_default('language');
