@@ -82,7 +82,6 @@ class CommerceAkeneoMigrateProduct extends Migration {
 
     // Drupal commerce fields.
     $this->addFieldMapping('sku', 'sku');
-    $this->addFieldMapping('akeneo_product_id', 'akeneo_product_id');
     // Commerce Price.
     $default_currency = commerce_default_currency();
     // Todo: Point commerce price data to fields.
@@ -160,13 +159,13 @@ class CommerceAkeneoMigrateProduct extends Migration {
         $this->pluginsByFields[$field_name]    = $plugin;
       }
       elseif ($field === NULL) {
-        drupal_set_message(
+        /*drupal_set_message(
           t(
             'Destination field name not found: @field_name (bundle: @bundle)',
             array('@bundle' => $family['product_type'], '@field_name' => $field_name)
           ),
           'warning'
-        );
+        );*/
       }
       else {
         drupal_set_message(
@@ -274,6 +273,7 @@ class CommerceAkeneoMigrateProduct extends Migration {
         }
       }
     }
+
 
     $entity->akeneo_product_id[LANGUAGE_NONE] = array(array('value' => $row->akeneo_product_id));
 
