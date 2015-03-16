@@ -6,17 +6,17 @@
  */
 
 $plugin = array(
-  'name'       => 'text_long',
-  'title'      => t('Text rich'),
+  'name'       => 'text_with_summary',
+  'title'      => t('Text with summary'),
   'weight'     => 10,
-  'class_name' => 'CommerceAkeneoFieldTextLong',
+  'class_name' => 'CommerceAkeneoFieldTextWithSummary',
   'settings'   => array(),
 );
 
 /**
- * Class CommerceAkeneoFieldTextLong
+ * Class CommerceAkeneoFieldTextWithSummary
  */
-class CommerceAkeneoFieldTextLong extends CommerceAkeneoFieldAbstractText {
+class CommerceAkeneoFieldTextWithSummary extends CommerceAkeneoFieldAbstractText {
   /**
    * Map source and destination fields.
    *
