@@ -46,6 +46,9 @@ class CommerceAkeneoAttributePimCatalogTextarea extends CommerceAkeneoAttributeA
     );
 
     // Custom part based on Akeneo information.
+    if (!empty($parameters['wysiwyg'])) {
+      $field_details['field_instance']['settings']['text_processing'] = 1;
+    }
 
     return $field_details;
   }
