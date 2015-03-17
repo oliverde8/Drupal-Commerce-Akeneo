@@ -47,7 +47,7 @@ function commerce_akeneo_taxonomy_handle_service($code, $type, $labels, $values)
   commerce_akeneo_taxonomy_save($taxonomy);
 
   // Save product to Drupal Queue for future Migrate handle.
-  $queue = commerce_akeneo_queue_load($type . ':' . $code, TRUE);
+  $queue = commerce_akeneo_queue_load($type . ':' . $code, TRUE, TRUE);
 
   // Add elements to queue for migrate import.
   foreach ($values as $key => $item) {

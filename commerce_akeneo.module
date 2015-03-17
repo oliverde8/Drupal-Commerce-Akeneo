@@ -213,10 +213,13 @@ function commerce_akeneo_get_language($values, $language = NULL, $fallback = TRU
  * @param bool   $create
  *   Create the queue.
  *
+ * @param bool $reset
+ *    Reset the queue.
+ *
  * @return \DrupalReliableQueueInterface
  *   Queue.
  */
-function commerce_akeneo_queue_load($name, $create = FALSE) {
+function commerce_akeneo_queue_load($name, $create = FALSE, $reset= FALSE) {
   $cid = array(
     'commerce_akeneo',
     drupal_strtolower($name),
@@ -225,9 +228,12 @@ function commerce_akeneo_queue_load($name, $create = FALSE) {
   /* @var DrupalReliableQueueInterface $queue */
   $queue = DrupalQueue::get(implode(':', $cid));
 
-  if ($create) {
+  if ($reset) {
     $queue->createQueue();
     $queue->deleteQueue();
+    $queue->createQueue();
+  }
+  elseif ($create) {
     $queue->createQueue();
   }
 
