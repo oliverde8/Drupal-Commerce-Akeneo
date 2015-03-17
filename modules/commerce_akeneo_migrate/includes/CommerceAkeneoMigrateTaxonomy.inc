@@ -203,6 +203,50 @@ class CommerceAkeneoMigrateTaxonomy extends MigrationTaxonomyTermMachineName {
     //$this->getSource()->deleteItem($row->migrate_source_item_id);
   }
 
+  protected function beginProcess($newStatus) {
+    parent::beginProcess($newStatus);
+
+    // Now force an update process.
+    if ($newStatus == MigrationBase::STATUS_IMPORTING) {
+      $this->prepareUpdate();
+    }
+  }
+
+  public function endProcess() {
+    if ($this->status == MigrationBase::STATUS_IMPORTING) {
+
+      $idlist = $this->getOption('idlist');
+      if ($idlist) {
+        // Make the IDs keys, to more easily identify them
+        $idlist = array_flip(explode(',', $idlist));
+      }
+
+      $destids = array();
+      $sourceids = array();
+
+      // Delete records that we not imported this time around:
+      // They are set to "needs_update=1" although the
+      // whole migration has run through.
+      $rows_to_delete = $this->map->getRowsNeedingUpdate(1000000);
+      foreach ($rows_to_delete as $destination_key) {
+
+        // Note that bulk rollback is only supported for single-column keys
+        if (!empty($destination_key->destid1)) {
+          $destids[] = $destination_key->destid1;
+        }
+      }
+      dpm($destids);
+      migrate_instrument_start('destination bulkRollback');
+      foreach ($destids as $id) {
+        $this->destination->rollback(array($id));
+        $this->map->deleteDestination(array($id));
+      }
+      migrate_instrument_stop('destination bulkRollback');
+    }
+    // Now call our parent.
+    parent::endProcess();
+  }
+
   /**
    * Provide source casted.
    *
