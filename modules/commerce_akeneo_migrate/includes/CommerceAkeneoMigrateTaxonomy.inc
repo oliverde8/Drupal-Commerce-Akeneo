@@ -104,9 +104,9 @@ class CommerceAkeneoMigrateTaxonomy extends MigrationTaxonomyTermMachineName {
     }
 
     if (!$vocabulary = taxonomy_vocabulary_machine_name_load($taxonomy['vocabulary'])) {
-      if (!user_access('administer taxonomy')) {
+      /*if (!user_access('administer taxonomy')) {
         throw new CommerceAkeneoException('Not authorized to create vocabulary.');
-      }
+      }*/
 
       $vocabulary = (object) array(
         'machine_name' => $taxonomy['vocabulary'],
@@ -115,18 +115,18 @@ class CommerceAkeneoMigrateTaxonomy extends MigrationTaxonomyTermMachineName {
       );
     }
 
-    if (user_access('administer taxonomy')) {
+    //if (user_access('administer taxonomy')) {
       // Refresh vocabulary name if changed on Akeneo side.
       $vocabulary->name = $taxonomy['label'];
 
       // Write the vocabulary to the database.
       taxonomy_vocabulary_save($vocabulary);
-    }
+    //}
 
     // Break if not allowed to create terms for this vocabulary.
-    if (!user_access('edit terms in' . $vocabulary->vid)) {
+    /*if (!user_access('edit terms in' . $vocabulary->vid)) {
       throw new CommerceAkeneoException('Not allowed to create terms.');
-    }
+    }*/
 
     // Removes map entries pointing at removed terms.
     $this->map->purgeMissingEntities('taxonomy_term', $this->arguments['bundle']);
@@ -200,7 +200,7 @@ class CommerceAkeneoMigrateTaxonomy extends MigrationTaxonomyTermMachineName {
     }
 
     // Remove processed items from queue.
-    $this->getSource()->deleteItem($row->migrate_source_item_id);
+    //$this->getSource()->deleteItem($row->migrate_source_item_id);
   }
 
   /**

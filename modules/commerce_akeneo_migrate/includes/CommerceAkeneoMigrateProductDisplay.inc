@@ -101,6 +101,9 @@ class CommerceAkeneoMigrateProductDisplay extends Migration {
       )
     );
 
+//    $queue  = commerce_akeneo_queue_load('product_display:' . $arguments['code'], FALSE);
+//    $queue->deleteQueue();
+
     $this->source      = new MigrateSourceQueue('product_display:' . $arguments['code'], $source_fields);
     $this->destination = new MigrateAkeneoDestinationEntityAPI($this->entityType, $this->bundle);
   }
@@ -280,7 +283,7 @@ class CommerceAkeneoMigrateProductDisplay extends Migration {
     }
 
     // Remove processed items from queue.
-    $this->getSource()->deleteItem($row->migrate_source_item_id);
+    // $this->getSource()->deleteItem($row->migrate_source_item_id);
   }
 
   /**

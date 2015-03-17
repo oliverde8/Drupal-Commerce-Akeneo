@@ -227,6 +227,8 @@ function commerce_akeneo_queue_load($name, $create = FALSE) {
 
   if ($create) {
     $queue->createQueue();
+    $queue->deleteQueue();
+    $queue->createQueue();
   }
 
   return $queue;
