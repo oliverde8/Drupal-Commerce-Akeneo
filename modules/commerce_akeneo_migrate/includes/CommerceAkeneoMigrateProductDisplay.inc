@@ -283,7 +283,7 @@ class CommerceAkeneoMigrateProductDisplay extends Migration {
     }
 
     // Remove processed items from queue.
-    // $this->getSource()->deleteItem($row->migrate_source_item_id);
+    $this->getSource()->deleteItem($row->migrate_source_item_id);
   }
 
   /**

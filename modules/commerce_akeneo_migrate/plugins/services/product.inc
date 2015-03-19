@@ -33,9 +33,9 @@ function commerce_akeneo_migrate_services_product($request) {
     return services_error('Missing family.', 406);
   }
 
-  if (!isset($request['labels']) || !is_array($request['labels'])) {
+  /*if (!isset($request['labels']) || !is_array($request['labels'])) {
     return services_error('Missing labels.', 406);
-  }
+  }*/
 
   if (!isset($request['values']) || !is_array($request['values'])) {
     return services_error('Missing values.', 406);

@@ -327,7 +327,7 @@ class CommerceAkeneoMigrateProduct extends Migration {
     $this->productDisplayQueue->createItem($new_row);
 
     // Remove processed items from queue.
-    // $this->getSource()->deleteItem($row->migrate_source_item_id);
+    $this->getSource()->deleteItem($row->migrate_source_item_id);
   }
 
   /**
