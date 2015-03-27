@@ -102,7 +102,6 @@ function commerce_akeneo_migrate_register_option(&$api) {
     // Register all the product migrations.
     foreach ($migrations as $code => $migration) {
       $arguments = array_merge_recursive($migration, $common_arguments);
-
       $api['migrations'][$code] = $arguments;
     }
   }

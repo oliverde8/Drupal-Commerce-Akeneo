@@ -38,6 +38,10 @@ function commerce_akeneo_family_services_family($request) {
   }
 
   try {
+    // Force usage of a single familly type.
+    $request['akeneo_code'] = $request['code'];
+    $request['code'] = 'product';
+
     // Save family details into Drupal Queue for future Migrate handle.
     $queue = commerce_akeneo_queue_load('family', TRUE);
 

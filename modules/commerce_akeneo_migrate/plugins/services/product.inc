@@ -42,6 +42,9 @@ function commerce_akeneo_migrate_services_product($request) {
   }
 
   try {
+    // Force usage of one familly
+    $request['family'] = "product";
+
     // Secure family name.
     $family = check_plain($request['family']);
 

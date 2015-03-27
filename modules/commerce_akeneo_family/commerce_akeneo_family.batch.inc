@@ -190,13 +190,17 @@ function commerce_akeneo_family_product_type_save($family, $request) {
     $settings['name']   = filter_xss(commerce_akeneo_get_language($request['labels']));
     $settings['is_new'] = FALSE;
 
-    if ($settings['description'] == $request['update_time']) {
+    $update_time_variable = "commerce_akeneo_familly_update_time_" . strtolower($request['akeneo_code']);
+    $last_update_time = variable_get($update_time_variable, 0);
+
+    if ($last_update_time == $request['update_time']) {
       // No modifications no need to make changes.
       return FALSE;
     }
-    $settings['description'] = $request['update_time'];
+    variable_set($update_time_variable, $request['update_time']);
   }
   else {
+    die("WTF");
     // Create settings for new commerce product type.
     $settings = array(
       'type'         => $family['product_type'],
@@ -339,9 +343,14 @@ function commerce_akeneo_family_services_family_attributes($family, $request) {
       $values['field_name'] = commerce_akeneo_get_machine_name($values['code'], $type);
     }
 
-    // Save updates.
-    commerce_akeneo_attribute_save($values);
-    $attributes[$pos] = $values;
+    if ($values['field_name']) {
+      // Save updates.
+      commerce_akeneo_attribute_save($values);
+      $attributes[$pos] = $values;
+    }
+    else {
+      unset($attributes[$pos]);
+    }
   }
 
   // Contains only mapped attributes / fields.
