@@ -133,6 +133,13 @@ class MigrateSourceQueue extends MigrateSource {
   }
 
   /**
+   * Delete the queue.
+   */
+  public function deleteQueue() {
+    $this->queue->deleteQueue();
+  }
+
+  /**
    * Release item in the queue.
    *
    * @param int $item_id
