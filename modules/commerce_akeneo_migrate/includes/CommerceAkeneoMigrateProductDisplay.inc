@@ -291,5 +291,6 @@ class CommerceAkeneoMigrateProductDisplay extends Migration {
    */
   protected function postImport() {
     $this->getSource()->releaseItems();
+    $this->getSource()->deleteQueue();
   }
 }

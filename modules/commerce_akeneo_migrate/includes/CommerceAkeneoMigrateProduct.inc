@@ -335,6 +335,7 @@ class CommerceAkeneoMigrateProduct extends Migration {
    */
   protected function postImport() {
     $this->getSource()->releaseItems();
+    $this->getSource()->deleteQueue();
 
     // Links products if not created before.
     $limit = 10;
