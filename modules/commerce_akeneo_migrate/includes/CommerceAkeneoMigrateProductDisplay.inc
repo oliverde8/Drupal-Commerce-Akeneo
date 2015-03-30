@@ -104,7 +104,7 @@ class CommerceAkeneoMigrateProductDisplay extends Migration {
 //    $queue  = commerce_akeneo_queue_load('product_display:' . $arguments['code'], FALSE);
 //    $queue->deleteQueue();
 
-    $this->source      = new MigrateSourceQueue('product_display:' . $arguments['code'], $source_fields);
+    $this->source      = new MigrateSourceGroupsQueue('product_display:' . $arguments['code'], $source_fields);
     $this->destination = new MigrateAkeneoDestinationEntityAPI($this->entityType, $this->bundle);
   }
 
@@ -155,7 +155,8 @@ class CommerceAkeneoMigrateProductDisplay extends Migration {
 
         if ($field['type'] == 'commerce_product_reference' &&
           isset($field['bundles'][$entity_type]) &&
-          array_search($bundle, $field['bundles'][$entity_type], TRUE) !== FALSE
+          array_search($bundle, $field['bundles'][$entity_type], TRUE) !== FALSE &&
+          ($field['cardinality'] > 1 || $field['cardinality'] == -1)
         ) {
           $availables[] = $field;
         }
@@ -172,7 +173,8 @@ class CommerceAkeneoMigrateProductDisplay extends Migration {
 
       if ($field['type'] == 'commerce_product_reference' &&
         isset($field['bundles'][$entity_type]) &&
-        array_search($bundle, $field['bundles'][$entity_type], TRUE) !== FALSE
+        array_search($bundle, $field['bundles'][$entity_type], TRUE) !== FALSE &&
+        ($field['cardinality'] > 1 || $field['cardinality'] == -1)
       ) {
         return $field;
       }
@@ -232,11 +234,6 @@ class CommerceAkeneoMigrateProductDisplay extends Migration {
     $row->created = REQUEST_TIME;
     $row->label   = $row->product_row->label;
 
-    // Skip products parts of group.
-    if (!empty($row->groups) && variable_get('commerce_akeneo_migrate_product_display_import_group', FALSE)) {
-      return FALSE;
-    }
-
     foreach (module_implements('commerce_akeneo_migrate_product_display_prepare_row') as $module) {
       if (module_invoke($module, 'commerce_akeneo_migrate_product_display_prepare_row', $row) === FALSE) {
         return FALSE;
@@ -270,12 +267,10 @@ class CommerceAkeneoMigrateProductDisplay extends Migration {
    */
   public function complete($entity, $row) {
     $wrapper = entity_metadata_wrapper($this->entityType, $entity);
-    if ($this->field['cardinality'] == 1) {
-      $wrapper->{$this->field['field_name']}->set($row->product_id);
-    }
-    else {
-      $wrapper->{$this->field['field_name']}->set(array($row->product_id));
-    }
+
+    $ids = array_unique($row->product_ids);
+    $wrapper->{$this->field['field_name']}->set($ids);
+
     $wrapper->save();
 
     foreach (module_implements('commerce_akeneo_migrate_product_display_complete') as $module) {
@@ -283,7 +278,7 @@ class CommerceAkeneoMigrateProductDisplay extends Migration {
     }
 
     // Remove processed items from queue.
-    $this->getSource()->deleteItem($row->migrate_source_item_id);
+    $this->getSource()->deleteItem($row);
   }
 
   /**
