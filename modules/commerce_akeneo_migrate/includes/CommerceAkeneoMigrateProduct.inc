@@ -74,6 +74,7 @@ class CommerceAkeneoMigrateProduct extends Migration {
     // Common field or properties.
     $this->addFieldMapping('uid')->defaultValue($user->uid);
     $this->addFieldMapping('title', 'label');
+    $this->addFieldMapping('field_bio', 'field_bio');
     $this->addFieldMapping('status', 'status');
     $this->addFieldMapping('created', 'created');
     $this->addFieldMapping('changed', 'updated');
