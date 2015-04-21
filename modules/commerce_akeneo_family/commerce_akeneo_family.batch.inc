@@ -60,9 +60,6 @@ function commerce_akeneo_family_batch_process($queue, &$context) {
         // Handle fields, categories and associations.
         commerce_akeneo_family_services_family_attributes($family, $request);
 
-        // Remote item from queue due to correct handle.
-        $queue->deleteItem($item);
-
         $context['message'] = t(
           'Processed family "@family" as [@product_type] product type (!count/!total).',
           array(
@@ -84,6 +81,9 @@ function commerce_akeneo_family_batch_process($queue, &$context) {
           )
         );
       }
+
+      // Remote item from queue due to correct handle.
+      $queue->deleteItem($item);
     }
   }
   catch (Exception $e) {
