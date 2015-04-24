@@ -65,11 +65,11 @@ class CommerceAkeneoFieldListBoolean extends CommerceAkeneoFieldAbstract {
           foreach ($values as $value) {
             switch ($attribute['type']) {
               case 'pim_catalog_boolean':
-                $properties[$field_name . '_value'][$language][] = (bool) $value['value'];
+                $properties[$field_name . '_value'][$language][] = ((bool) $value['value']) ? 1 : 0;
                 break;
 
               default:
-                $properties[$field_name . '_value'][$language][] = (bool) $value['value'];
+                $properties[$field_name . '_value'][$language][] = ((bool) $value['value']) ? 1 : 0;
                 break;
             }
           }
