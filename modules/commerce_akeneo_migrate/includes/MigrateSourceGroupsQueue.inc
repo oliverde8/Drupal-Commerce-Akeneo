@@ -56,24 +56,21 @@ class MigrateSourceGroupsQueue extends MigrateSource {
     }
 
     foreach ($this->groups as $group) {
-      if (count($group->product_ids) > 1) {
+      // Variation import need special treatment for sku field.
+      $query = new EntityFieldQuery();
+      $entities = $query->entityCondition('entity_type', 'node')
+        ->entityCondition('bundle', "product_display")
+        ->fieldCondition('field_variation', 'product_id', $group->product_ids, 'IN')
+        ->execute();
 
-        // Variation import need special treatment for sku field.
-        $query = new EntityFieldQuery();
-        $entities = $query->entityCondition('entity_type', 'node')
-          ->entityCondition('bundle', "product_display")
-          ->fieldCondition('field_variation', 'product_id', $group->product_ids, 'IN')
-          ->execute();
+      if (isset($entities['node'])) {
+        $ids = array_keys($entities['node']);
+        $result = db_query('SELECT sourceid1 FROM migrate_map_commerceakeneomigrateproductdisplayproduct
+          WHERE destid1 = '.$ids[0]
+        )->fetchField();
 
-        if (isset($entities['node'])) {
-          $ids = array_keys($entities['node']);
-          $result = db_query('SELECT sourceid1 FROM migrate_map_commerceakeneomigrateproductdisplayproduct
-            WHERE destid1 = '.$ids[0]
-          )->fetchField();
-
-          if ($result) {
-            $group->sku = $result;
-          }
+        if ($result) {
+          $group->sku = $result;
         }
       }
     }
